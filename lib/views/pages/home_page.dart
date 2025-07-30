@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
               children: [PointbuttonWidget(point: 80)],
             ),
             SizedBox(height: 10.0),
-            ContainerWidget(title: "제목", description: '설명입니다'),
+            ContainerWidget(title: "BET U", description: '당신에게 베팅하세요!'),
             SizedBox(height: 10.0),
             Text('테마'),
             SizedBox(height: 10.0),

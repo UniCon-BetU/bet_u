@@ -1,26 +1,13 @@
-import 'package:bet_u/views/widget_tree.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController controllerEmail = TextEditingController(text: '123');
-  TextEditingController controllerPw = TextEditingController(text: '456');
-  String confirmedEmail = '123';
-  String confirmedPw = '456';
-
-  @override
-  void dispose() {
-    controllerEmail.dispose();
-    controllerPw.dispose();
-    super.dispose();
-  }
-
+class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextField(
-                      controller: controllerEmail,
                       decoration: InputDecoration(
                         hintText: '이메일',
                         border: OutlineInputBorder(
@@ -48,7 +34,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 10.0),
                     TextField(
-                      controller: controllerPw,
                       decoration: InputDecoration(
                         hintText: '비밀번호',
                         border: OutlineInputBorder(
@@ -62,12 +47,12 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 20.0),
                     FilledButton(
                       onPressed: () {
-                        onLoginPressed();
+                        onRegisterPressed();
                       },
                       style: FilledButton.styleFrom(
                         minimumSize: Size(double.infinity, 40.0),
                       ),
-                      child: Text('로그인'),
+                      child: Text('가입하기'),
                     ),
                     SizedBox(height: 50.0),
                   ],
@@ -80,18 +65,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void onLoginPressed() {
-    if (confirmedEmail == controllerEmail.text &&
-        confirmedPw == controllerPw.text) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return WidgetTree();
-          },
-        ),
-        (route) => false,
-      );
-    }
+  void onRegisterPressed() {
   }
 }

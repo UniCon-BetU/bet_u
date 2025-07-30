@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/community_page.dart';
 import 'package:bet_u/views/pages/theme_page.dart';
 import 'package:bet_u/views/widgets/container_widget.dart';
 import 'package:bet_u/views/widgets/pointbutton_widget.dart';
@@ -75,6 +76,23 @@ class HomePage extends StatelessWidget {
                     child: ThemecardWidget(icon: Icons.book, title: '공부'),
                   ),
                 ],
+              ),
+            ),
+            SizedBox(height: 20.0),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return CommunityPage();
+                    },
+                  ),
+                );
+              },
+              child: ContainerWidget(
+                title: "커뮤니티",
+                description: '다른 도전자들과 소통해요',
               ),
             ),
           ],

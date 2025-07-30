@@ -1,8 +1,10 @@
 import 'package:bet_u/data/notifiers.dart';
+import 'package:bet_u/views/pages/home_page.dart';
+import 'package:bet_u/views/pages/profile_page.dart';
 import 'package:bet_u/views/widgets/navbar_widget.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> pages = [];
+List<Widget> pages = [HomePage(), ProfilePage()];
 
 class WidgetTree extends StatelessWidget {
   const WidgetTree({super.key});

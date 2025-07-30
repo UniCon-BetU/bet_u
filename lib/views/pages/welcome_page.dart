@@ -1,3 +1,4 @@
+import 'package:bet_u/views/widget_tree.dart';
 import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -25,7 +26,16 @@ class WelcomePage extends StatelessWidget {
                 ),
                 SizedBox(height: 20.0),
                 FilledButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return WidgetTree();
+                        },
+                      ),
+                    );
+                  },
                   style: FilledButton.styleFrom(
                     minimumSize: Size(double.infinity, 40.0),
                   ),

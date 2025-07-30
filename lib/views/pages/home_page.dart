@@ -1,4 +1,5 @@
 import 'package:bet_u/views/widgets/container_widget.dart';
+import 'package:bet_u/views/widgets/themecard_widget.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -12,8 +13,22 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             SizedBox(height: 10.0),
-            SizedBox(height: 5.0),
             ContainerWidget(title: "제목", description: '설명입니다'),
+            SizedBox(height: 10.0),
+            Text('테마'),
+            SizedBox(height: 10.0),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ThemecardWidget(icon: Icons.directions_run, title: '헬스 케어'),
+                  SizedBox(width: 12),
+                  ThemecardWidget(icon: Icons.bed, title: '일상'),
+                  SizedBox(width: 12),
+                  ThemecardWidget(icon: Icons.book, title: '공부'),
+                ],
+              ),
+            ),
           ],
         ),
       ),

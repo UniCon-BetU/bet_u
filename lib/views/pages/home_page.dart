@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/theme_page.dart';
 import 'package:bet_u/views/widgets/container_widget.dart';
 import 'package:bet_u/views/widgets/pointbutton_widget.dart';
 import 'package:bet_u/views/widgets/themecard_widget.dart';
@@ -26,11 +27,53 @@ class HomePage extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  ThemecardWidget(icon: Icons.directions_run, title: '헬스 케어'),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ThemePage(
+                              title: '운동',
+                              icon: Icons.directions_run,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: ThemecardWidget(
+                      icon: Icons.directions_run,
+                      title: '운동',
+                    ),
+                  ),
                   SizedBox(width: 12),
-                  ThemecardWidget(icon: Icons.bed, title: '일상'),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ThemePage(title: '일상', icon: Icons.bed);
+                          },
+                        ),
+                      );
+                    },
+                    child: ThemecardWidget(icon: Icons.bed, title: '일상'),
+                  ),
                   SizedBox(width: 12),
-                  ThemecardWidget(icon: Icons.book, title: '공부'),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ThemePage(title: '공부', icon: Icons.book);
+                          },
+                        ),
+                      );
+                    },
+                    child: ThemecardWidget(icon: Icons.book, title: '공부'),
+                  ),
                 ],
               ),
             ),

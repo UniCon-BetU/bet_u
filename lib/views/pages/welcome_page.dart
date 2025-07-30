@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/login_page.dart';
 import 'package:bet_u/views/widget_tree.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,16 @@ class WelcomePage extends StatelessWidget {
                   child: Text('시작하기'),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return LoginPage();
+                        },
+                      ),
+                    );
+                  },
                   style: FilledButton.styleFrom(
                     minimumSize: Size(double.infinity, 40.0),
                   ),

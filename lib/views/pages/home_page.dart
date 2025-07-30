@@ -1,4 +1,5 @@
 import 'package:bet_u/views/widgets/container_widget.dart';
+import 'package:bet_u/views/widgets/pointbutton_widget.dart';
 import 'package:bet_u/views/widgets/themecard_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,10 @@ class HomePage extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [PointbuttonWidget(point: 80)],
+            ),
             SizedBox(height: 10.0),
             ContainerWidget(title: "제목", description: '설명입니다'),
             SizedBox(height: 10.0),

@@ -17,39 +17,40 @@ class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // 프로필 이미지
+            // 📌 [API 연동] 사용자 프로필 이미지 URL이 백엔드에서 오면 NetworkImage 등으로 교체
             const CircleAvatar(
               radius: 50,
               backgroundImage: AssetImage('assets/images/lettuce_profile.png'),
             ),
             const SizedBox(height: 10),
 
+            // 📌 [API 연동] 사용자 이름 (예: '고연오 님') 도 서버에서 받아온 데이터로 표시
             const Text(
               '고연오 님',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
 
-            // 진행 중인 챌린지
+            // 📌 [API 연동] 진행 중인 챌린지 정보 - 백엔드에서 받아와서 유동적으로 표시
             const TossStyleCard(
               title: '진행 중인 챌린지',
-              description: '운동 루틴 챌린지 (D+5)',
+              description: '운동 루틴 챌린지 (D+5)', // ← API로 대체
               icon: Icons.directions_run,
             ),
             const SizedBox(height: 15),
 
-            // 내 그룹
+            // 📌 [API 연동] 내 그룹 정보 - 그룹명이랑 상태 백엔드에서 받아오기
             const TossStyleCard(
               title: '내 그룹',
-              description: '헬창들의 모임',
+              description: '헬창들의 모임', // ← API로 대체
               icon: Icons.group,
             ),
             const SizedBox(height: 15),
 
-            // 포인트
+            // 📌 [API 연동] 포인트 정보 - 포인트 값도 서버에서 받아오기
             const TossStyleCard(
               title: '포인트',
-              description: '1,200 P',
+              description: '1,200 P', // ← API로 대체
               icon: Icons.stars,
             ),
           ],

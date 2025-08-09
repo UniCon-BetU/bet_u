@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.bet_u"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"  // 직접 지정
+    ndkVersion = flutter.ndkVersion 
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

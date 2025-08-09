@@ -12,6 +12,8 @@ class NavbarWidget extends StatelessWidget {
         return NavigationBar(
           destinations: [
             NavigationDestination(icon: Icon(Icons.home), label: '홈'),
+            NavigationDestination(icon: Icon(Icons.flag), label: '챌린지'),
+            NavigationDestination(icon: Icon(Icons.people), label: '커뮤니티'),
             NavigationDestination(icon: Icon(Icons.person), label: '프로필'),
           ],
           onDestinationSelected: (int value) {

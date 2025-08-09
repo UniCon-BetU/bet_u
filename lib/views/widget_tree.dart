@@ -1,11 +1,18 @@
 import 'package:bet_u/data/notifiers.dart';
+import 'package:bet_u/views/pages/challenge_page.dart';
+import 'package:bet_u/views/pages/community_page.dart';
 import 'package:bet_u/views/pages/home_page.dart';
 import 'package:bet_u/views/pages/profile_page.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import 'package:bet_u/views/widgets/navbar_widget.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> pages = [HomePage(), ProfilePage()];
+List<Widget> pages = [
+  HomePage(),
+  ChallengePage(),
+  CommunityPage(),
+  ProfilePage(),
+];
 
 class WidgetTree extends StatelessWidget {
   const WidgetTree({super.key});

@@ -48,7 +48,7 @@ class ProfilePage extends StatelessWidget {
                   const Text('아직 진행중인 챌린지가 없어요'),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/my_challenge');
+                      Navigator.pushNamed(context, '/challenge');
                     },
                     child: const Text('챌린지 시작하기'),
                   ),

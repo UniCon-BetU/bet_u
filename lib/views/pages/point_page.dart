@@ -46,6 +46,15 @@ class _PointPageState extends State<PointPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+      title: const Text('포인트 결제'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context); // 🔹 [뒤로가기 동작]
+        },
+      ),
+    ),
       body: SafeArea(
         child: Column(
           children: [

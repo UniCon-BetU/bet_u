@@ -5,6 +5,9 @@ class ChallengePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(title: Text('Challenge')),
+      body: Center(child: Text('챌린지 페이지')),
+    );
   }
 }

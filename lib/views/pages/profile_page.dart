@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:bet_u/views/pages/point_page.dart';
+import 'package:bet_u/views/pages/my_challenge_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final bool hasChallenge = true;
   final bool hasGroup = false;
-  final String currentChallenge = '운동 루틴 챌린지';
-  final String currentGroup = '헬창들의 모임';
+  final String currentChallenge = '공부 루틴 챌린지 등 1건';
+  final String currentGroup = '강대 5반';
   final int points = 1200;
 
   const ProfilePage({super.key});
@@ -31,21 +33,22 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 30),
 
             if (hasChallenge)
-              TossStyleCard(
-                title: '진행 중인 챌린지',
-                description: currentChallenge,
-                icon: Icons.directions_run,
-                onTap: () {
-                  Navigator.pushNamed(context, '/challenge');
-                },
-              )
+            TossStyleCard(
+              title: '진행 중인 챌린지',
+              description: currentChallenge,
+              icon: Icons.directions_run,
+              onTap: () {
+                Navigator.pushNamed(context, '/my_challenge');
+              },
+            )
+
             else
               Column(
                 children: [
                   const Text('아직 진행중인 챌린지가 없어요'),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/challenge');
+                      Navigator.pushNamed(context, '/my_challenge');
                     },
                     child: const Text('챌린지 시작하기'),
                   ),
@@ -120,9 +123,15 @@ class ProfileHeader extends StatelessWidget {
             Text('포인트: $points P', style: const TextStyle(fontSize: 16)),
             IconButton(
               icon: const Icon(Icons.add_circle_outline),
-              onPressed: onChargePressed,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PointPage()),
+                );
+              },
               tooltip: '포인트 충전',
             ),
+
           ],
         ),
       ],

@@ -1,5 +1,8 @@
 import 'package:bet_u/views/pages/welcome_page.dart';
+import 'package:bet_u/views/pages/challenge_page.dart'; // 추가해야 함
 import 'package:flutter/material.dart';
+import 'package:bet_u/views/pages/my_challenge_page.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +25,9 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
       ),
       home: const WelcomePage(),
+      routes: {
+        '/my_challenge': (context) => const MyChallengePage(),
+      },
     );
   }
 }

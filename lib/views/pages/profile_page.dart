@@ -1,61 +1,131 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
+  final bool hasChallenge = true;
+  final bool hasGroup = false;
+  final String currentChallenge = '운동 루틴 챌린지';
+  final String currentGroup = '헬창들의 모임';
+  final int points = 1200;
+
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7), // 토스 느낌 배경
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: const Text('마이페이지', style: TextStyle(color: Colors.black)),
+        title: const Text('마이페이지'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // 📌 [API 연동] 사용자 프로필 이미지 URL이 백엔드에서 오면 NetworkImage 등으로 교체
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/lettuce_profile.png'),
-            ),
-            const SizedBox(height: 10),
-
-            // 📌 [API 연동] 사용자 이름 (예: '고연오 님') 도 서버에서 받아온 데이터로 표시
-            const Text(
-              '고연오 님',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ProfileHeader(
+              points: points,
+              userName: '고연오 님',
+              ongoingChallengesCount: hasChallenge ? 1 : 0,
+              onChargePressed: () {
+                Navigator.pushNamed(context, '/charge'); // 충전소 이동 경로
+              },
             ),
             const SizedBox(height: 30),
 
-            // 📌 [API 연동] 진행 중인 챌린지 정보 - 백엔드에서 받아와서 유동적으로 표시
-            const TossStyleCard(
-              title: '진행 중인 챌린지',
-              description: '운동 루틴 챌린지 (D+5)', // ← API로 대체
-              icon: Icons.directions_run,
-            ),
-            const SizedBox(height: 15),
+            if (hasChallenge)
+              TossStyleCard(
+                title: '진행 중인 챌린지',
+                description: currentChallenge,
+                icon: Icons.directions_run,
+                onTap: () {
+                  Navigator.pushNamed(context, '/challenge');
+                },
+              )
+            else
+              Column(
+                children: [
+                  const Text('아직 진행중인 챌린지가 없어요'),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/challenge');
+                    },
+                    child: const Text('챌린지 시작하기'),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 30),
 
-            // 📌 [API 연동] 내 그룹 정보 - 그룹명이랑 상태 백엔드에서 받아오기
-            const TossStyleCard(
-              title: '내 그룹',
-              description: '헬창들의 모임', // ← API로 대체
-              icon: Icons.group,
-            ),
-            const SizedBox(height: 15),
-
-            // 📌 [API 연동] 포인트 정보 - 포인트 값도 서버에서 받아오기
-            const TossStyleCard(
-              title: '포인트',
-              description: '1,200 P', // ← API로 대체
-              icon: Icons.stars,
-            ),
+            if (hasGroup)
+              TossStyleCard(
+                title: '내 그룹',
+                description: currentGroup,
+                icon: Icons.group,
+                onTap: () {
+                  Navigator.pushNamed(context, '/community');
+                },
+              )
+            else
+              Column(
+                children: [
+                  const Text('아직 그룹이 없어요'),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/community');
+                    },
+                    child: const Text('그룹 찾기'),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class ProfileHeader extends StatelessWidget {
+  final int points;
+  final String userName;
+  final int ongoingChallengesCount;
+  final VoidCallback onChargePressed;
+
+  const ProfileHeader({
+    super.key,
+    required this.points,
+    required this.userName,
+    required this.ongoingChallengesCount,
+    required this.onChargePressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const CircleAvatar(
+          radius: 50,
+          backgroundImage: AssetImage('assets/images/lettuce_profile.png'),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text('참여중인 챌린지 $ongoingChallengesCount개', style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+        Row(
+          children: [
+            Text('포인트: $points P', style: const TextStyle(fontSize: 16)),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              onPressed: onChargePressed,
+              tooltip: '포인트 충전',
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -64,54 +134,44 @@ class TossStyleCard extends StatelessWidget {
   final String title;
   final String description;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const TossStyleCard({
     super.key,
     required this.title,
     required this.description,
     required this.icon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.blueAccent, size: 30),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.blueAccent, size: 30),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.chevron_right, color: Colors.grey),
-        ],
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }

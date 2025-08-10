@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '/models/challenge.dart';
 import 'challenge_tile_widget.dart';
 
-class MyChallengesSection extends StatefulWidget {
+class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;
-  const MyChallengesSection({super.key, required this.items});
+  const ChallengeSectionWidget({super.key, required this.items});
 
   @override
-  State<MyChallengesSection> createState() => _MyChallengesSectionState();
+  State<ChallengeSectionWidget> createState() => _ChallengeSectionWidgetState();
 }
 
-class _MyChallengesSectionState extends State<MyChallengesSection> {
+class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   final _pc = PageController(viewportFraction: 1.0);
   int _page = 0;
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/point_page.dart';
-import 'package:bet_u/views/pages/my_challenge_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final bool hasChallenge = true;
@@ -14,10 +13,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('마이페이지'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('마이페이지'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -33,15 +29,14 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 30),
 
             if (hasChallenge)
-            TossStyleCard(
-              title: '진행 중인 챌린지',
-              description: currentChallenge,
-              icon: Icons.directions_run,
-              onTap: () {
-                Navigator.pushNamed(context, '/my_challenge');
-              },
-            )
-
+              TossStyleCard(
+                title: '진행 중인 챌린지',
+                description: currentChallenge,
+                icon: Icons.directions_run,
+                onTap: () {
+                  Navigator.pushNamed(context, '/my_challenge');
+                },
+              )
             else
               Column(
                 children: [
@@ -112,9 +107,18 @@ class ProfileHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                userName,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('참여중인 챌린지 $ongoingChallengesCount개', style: const TextStyle(fontSize: 16)),
+              Text(
+                '참여중인 챌린지 $ongoingChallengesCount개',
+                style: const TextStyle(fontSize: 16),
+              ),
             ],
           ),
         ),
@@ -131,7 +135,6 @@ class ProfileHeader extends StatelessWidget {
               },
               tooltip: '포인트 충전',
             ),
-
           ],
         ),
       ],
@@ -161,7 +164,13 @@ class TossStyleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         child: Row(
@@ -172,9 +181,18 @@ class TossStyleCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Text(
+                    description,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
                 ],
               ),
             ),

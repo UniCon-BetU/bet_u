@@ -31,13 +31,11 @@ class ChallengeTileWidget extends StatelessWidget {
     final Widget trailing =
         trailingOverride ??
         Icon(
-          c.status == ChallengeStatus.inProgress
-              ? Icons.check_box_outlined
-              : c.status == ChallengeStatus.done
-              ? Icons.check_box
-              : Icons.indeterminate_check_box,
+          c.status == ChallengeStatus.missed
+              ? Icons.indeterminate_check_box
+              : Icons.check_box,
           size: 24,
-          color: c.status == ChallengeStatus.inProgress
+          color: c.status == ChallengeStatus.done
               ? Colors.redAccent
               : Colors.black54,
         );

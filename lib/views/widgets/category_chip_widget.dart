@@ -18,11 +18,7 @@ class CategoryChipWidget extends StatelessWidget {
         color: const Color(0xFF2DBA41),
         borderRadius: BorderRadius.circular(14),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          )
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
       child: Row(
@@ -36,10 +32,7 @@ class CategoryChipWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           const Icon(Icons.people, size: 14, color: Colors.white),
-          Text(
-            ' $count',
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text(' $count', style: const TextStyle(color: Colors.white)),
         ],
       ),
     );

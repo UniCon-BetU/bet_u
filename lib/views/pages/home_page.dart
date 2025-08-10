@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import '../../models/category.dart';
 import '../widgets/challenge_section_widget.dart';
-import '../widgets/category_chip_widget.dart';
 import '../widgets/popular_section_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -19,8 +18,18 @@ class HomePage extends StatelessWidget {
     ];
 
     final ranking = [
-      Challenge(title: '수능 국어 1일 3지문', participants: 1723, day: 12, status: ChallengeStatus.inProgress),
-      Challenge(title: '수능 국어 1일 3지문', participants: 1723, day: 12, status: ChallengeStatus.inProgress),
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.inProgress,
+      ),
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.inProgress,
+      ),
     ];
 
     return Padding(

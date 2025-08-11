@@ -55,8 +55,6 @@ class ChallengeDetailPage extends StatelessWidget {
         return '완료';
       case ChallengeStatus.missed:
         return '미참여';
-      default:
-        return '';
-    }
+      }
   }
 }

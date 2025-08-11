@@ -1,26 +1,6 @@
 import 'package:flutter/material.dart';
-
-class Challenge {
-  final String title;
-  final int participants;
-  final int day;
-  final ChallengeStatus status;
-  final String category;
-  final DateTime createdAt;
-  final int popularity;
-
-  Challenge({
-    required this.title,
-    required this.participants,
-    required this.day,
-    required this.status,
-    required this.category,
-    required this.createdAt,
-    required this.popularity,
-  });
-}
-
-enum ChallengeStatus { inProgress, done, missed }
+import 'global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
+import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
 
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
@@ -30,80 +10,29 @@ class ChallengePage extends StatefulWidget {
 }
 
 class _ChallengePageState extends State<ChallengePage> {
-  final List<Challenge> allChallenges = [
-    Challenge(
-      title: '수능 국어 1일 3지문',
-      participants: 1723,
-      day: 12,
-      status: ChallengeStatus.inProgress,
-      category: '공부',
-      createdAt: DateTime(2025, 7, 1),
-      popularity: 120,
-    ),
-    Challenge(
-      title: '영어 단어 30개 암기',
-      participants: 2105,
-      day: 30,
-      status: ChallengeStatus.inProgress,
-      category: '공부',
-      createdAt: DateTime(2025, 6, 15),
-      popularity: 230,
-    ),
-    Challenge(
-      title: '수학 문제집 하루 20문제',
-      participants: 1980,
-      day: 20,
-      status: ChallengeStatus.done,
-      category: '공부',
-      createdAt: DateTime(2025, 6, 20),
-      popularity: 180,
-    ),
-    Challenge(
-      title: '조깅 30분 걷기',
-      participants: 1120,
-      day: 10,
-      status: ChallengeStatus.inProgress,
-      category: '운동',
-      createdAt: DateTime(2025, 5, 30),
-      popularity: 80,
-    ),
-    Challenge(
-      title: '물 2리터 마시기',
-      participants: 1320,
-      day: 25,
-      status: ChallengeStatus.missed,
-      category: '생활습관',
-      createdAt: DateTime(2025, 7, 3),
-      popularity: 90,
-    ),
-  ];
-
   String selectedCategory = '전체';
   String searchQuery = '';
   bool sortByPopularity = false;
 
-  List<String> categories = ['전체', '공부', '운동', '생활습관'];
+  final List<String> categories = ['전체', '공부', '운동', '생활습관'];
 
   List<Challenge> get filteredChallenges {
     List<Challenge> filtered = allChallenges;
 
-    // 카테고리 필터링
     if (selectedCategory != '전체') {
-      filtered = filtered
-          .where((c) => c.category == selectedCategory)
-          .toList();
+      filtered = filtered.where((c) => c.category == selectedCategory).toList();
     }
 
-    // 검색어 필터링
     if (searchQuery.isNotEmpty) {
       filtered = filtered
-          .where((c) =>
-              c.title.contains(searchQuery) ||
-              c.category.contains(searchQuery))
+          .where(
+            (c) =>
+                c.title.contains(searchQuery) ||
+                c.category.contains(searchQuery),
+          )
           .toList();
     }
 
-    // 정렬
     if (sortByPopularity) {
       filtered.sort((a, b) => b.popularity.compareTo(a.popularity));
     } else {
@@ -112,164 +41,6 @@ class _ChallengePageState extends State<ChallengePage> {
 
     return filtered;
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('챌린지')),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // 검색창
-            TextField(
-              decoration: InputDecoration(
-                hintText: '챌린지를 검색하세요',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-            ),
-
-            const SizedBox(height: 12),
-
-            // 카테고리 분류칸 (가로 스크롤)
-            SizedBox(
-              height: 36,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final cat = categories[index];
-                  final isSelected = cat == selectedCategory;
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedCategory = cat;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Colors.blueAccent
-                            : Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        cat,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            // 정렬 버튼 Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      sortByPopularity = false;
-                    });
-                  },
-                  icon: Icon(Icons.new_releases,
-                      color:
-                          sortByPopularity ? Colors.grey : Colors.blueAccent),
-                  label: Text(
-                    '최신순',
-                    style: TextStyle(
-                        color: sortByPopularity
-                            ? Colors.grey
-                            : Colors.blueAccent),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      sortByPopularity = true;
-                    });
-                  },
-                  icon: Icon(Icons.thumb_up,
-                      color:
-                          sortByPopularity ? Colors.blueAccent : Colors.grey),
-                  label: Text(
-                    '인기순',
-                    style: TextStyle(
-                        color: sortByPopularity
-                            ? Colors.blueAccent
-                            : Colors.grey),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            // 챌린지 리스트 (Expanded + ListView)
-            Expanded(
-              child: filteredChallenges.isEmpty
-                  ? Center(
-                      child: Text(
-                        '조건에 맞는 챌린지가 없습니다.',
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: filteredChallenges.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final challenge = filteredChallenges[index];
-
-                        return ChallengeCard(
-                          challenge: challenge,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('${challenge.title} 선택됨')),
-                            );
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ChallengeCard extends StatelessWidget {
-  final Challenge challenge;
-  final VoidCallback onTap;
-
-  const ChallengeCard({
-    super.key,
-    required this.challenge,
-    required this.onTap,
-  });
 
   Color getStatusColor(ChallengeStatus status) {
     switch (status) {
@@ -295,63 +66,207 @@ class ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
+    return Scaffold(
+      appBar: AppBar(title: const Text('챌린지')),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
           children: [
-            // 상태 색상 표시하는 원
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: getStatusColor(challenge.status),
-                shape: BoxShape.circle,
+            // 검색창
+            TextField(
+              decoration: InputDecoration(
+                hintText: '챌린지를 검색하세요',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // 카테고리 선택 가로 리스트
+            SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final cat = categories[index];
+                  final isSelected = cat == selectedCategory;
+
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedCategory = cat;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Colors.blueAccent
+                            : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        cat,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-            const SizedBox(width: 12),
 
-            // 텍스트 영역
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    challenge.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
+            const SizedBox(height: 12),
+
+            // 정렬 버튼
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      sortByPopularity = false;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.new_releases,
+                    color: sortByPopularity ? Colors.grey : Colors.blueAccent,
+                  ),
+                  label: Text(
+                    '최신순',
+                    style: TextStyle(
+                      color: sortByPopularity ? Colors.grey : Colors.blueAccent,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${challenge.participants}명 참가 · ${challenge.day}일',
-                    style: TextStyle(color: Colors.grey.shade600),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      sortByPopularity = true;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.thumb_up,
+                    color: sortByPopularity ? Colors.blueAccent : Colors.grey,
                   ),
-                ],
-              ),
+                  label: Text(
+                    '인기순',
+                    style: TextStyle(
+                      color: sortByPopularity ? Colors.blueAccent : Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
-            // 상태 텍스트
-            Text(
-              getStatusText(challenge.status),
-              style: TextStyle(
-                color: getStatusColor(challenge.status),
-                fontWeight: FontWeight.bold,
-              ),
+            const SizedBox(height: 8),
+
+            // 챌린지 리스트
+            Expanded(
+              child: filteredChallenges.isEmpty
+                  ? Center(
+                      child: Text(
+                        '조건에 맞는 챌린지가 없습니다.',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: filteredChallenges.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final challenge = filteredChallenges[index];
+                        return InkWell(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${challenge.title} 선택됨')),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                // 상태 원
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: getStatusColor(challenge.status),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+
+                                // 텍스트 영역
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        challenge.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        '${challenge.participants}명 참가 · ${challenge.day}일',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // 상태 텍스트
+                                Text(
+                                  getStatusText(challenge.status),
+                                  style: TextStyle(
+                                    color: getStatusColor(challenge.status),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

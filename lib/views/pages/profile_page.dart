@@ -1,3 +1,5 @@
+import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/point_page.dart';
 
@@ -34,7 +36,14 @@ class ProfilePage extends StatelessWidget {
                 description: currentChallenge,
                 icon: Icons.directions_run,
                 onTap: () {
-                  Navigator.pushNamed(context, '/my_challenge');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MyChallengePage(
+                        myChallenges: allChallenges,
+                      ), // 전역 리스트 or 진행중 필터링한 리스트 넣기
+                    ),
+                  );
                 },
               )
             else

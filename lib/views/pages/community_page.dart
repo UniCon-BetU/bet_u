@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/post_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/board_widget.dart';
 
@@ -24,10 +25,19 @@ class CommunityPage extends StatelessWidget {
               title: '일반 게시판',
               posts: _dummy,
               onTap: (p) {
-                // TODO: 상세 페이지로 이동
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('열기: ${p.title}')));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => PostDetailPage(
+                      args: PostDetailArgs(
+                        title: p.title,
+                        author: '관리자',
+                        dateString: '2025.08.08',
+                        content: '게시물 본문 내용 예시입니다.', // DateFormat으로 변환 가능
+                        likeCountInitial: 12,
+                      ),
+                    ),
+                  ),
+                );
               },
             ),
           ],

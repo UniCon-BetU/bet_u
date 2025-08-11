@@ -87,17 +87,20 @@ class BoardSectionCard extends StatelessWidget {
               ),
             )
           else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: posts.length > 5 ? 5 : posts.length,
-              separatorBuilder: (_, __) => Divider(
-                height: 16,
-                thickness: 1,
-                color: Colors.grey.withValues(alpha: 0.15),
+            SizedBox(
+              height: 260,
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: posts.length > 5 ? 5 : posts.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 16,
+                  thickness: 1,
+                  color: Colors.grey.withValues(alpha: 0.15),
+                ),
+                itemBuilder: (context, i) =>
+                    _BoardRow(post: posts[i], onTap: onTap),
               ),
-              itemBuilder: (context, i) =>
-                  _BoardRow(post: posts[i], onTap: onTap),
             ),
         ],
       ),

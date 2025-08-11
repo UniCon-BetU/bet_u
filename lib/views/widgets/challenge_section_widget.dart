@@ -4,7 +4,13 @@ import 'challenge_tile_widget.dart';
 
 class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;
-  const ChallengeSectionWidget({super.key, required this.items});
+  final String title;
+
+  const ChallengeSectionWidget({
+    super.key,
+    required this.items,
+    this.title = '챌린지 목록 🥇',
+  });
 
   @override
   State<ChallengeSectionWidget> createState() => _ChallengeSectionWidgetState();
@@ -20,6 +26,12 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
       chunk.add(widget.items.sublist(i, (i + 3).clamp(0, widget.items.length)));
     }
     return chunk.isEmpty ? [[]] : chunk;
+  }
+
+  @override
+  void dispose() {
+    _pc.dispose();
+    super.dispose();
   }
 
   @override
@@ -41,11 +53,11 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(18, 16, 18, 8),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
             child: Text(
-              'MY CHALLENGES 🥇',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              widget.title,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
           SizedBox(

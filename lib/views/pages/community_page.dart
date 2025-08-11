@@ -1,4 +1,5 @@
 import 'package:bet_u/views/pages/group_find_page.dart';
+import 'package:bet_u/views/pages/group_page.dart';
 import 'package:bet_u/views/pages/post_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/board_widget.dart';
@@ -72,6 +73,9 @@ class CommunityPage extends StatelessWidget {
               },
               onTapGroup: (g) {
                 /* 그룹 상세 페이지로 이동 */
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => GroupPage(group: g)));
               },
             ),
           ],

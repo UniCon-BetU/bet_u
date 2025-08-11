@@ -17,7 +17,40 @@ class HomePage extends StatelessWidget {
       Category(label: '매일자습', count: 1723),
     ];
 
-    final ranking = [
+    final myChallenges = [
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.done,
+      ),
+      Challenge(
+        title: '수능 영어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.inProgress,
+      ),
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.missed,
+      ),
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.done,
+      ),
+      Challenge(
+        title: '수능 국어 1일 3지문',
+        participants: 1723,
+        day: 12,
+        status: ChallengeStatus.inProgress,
+      ),
+    ];
+
+    final rankingChallenges = [
       Challenge(
         title: '수능 국어 1일 3지문',
         participants: 1723,
@@ -38,43 +71,12 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             SizedBox(height: 20.0),
-            ChallengeSectionWidget(
-              items: [
-                Challenge(
-                  title: '수능 국어 1일 3지문',
-                  participants: 1723,
-                  day: 12,
-                  status: ChallengeStatus.inProgress,
-                ),
-                Challenge(
-                  title: '수능 영어 1일 3지문',
-                  participants: 1723,
-                  day: 12,
-                  status: ChallengeStatus.inProgress,
-                ),
-                Challenge(
-                  title: '수능 국어 1일 3지문',
-                  participants: 1723,
-                  day: 12,
-                  status: ChallengeStatus.inProgress,
-                ),
-                Challenge(
-                  title: '수능 국어 1일 3지문',
-                  participants: 1723,
-                  day: 12,
-                  status: ChallengeStatus.done,
-                ),
-                Challenge(
-                  title: '수능 국어 1일 3지문',
-                  participants: 1723,
-                  day: 12,
-                  status: ChallengeStatus.missed,
-                ),
-                // 필요하면 더 추가
-              ],
-            ),
+            ChallengeSectionWidget(items: myChallenges),
             AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
-            PopularSectionWidget(categories: categories, ranking: ranking),
+            PopularSectionWidget(
+              categories: categories,
+              ranking: rankingChallenges,
+            ),
           ],
         ),
       ),

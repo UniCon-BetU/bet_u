@@ -1,9 +1,12 @@
+import 'package:bet_u/views/pages/group_find_page.dart';
 import 'package:bet_u/views/pages/post_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/board_widget.dart';
+import '../widgets/group_dashboard_widget.dart';
+import '../widgets/group_card_widget.dart';
 
 class CommunityPage extends StatelessWidget {
-  const CommunityPage({super.key});
+  CommunityPage({super.key});
 
   List<BoardPost> get _dummy => [
     BoardPost(title: '수능 국어 1일 3지문 팁 공유합니다', createdAt: DateTime(2025, 8, 8)),
@@ -11,6 +14,22 @@ class CommunityPage extends StatelessWidget {
     BoardPost(title: '도전 인증 규칙 변경 안내', createdAt: DateTime(2025, 8, 6)),
     BoardPost(title: '오늘의 챌린지 후기', createdAt: DateTime(2025, 8, 5)),
     BoardPost(title: '오늘의 챌린지 후기', createdAt: DateTime(2025, 8, 5)),
+  ];
+
+  final myGroups = <GroupInfo>[
+    const GroupInfo(
+      name: '아침기상 챌린지',
+      description: '매일 6시에 일어나기',
+      memberCount: 124,
+      icon: Icons.wb_sunny,
+      accent: Color(0xFF30B14A),
+    ),
+    const GroupInfo(
+      name: '영어 스터디',
+      description: '토익/토플 같이 준비해요',
+      memberCount: 58,
+      icon: Icons.translate,
+    ),
   ];
 
   @override
@@ -38,6 +57,21 @@ class CommunityPage extends StatelessWidget {
                     ),
                   ),
                 );
+              },
+            ),
+            SizedBox(height: 20.0),
+            GroupDashboardWidget(
+              groups: myGroups, // []면 빈 상태 문구 출력
+              onTapDiscover: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GroupFindPage()),
+                );
+              },
+              onTapCreate: () {
+                /* 그룹 생성 페이지로 이동 */
+              },
+              onTapGroup: (g) {
+                /* 그룹 상세 페이지로 이동 */
               },
             ),
           ],

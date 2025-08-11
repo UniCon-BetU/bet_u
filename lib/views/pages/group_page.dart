@@ -1,7 +1,11 @@
 import 'package:bet_u/models/challenge.dart';
+import 'package:bet_u/views/pages/board_page.dart';
 import 'package:bet_u/views/pages/post_page.dart';
 import 'package:bet_u/views/widgets/challenge_section_widget.dart';
+import 'package:bet_u/views/widgets/postcard_widget.dart';
+import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
 import '../widgets/group_card_widget.dart'; // GroupInfo (이 타입을 전달받음)
 // (상세 게시글 페이지 연결하려면) import '../pages/post_page.dart';
@@ -39,6 +43,14 @@ final List<Challenge> groupChallenges = [
   ),
 ];
 
+final demoRanking = const [
+  RankingEntry(username: 'Alice', completed: 27),
+  RankingEntry(username: 'Bob', completed: 24),
+  RankingEntry(username: 'Charlie', completed: 22),
+  RankingEntry(username: 'Daisy', completed: 19),
+  RankingEntry(username: 'Ethan', completed: 17),
+];
+
 class GroupPage extends StatelessWidget {
   final GroupInfo group; // 그룹 카드에서 넘겨받는 정보
 
@@ -74,27 +86,58 @@ class GroupPage extends StatelessWidget {
               title: '그룹 게시판',
               posts: _dummyPosts,
               onTap: (post) {
-                // TODO: 그룹 게시글 상세로 이동
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => PostDetailPage(
                       args: PostDetailArgs(
                         title: post.title,
-                        author: group.name, // 예시
-                        dateString: '2025.08.09', // DateFormat으로 변환해서 전달
-                        content: '본문 내용 예시',
+                        author: group.name,
+                        dateString: DateFormat(
+                          'yyyy.MM.dd',
+                        ).format(post.createdAt),
+                        content: '그룹 게시물 본문 예시입니다.',
                         likeCountInitial: 0,
                       ),
                     ),
                   ),
                 );
               },
+              onMore: () {
+                final cards = _dummyPosts
+                    .map(
+                      (b) => PostCard(
+                        title: b.title,
+                        excerpt: '내용 미리보기 예시입니다.',
+                        author: group.name,
+                        likes: 0,
+                        createdAt: b.createdAt,
+                      ),
+                    )
+                    .toList();
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        BoardPage(title: '${group.name} 게시판', posts: cards),
+                  ),
+                );
+              },
             ),
+
             const SizedBox(height: 20.0),
             ChallengeSectionWidget(
               title: '그룹 챌린지 🧩',
               items: groupChallenges, // 그룹에 속한 Challenge 리스트
+            ),
+            SizedBox(height: 10.0),
+            RankingWidget(
+              entries: demoRanking,
+              title: 'RANKING',
+              onTap: (e) {
+                // TODO: 사용자 프로필/상세로 이동
+              },
             ),
           ],
         ),

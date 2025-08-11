@@ -7,23 +7,27 @@ class BoardPost {
   const BoardPost({required this.title, required this.createdAt});
 }
 
-/// 홈의 "My Challenges" 같은 큰 섹션 카드
+/// 섹션 카드: 제목 + 게시물 리스트(최대 5개) + 더보기
 class BoardSectionCard extends StatelessWidget {
-  final String title; // 섹션 제목 (ex. '커뮤니티')
-  final List<BoardPost> posts; // 게시물 리스트
-  final void Function(BoardPost)? onTap;
+  final String title;
+  final List<BoardPost> posts;
+  final void Function(BoardPost post)? onTap; // 게시물 클릭
+  final VoidCallback? onMore; // 더보기 클릭
 
   const BoardSectionCard({
     super.key,
     required this.title,
     required this.posts,
     this.onTap,
+    this.onMore,
   });
 
   @override
   Widget build(BuildContext context) {
+    final visibleCount = posts.length > 5 ? 5 : posts.length;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -39,7 +43,7 @@ class BoardSectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 섹션 헤더
+          // 헤더: 제목 - 더보기
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -58,9 +62,7 @@ class BoardSectionCard extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                onTap: () {
-                  // TODO: 전체 게시판 페이지 이동
-                },
+                onTap: onMore ?? () {},
                 child: Text(
                   '더보기',
                   style: TextStyle(
@@ -75,7 +77,6 @@ class BoardSectionCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // 리스트
           if (posts.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -92,7 +93,7 @@ class BoardSectionCard extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: posts.length > 5 ? 5 : posts.length,
+                itemCount: visibleCount,
                 separatorBuilder: (_, __) => Divider(
                   height: 16,
                   thickness: 1,
@@ -108,10 +109,11 @@ class BoardSectionCard extends StatelessWidget {
   }
 }
 
-/// 섹션 안에 들어갈 한 줄짜리 게시물 행
+/// 리스트 한 줄
 class _BoardRow extends StatelessWidget {
   final BoardPost post;
   final void Function(BoardPost)? onTap;
+
   const _BoardRow({required this.post, this.onTap});
 
   @override

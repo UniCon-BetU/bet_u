@@ -101,7 +101,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   const SizedBox(height: 8),
                   // 작성자
                   Text(
-                    '작성자 • ${widget.args.author}',
+                    widget.args.author,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade700,
@@ -111,7 +111,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
                   // 날짜
                   Text(
-                    '작성일 • ${widget.args.dateString}', // ← 여기에 날짜 문자열
+                    widget.args.dateString, // ← 여기에 날짜 문자열
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
 

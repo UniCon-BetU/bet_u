@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
 import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
+import 'processing_challenge_detail_page.dart';
 
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
@@ -195,8 +196,13 @@ class _ChallengePageState extends State<ChallengePage> {
                         final challenge = filteredChallenges[index];
                         return InkWell(
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${challenge.title} 선택됨')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProcessingChallengeDetailPage(
+                                  challenge: challenge,
+                                ),
+                              ),
                             );
                           },
                           borderRadius: BorderRadius.circular(16),
@@ -238,6 +244,7 @@ class _ChallengePageState extends State<ChallengePage> {
                                       Text(
                                         challenge.title,
                                         style: const TextStyle(
+                                          fontFamily: 'freesentation',
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16,
                                         ),
@@ -257,6 +264,7 @@ class _ChallengePageState extends State<ChallengePage> {
                                 Text(
                                   getStatusText(challenge.status),
                                   style: TextStyle(
+                                    fontFamily: 'freesentation',
                                     color: getStatusColor(challenge.status),
                                     fontWeight: FontWeight.bold,
                                   ),

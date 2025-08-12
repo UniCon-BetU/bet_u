@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'challenge.dart';
-import 'challenge_detail_page.dart';
+import 'processing_challenge_detail_page.dart';
 
 class MyChallengePage extends StatelessWidget {
   final List<Challenge> myChallenges;
 
-  const MyChallengePage({Key? key, required this.myChallenges})
-    : super(key: key);
+  const MyChallengePage({super.key, required this.myChallenges});
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +38,9 @@ class MyChallengePage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ChallengeDetailPage(challenge: challenge),
+                          builder: (_) => ProcessingChallengeDetailPage(
+                            challenge: challenge,
+                          ),
                         ),
                       );
                     },

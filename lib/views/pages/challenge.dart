@@ -2,7 +2,7 @@ enum ChallengeStatus { inProgress, done, missed }
 
 class Challenge {
   final String title;
-  final int participants;
+  int participants;
   final int day;
   final ChallengeStatus status;
   final String category;

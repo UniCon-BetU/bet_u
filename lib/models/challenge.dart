@@ -1,4 +1,4 @@
-enum ChallengeStatus { inProgress, done, missed }
+enum ChallengeStatus { inProgress, missed, done }
 
 class Challenge {
   final String title;
@@ -12,4 +12,8 @@ class Challenge {
     required this.day,
     required this.status,
   });
+
+  get tags => null;
+
+  get createdAt => null;
 }

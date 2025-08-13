@@ -40,7 +40,7 @@ class ProfilePage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => MyChallengePage(
-                        myChallenges: allChallenges,
+                        myChallenges: betuChallenges,
                       ), // 전역 리스트 or 진행중 필터링한 리스트 넣기
                     ),
                   );

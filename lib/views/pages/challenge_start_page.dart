@@ -79,7 +79,7 @@ class ChallengeStartPage extends StatelessWidget {
                   // 차감 알림
                 },
                 child: Text(
-                  '도전 시작',
+                  '챌린지로 톨아가기',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),

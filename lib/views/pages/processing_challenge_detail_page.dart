@@ -30,7 +30,7 @@ class ProcessingChallengeDetailPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             Text(
-              '챌린지 이름',
+              challenge.title,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
@@ -148,8 +148,9 @@ class ProcessingChallengeDetailPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ChallengeParticipatePage(),
-                      ), //
+                        builder: (_) =>
+                            ChallengeParticipatePage(challenge: challenge),
+                      ),
                     );
                   },
                 ),

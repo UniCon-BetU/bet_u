@@ -1,5 +1,7 @@
 import 'challenge.dart';
 
+int userPoints = 50000; // 더미 포인트
+
 final List<Challenge> allChallenges = [
   Challenge(
     title: '수능 국어 1일 3지문',

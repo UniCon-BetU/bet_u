@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/my_challenge': (context) => const MyChallengePage(myChallenges: []),
         '/challenge': (context) => const ChallengePage(),
-        '/community': (context) => const CommunityPage(),
+        '/community': (context) => CommunityPage(),
       },
     );
   }

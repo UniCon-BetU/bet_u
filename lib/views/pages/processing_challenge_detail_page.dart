@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'challenge.dart';
+import 'package:bet_u/views/pages/challenge_participate_page.dart';
 
 class ProcessingChallengeDetailPage extends StatelessWidget {
   final Challenge challenge;
@@ -106,7 +107,7 @@ class ProcessingChallengeDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
-                    // 인증하기 버튼 클릭 시 동작
+                    // 인증하기 버튼 클릭 시 동작 카메라 창 구현
                   },
                 ),
               ),
@@ -144,7 +145,12 @@ class ProcessingChallengeDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
-                    // 인증하기 버튼 클릭 시 동작
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChallengeParticipatePage(),
+                      ), //
+                    );
                   },
                 ),
               ),

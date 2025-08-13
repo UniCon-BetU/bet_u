@@ -1,9 +1,9 @@
+// 상단 imports 유지
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
-import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
+import 'challenge.dart';
 import 'processing_challenge_detail_page.dart';
 
-// 챌린지 생성 페이지 (예시)
 class CreateChallengePage extends StatelessWidget {
   const CreateChallengePage({super.key});
 
@@ -25,7 +25,7 @@ class ChallengePage extends StatefulWidget {
 
 int getDaysLeft(Challenge challenge) {
   final now = DateTime.now();
-  final startDate = challenge.createdAt; // 또는 사용자가 참여한 시작일
+  final startDate = challenge.createdAt;
   final endDate = startDate.add(Duration(days: challenge.day));
   final diff = endDate.difference(now).inDays;
   return diff >= 0 ? diff : 0;
@@ -48,6 +48,7 @@ class _ChallengePageState extends State<ChallengePage> {
   ];
 
   List<String> recentSearches = [];
+  String sortOption = '인기'; // 기본 정렬
 
   List<Challenge> get filteredChallenges {
     return allChallenges.where((c) {
@@ -103,15 +104,18 @@ class _ChallengePageState extends State<ChallengePage> {
                     ),
                     child: Row(
                       children: [
-                        // 박스 왼쪽 아이콘
-                        const Icon(Icons.search, color: Colors.green),
+                        // 왼쪽 배추 이미지
+                        Image.asset(
+                          'assets/images/normal_lettuce.png',
+                          width: 24,
+                          height: 24,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _searchController,
                             autofocus: false,
                             decoration: InputDecoration(
-                              // 연한 색상의 힌트 텍스트
                               hintText: '문제풀이  #수능  ...',
                               hintStyle: TextStyle(color: Colors.grey.shade500),
                               border: InputBorder.none,
@@ -125,7 +129,6 @@ class _ChallengePageState extends State<ChallengePage> {
                             },
                           ),
                         ),
-                        // 박스 오른쪽 돋보기 아이콘
                         if (_searchController.text.isNotEmpty)
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.green),
@@ -135,12 +138,16 @@ class _ChallengePageState extends State<ChallengePage> {
                               });
                             },
                           ),
+                        // 오른쪽 돋보기
+                        IconButton(
+                          icon: const Icon(Icons.search, color: Colors.green),
+                          onPressed: () {},
+                        ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                // 챌린지 생성 연필 아이콘 버튼
                 SizedBox(
                   width: 48,
                   height: 48,
@@ -223,6 +230,48 @@ class _ChallengePageState extends State<ChallengePage> {
 
             const SizedBox(height: 12),
 
+            // 🔹 Presented by BetU
+            Center(
+              child: Text(
+                'Presented by BetU',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // 🔹 인기 / 최신 / 더보기 챌린지 정렬 버튼
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: ['인기', '최신', '더보기'].map((option) {
+                final isSelected = sortOption == option;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isSelected
+                          ? Colors.green
+                          : Colors.green.shade100,
+                      foregroundColor: isSelected
+                          ? Colors.white
+                          : Colors.green.shade800,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        sortOption = option;
+                      });
+                    },
+                    child: Text(option),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 12),
+
             // 🔹 챌린지 리스트
             ...filteredChallenges
                 .map(
@@ -252,20 +301,7 @@ class _ChallengePageState extends State<ChallengePage> {
                     ),
                   ),
                 )
-                .toList(), // <- 여기에 .toList()가 추가되었습니다.
-
-            const SizedBox(height: 20),
-
-            // 🔹 Presented by BetU
-            Center(
-              child: Text(
-                'Presented by BetU',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+                .toList(),
 
             const SizedBox(height: 20),
           ],

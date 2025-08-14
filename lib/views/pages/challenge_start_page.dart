@@ -22,7 +22,7 @@ class ChallengeStartPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: 100,
               height: 100,
               child: Center(

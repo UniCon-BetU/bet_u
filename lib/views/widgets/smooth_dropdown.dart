@@ -6,11 +6,11 @@ class SmoothDropdown extends StatefulWidget {
   final ValueChanged<int> onChanged;
 
   const SmoothDropdown({
-    Key? key,
+    super.key,
     required this.initialAmount,
     required this.amounts,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _SmoothDropdownState createState() => _SmoothDropdownState();

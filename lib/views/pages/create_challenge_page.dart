@@ -252,7 +252,7 @@ class _ChallengePageState extends State<ChallengePage> {
                     ),
                   ),
                 )
-                .toList(), // <- 여기에 .toList()가 추가되었습니다.
+                , // <- 여기에 .toList()가 추가되었습니다.
 
             const SizedBox(height: 20),
 

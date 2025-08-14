@@ -47,7 +47,6 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
 
   void _openDropdown() {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     _overlayEntry = _createOverlayEntry();
     overlay.insert(_overlayEntry!);
@@ -139,7 +138,7 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: 100,
               height: 100,
               child: Center(

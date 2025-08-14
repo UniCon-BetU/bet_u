@@ -22,7 +22,7 @@ class ChallengeStartPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: 100,
               height: 100,
               child: Center(
@@ -70,7 +70,8 @@ class ChallengeStartPage extends StatelessWidget {
                           status: ChallengeStatus.inProgress,
                           category: '공부', // 필요하면 전달
                           createdAt: DateTime.now(),
-                          popularity: 0, // 필요하면 전달
+                          popularity: 0,
+                          type: null, // 필요하면 전달
                         ),
                       ),
                     ),
@@ -79,7 +80,7 @@ class ChallengeStartPage extends StatelessWidget {
                   // 차감 알림
                 },
                 child: Text(
-                  '챌린지로 톨아가기',
+                  '도전 시작',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),

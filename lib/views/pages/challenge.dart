@@ -10,7 +10,6 @@ class Challenge {
   final String? type; // goal, time 등
   final List<String> tags; // 태그 (여러 개 가능)
   final String? imageUrl; // 이미지 URL
-  final bool? madebybetu;
 
   Challenge({
     required this.title,
@@ -22,7 +21,6 @@ class Challenge {
     this.type,
     List<String>? tags,
     this.imageUrl,
-    this.madebybetu,
   }) : tags = tags ?? []; // null이면 빈 리스트로 초기화
 }
 

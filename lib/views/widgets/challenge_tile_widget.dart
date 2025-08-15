@@ -4,7 +4,7 @@ import '/models/challenge.dart';
 class ChallengeTileWidget extends StatelessWidget {
   final Challenge c;
   final Color? background;
-  final Widget? trailingOverride;
+  final Widget? trailingOverride; //순위 같은 걸 미리 지정해주면 그걸로 쓰고 아니면 기본 아이콘
 
   const ChallengeTileWidget({
     super.key,
@@ -19,32 +19,28 @@ class ChallengeTileWidget extends StatelessWidget {
     ChallengeStatus.missed => const Color(0xFFEFEFEF),
   };
 
-  IconData get trailing => switch (c.status) {
+  IconData get trailingIcon => switch (c.status) {
     ChallengeStatus.inProgress => Icons.check_box_outlined,
     ChallengeStatus.done => Icons.check_box,
     ChallengeStatus.missed => Icons.indeterminate_check_box,
   };
 
+  Color get trailingColor => switch (c.status) {
+    ChallengeStatus.done => Colors.redAccent,
+    ChallengeStatus.inProgress => Colors.black54,
+    ChallengeStatus.missed => Colors.black54,
+  };
+
   @override
   Widget build(BuildContext context) {
-    // ← 우선순위
-    final Widget trailing =
-        trailingOverride ??
-        Icon(
-          c.status == ChallengeStatus.missed
-              ? Icons.indeterminate_check_box
-              : Icons.check_box,
-          size: 24,
-          color: c.status == ChallengeStatus.done
-              ? Colors.redAccent
-              : Colors.black54,
-        );
+    final Widget trailingWidget =
+        trailingOverride ?? Icon(trailingIcon, size: 24, color: trailingColor);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: bg,
+        color: background ?? bg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
@@ -100,7 +96,7 @@ class ChallengeTileWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          trailing,
+          trailingWidget,
         ],
       ),
     );

@@ -1,4 +1,3 @@
-import 'package:bet_u/views/widgets/challenge_card_group.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
 import 'package:bet_u/views/pages/challenge.dart';
@@ -60,16 +59,6 @@ class _ChallengePageState extends State<ChallengePage> {
           c.title.contains(_searchController.text);
       return matchesCategory && matchesSearch;
     }).toList();
-  }
-
-  void _addRecentSearch(String query) {
-    if (query.isEmpty) return;
-    if (!recentSearches.contains(query)) {
-      setState(() {
-        recentSearches.insert(0, query);
-        if (recentSearches.length > 5) recentSearches.removeLast();
-      });
-    }
   }
 
   String getStatusText(ChallengeStatus status) {
@@ -306,7 +295,6 @@ class _ChallengePageState extends State<ChallengePage> {
     final top9Challenges = betuChallenges.take(9).toList();
     final PageController pageController = PageController();
     List<List<Challenge>> chunkedChallenges = [];
-    final pages = (betuChallenges.length / 3).ceil();
 
     for (int i = 0; i < top9Challenges.length; i += 3) {
       chunkedChallenges.add(

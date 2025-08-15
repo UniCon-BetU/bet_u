@@ -68,7 +68,7 @@ class BetuChallengesPage extends StatelessWidget {
                         // 태그
                         Wrap(
                           spacing: 4,
-                          children: (challenge.tags ?? [])
+                          children: challenge.tags
                               .map(
                                 (tag) => Chip(
                                   label: Text(tag),

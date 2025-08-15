@@ -35,8 +35,6 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
   OverlayEntry? _overlayEntry;
   bool _isDropdownOpen = false;
 
-  final GlobalKey _arrowKey = GlobalKey();
-
   void _toggleDropdown() {
     if (_isDropdownOpen) {
       _closeDropdown();

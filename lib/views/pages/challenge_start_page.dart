@@ -68,7 +68,6 @@ class ChallengeStartPage extends StatelessWidget {
                           status: ChallengeStatus.inProgress,
                           category: '공부', // 필요하면 전달
                           createdAt: DateTime.now(),
-                          popularity: 0,
                           type: null, // 필요하면 전달
                         ),
                       ),

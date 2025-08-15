@@ -304,7 +304,7 @@ class _ChallengePageState extends State<ChallengePage> {
 
   Widget buildPresentedByVertical() {
     final top9Challenges = betuChallenges.take(9).toList();
-    final PageController _pageController = PageController();
+    final PageController pageController = PageController();
     List<List<Challenge>> chunkedChallenges = [];
     final pages = (betuChallenges.length / 3).ceil();
 
@@ -353,7 +353,7 @@ class _ChallengePageState extends State<ChallengePage> {
         SizedBox(
           height: 400, // 카드 3개 세로로 들어갈 높이
           child: PageView.builder(
-            controller: _pageController,
+            controller: pageController,
             itemCount: chunkedChallenges.length,
             itemBuilder: (context, pageIndex) {
               return Column(
@@ -375,7 +375,7 @@ class _ChallengePageState extends State<ChallengePage> {
         // . . . 점 인디케이터
         Center(
           child: SmoothPageIndicator(
-            controller: _pageController,
+            controller: pageController,
             count: chunkedChallenges.length,
             effect: WormEffect(
               dotHeight: 8,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
 import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
-import 'processing_challenge_detail_page.dart';
 
 // 챌린지 생성 페이지 (예시)
 class CreateChallengePage extends StatelessWidget {

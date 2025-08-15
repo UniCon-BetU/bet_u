@@ -1,6 +1,6 @@
 // lib/views/pages/betu_challenges_page.dart
 import 'package:flutter/material.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 import 'processing_challenge_detail_page.dart';
 
 class BetuChallengesPage extends StatelessWidget {

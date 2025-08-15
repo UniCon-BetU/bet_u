@@ -1,6 +1,6 @@
 import 'package:bet_u/views/pages/processing_challenge_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 
 class ChallengeStartPage extends StatelessWidget {
   final int deductedPoints; // 차감된 포인트

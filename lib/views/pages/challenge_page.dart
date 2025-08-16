@@ -1,9 +1,10 @@
 import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
-import 'package:bet_u/views/pages/challenge.dart';
-import 'processing_challenge_detail_page.dart';
+import '../../models/challenge.dart';
+import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
+import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ChallengePage extends StatefulWidget {
@@ -91,8 +92,7 @@ class _ChallengePageState extends State<ChallengePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ProcessingChallengeDetailPage(challenge: challenge),
+        builder: (context) => ChallengeDetailPage(challenge: challenge),
       ),
     );
 
@@ -174,7 +174,14 @@ class _ChallengePageState extends State<ChallengePage> {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 4,
                                 ),
-                                child: buildChallengeCard(challenge),
+                                child: ChallengeTileWidget(
+                                  c: challenge,
+                                  showTags: false,
+                                  onTap: () => _goToProcessingPage(
+                                    challenge,
+                                    fromSearch: _isSearching,
+                                  ),
+                                ),
                               );
                             },
                           ),
@@ -195,7 +202,14 @@ class _ChallengePageState extends State<ChallengePage> {
                           ...challengesToShow.map(
                             (challenge) => Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: buildChallengeCard(challenge),
+                              child: ChallengeTileWidget(
+                                c: challenge,
+                                showTags: false,
+                                onTap: () => _goToProcessingPage(
+                                  challenge,
+                                  fromSearch: _isSearching,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -530,7 +544,6 @@ class _ChallengePageState extends State<ChallengePage> {
     final top9Challenges = betuChallenges.take(9).toList();
     final PageController pageController = PageController();
     List<List<Challenge>> chunkedChallenges = [];
-    final pages = (betuChallenges.length / 3).ceil();
 
     for (int i = 0; i < top9Challenges.length; i += 3) {
       chunkedChallenges.add(
@@ -585,7 +598,14 @@ class _ChallengePageState extends State<ChallengePage> {
                     .map(
                       (challenge) => Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: buildChallengeCard(challenge, showTags: false),
+                        child: ChallengeTileWidget(
+                          c: challenge,
+                          showTags: true,
+                          onTap: () => _goToProcessingPage(
+                            challenge,
+                            fromSearch: _isSearching,
+                          ),
+                        ),
                       ),
                     )
                     .toList(),
@@ -675,105 +695,6 @@ class _ChallengePageState extends State<ChallengePage> {
           if (hasDropdown)
             const Icon(Icons.arrow_drop_down, color: Colors.black54),
         ],
-      ),
-    );
-  }
-
-  Widget buildChallengeCard(Challenge challenge, {bool showTags = true}) {
-    return GestureDetector(
-      onTap: () {
-        _goToProcessingPage(challenge);
-      },
-      child: SizedBox(
-        height: 100, // 카드 고정 높이
-        child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                // 왼쪽 정보 영역
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        challenge.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.person,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${challenge.participants}명',
-                            style: const TextStyle(fontSize: 12, height: 1.0),
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            challenge.type == 'time'
-                                ? '${challenge.day}일'
-                                : '목표 달성 챌린지',
-                            style: const TextStyle(fontSize: 12, height: 1.0),
-                          ),
-                        ],
-                      ),
-                      if (showTags && challenge.tags.isNotEmpty)
-                        const SizedBox(height: 4),
-                      if (showTags && challenge.tags.isNotEmpty)
-                        Wrap(
-                          spacing: 6,
-                          children: challenge.tags
-                              .map(
-                                (tag) => Text(
-                                  '#$tag',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.green,
-                                    height: 1.0,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                    ],
-                  ),
-                ),
-                // 오른쪽 이미지
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    image: DecorationImage(
-                      image: NetworkImage(challenge.imageUrl ?? ''),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

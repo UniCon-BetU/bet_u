@@ -23,30 +23,40 @@ class HomePage extends StatelessWidget {
         participants: 1723,
         day: 12,
         status: ChallengeStatus.done,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 영어 1일 3지문',
         participants: 1723,
         day: 12,
         status: ChallengeStatus.inProgress,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
         participants: 1723,
         day: 12,
         status: ChallengeStatus.missed,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
         participants: 1723,
         day: 12,
         status: ChallengeStatus.done,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
         participants: 1723,
         day: 12,
         status: ChallengeStatus.inProgress,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
     ];
 
@@ -56,12 +66,16 @@ class HomePage extends StatelessWidget {
         participants: 1723,
         day: 12,
         status: ChallengeStatus.inProgress,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
         participants: 1723,
         day: 12,
         status: ChallengeStatus.inProgress,
+        category: '수능',
+    createdAt: DateTime(2025, 7, 1),
       ),
     ];
 

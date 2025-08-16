@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 import 'package:bet_u/views/pages/challenge_participate_page.dart';
 
-class ProcessingChallengeDetailPage extends StatelessWidget {
+class ChallengeDetailPage extends StatelessWidget {
   final Challenge challenge;
 
-  const ProcessingChallengeDetailPage({super.key, required this.challenge});
+  const ChallengeDetailPage({super.key, required this.challenge});
 
   @override
   Widget build(BuildContext context) {

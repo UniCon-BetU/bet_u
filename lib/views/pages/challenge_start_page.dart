@@ -1,6 +1,6 @@
-import 'package:bet_u/views/pages/processing_challenge_detail_page.dart';
+import 'package:bet_u/views/pages/challenge_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 
 class ChallengeStartPage extends StatelessWidget {
   final int deductedPoints; // 차감된 포인트
@@ -60,7 +60,7 @@ class ChallengeStartPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ProcessingChallengeDetailPage(
+                      builder: (_) => ChallengeDetailPage(
                         challenge: Challenge(
                           title: challengeTitle, // 생성자에서 받은 제목
                           participants: 0, // 필요하면 실제 값 전달
@@ -68,7 +68,6 @@ class ChallengeStartPage extends StatelessWidget {
                           status: ChallengeStatus.inProgress,
                           category: '공부', // 필요하면 전달
                           createdAt: DateTime.now(),
-                          popularity: 0,
                           type: null, // 필요하면 전달
                         ),
                       ),

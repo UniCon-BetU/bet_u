@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
 import 'package:bet_u/views/pages/challenge_start_page.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 import 'point_page.dart';
 
 class ChallengeParticipatePage extends StatefulWidget {
@@ -34,8 +34,6 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _isDropdownOpen = false;
-
-  final GlobalKey _arrowKey = GlobalKey();
 
   void _toggleDropdown() {
     if (_isDropdownOpen) {

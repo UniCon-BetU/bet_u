@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'challenge.dart';
-import 'processing_challenge_detail_page.dart';
+import '../../models/challenge.dart';
+import 'challenge_detail_page.dart';
 
 class MyChallengePage extends StatelessWidget {
   final List<Challenge> myChallenges;
@@ -38,7 +38,7 @@ class MyChallengePage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ProcessingChallengeDetailPage(
+                          builder: (_) => ChallengeDetailPage(
                             challenge: challenge,
                           ),
                         ),

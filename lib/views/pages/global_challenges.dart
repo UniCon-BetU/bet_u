@@ -1,4 +1,4 @@
-import 'challenge.dart';
+import '../../models/challenge.dart';
 
 int userPoints = 50000; // 더미 포인트
 
@@ -10,7 +10,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 7, 1),
-    popularity: 120,
     type: 'time',
     tags: ['국어', '독해', '수능'],
     imageUrl: 'assets/images/normal_lettuce.png',
@@ -22,7 +21,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 6, 15),
-    popularity: 230,
     type: 'time',
     tags: ['영어', '단어', '암기'],
   ),
@@ -33,7 +31,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.missed,
     category: '수능',
     createdAt: DateTime(2025, 6, 20),
-    popularity: 180,
     type: 'time',
     tags: ['수학', '문제풀이'],
   ),
@@ -44,7 +41,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.inProgress,
     category: '자기계발',
     createdAt: DateTime(2025, 5, 30),
-    popularity: 80,
     type: 'time',
     tags: ['조깅', '유산소'],
   ),
@@ -55,7 +51,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.missed,
     category: '자기계발',
     createdAt: DateTime(2025, 7, 3),
-    popularity: 90,
     type: 'goal',
     tags: ['건강', '습관'],
   ),
@@ -66,7 +61,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.inProgress,
     category: '토익',
     createdAt: DateTime(2025, 6, 25),
-    popularity: 70,
     type: 'time',
     tags: ['영어', '토익', '단어'],
   ),
@@ -77,7 +71,6 @@ final List<Challenge> betuChallenges = [
     status: ChallengeStatus.inProgress,
     category: '회계사',
     createdAt: DateTime(2025, 5, 20),
-    popularity: 60,
     type: 'time',
     tags: ['회계사', '기출', '문제풀이'],
   ),

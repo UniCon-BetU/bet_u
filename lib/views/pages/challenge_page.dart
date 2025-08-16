@@ -530,7 +530,6 @@ class _ChallengePageState extends State<ChallengePage> {
     final top9Challenges = betuChallenges.take(9).toList();
     final PageController pageController = PageController();
     List<List<Challenge>> chunkedChallenges = [];
-    final pages = (betuChallenges.length / 3).ceil();
 
     for (int i = 0; i < top9Challenges.length; i += 3) {
       chunkedChallenges.add(

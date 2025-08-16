@@ -11,7 +11,6 @@ class Challenge {
   final ChallengeStatus status; // 진행 상태
   final String category; // 카테고리 (예: 운동, 공부, 생활습관)
   final DateTime createdAt; // 생성일
-  final int popularity; // 인기 지수
   final String? type; // 챌린지 유형 (예: goal, time 등)
   final List<String> tags; // 태그 리스트
   final String? imageUrl; // 이미지 URL
@@ -24,7 +23,6 @@ class Challenge {
     required this.status,
     required this.category,
     required this.createdAt,
-    required this.popularity,
     this.type,
     List<String>? tags,
     this.imageUrl,

@@ -1,7 +1,5 @@
-import 'package:bet_u/views/pages/global_challenges.dart';
 import 'package:bet_u/views/pages/processing_challenge_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/challenge_participate_page.dart';
 import 'challenge.dart';
 
 class ChallengeStartPage extends StatelessWidget {

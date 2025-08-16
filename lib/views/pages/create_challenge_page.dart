@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
 import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
-import 'processing_challenge_detail_page.dart';
 
 // 챌린지 생성 페이지 (예시)
 class CreateChallengePage extends StatelessWidget {
@@ -224,35 +223,33 @@ class _ChallengePageState extends State<ChallengePage> {
             const SizedBox(height: 12),
 
             // 🔹 챌린지 리스트
-            ...filteredChallenges
-                .map(
-                  (challenge) => Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      title: Text(challenge.title),
-                      subtitle: Text(
-                        '${challenge.category} • ${getStatusText(challenge.status)} • D-${getDaysLeft(challenge)}',
-                      ),
-                      trailing: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('${challenge.participants}명'),
-                          const SizedBox(height: 4),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                challenge.participants += 1;
-                              });
-                            },
-                            child: const Text('참여'),
-                          ),
-                        ],
-                      ),
-                    ),
+            ...filteredChallenges.map(
+              (challenge) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  title: Text(challenge.title),
+                  subtitle: Text(
+                    '${challenge.category} • ${getStatusText(challenge.status)} • D-${getDaysLeft(challenge)}',
                   ),
-                )
-                , // <- 여기에 .toList()가 추가되었습니다.
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('${challenge.participants}명'),
+                      const SizedBox(height: 4),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            challenge.participants += 1;
+                          });
+                        },
+                        child: const Text('참여'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ), // <- 여기에 .toList()가 추가되었습니다.
 
             const SizedBox(height: 20),
 

@@ -223,35 +223,33 @@ class _ChallengePageState extends State<ChallengePage> {
             const SizedBox(height: 12),
 
             // 🔹 챌린지 리스트
-            ...filteredChallenges
-                .map(
-                  (challenge) => Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      title: Text(challenge.title),
-                      subtitle: Text(
-                        '${challenge.category} • ${getStatusText(challenge.status)} • D-${getDaysLeft(challenge)}',
-                      ),
-                      trailing: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('${challenge.participants}명'),
-                          const SizedBox(height: 4),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                challenge.participants += 1;
-                              });
-                            },
-                            child: const Text('참여'),
-                          ),
-                        ],
-                      ),
-                    ),
+            ...filteredChallenges.map(
+              (challenge) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  title: Text(challenge.title),
+                  subtitle: Text(
+                    '${challenge.category} • ${getStatusText(challenge.status)} • D-${getDaysLeft(challenge)}',
                   ),
-                )
-                , // <- 여기에 .toList()가 추가되었습니다.
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('${challenge.participants}명'),
+                      const SizedBox(height: 4),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            challenge.participants += 1;
+                          });
+                        },
+                        child: const Text('참여'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ), // <- 여기에 .toList()가 추가되었습니다.
 
             const SizedBox(height: 20),
 

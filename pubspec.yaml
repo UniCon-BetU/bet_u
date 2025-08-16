@@ -54,22 +54,22 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
+  # assets와 fonts는 동일한 들여쓰기 레벨이어야 합니다.
   assets:
     - assets/images/
+
+
+    
   fonts:
     - family: freesentation
       fonts:
         - asset: assets/fonts/Freesentation/Freesentation-5Medium.ttf
           weight: 700
-
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

@@ -1,4 +1,4 @@
-import 'challenge.dart';
+import '../../models/challenge.dart';
 
 int userPoints = 50000; // 더미 포인트
 

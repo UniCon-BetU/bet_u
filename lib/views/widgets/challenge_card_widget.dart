@@ -1,6 +1,6 @@
 import 'package:bet_u/views/pages/processing_challenge_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/challenge.dart';
+import '../../models/challenge.dart';
 
 class ChallengeCard extends StatelessWidget {
   final Challenge challenge;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 import 'package:bet_u/views/pages/challenge_participate_page.dart';
 
 class ProcessingChallengeDetailPage extends StatelessWidget {

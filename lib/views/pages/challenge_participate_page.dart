@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
 import 'package:bet_u/views/pages/challenge_start_page.dart';
-import 'challenge.dart';
+import '../../models/challenge.dart';
 import 'point_page.dart';
 
 class ChallengeParticipatePage extends StatefulWidget {

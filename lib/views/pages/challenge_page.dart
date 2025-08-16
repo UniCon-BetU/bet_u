@@ -1,7 +1,7 @@
 import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
-import 'package:bet_u/views/pages/challenge.dart';
+import '../../models/challenge.dart';
 import 'processing_challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';

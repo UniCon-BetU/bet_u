@@ -6,15 +6,6 @@ import 'processing_challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-void main() {
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false, // 디버그 배너 제거
-      home: const ChallengePage(), // 바로 이 페이지에서 시작
-    ),
-  );
-}
-
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 

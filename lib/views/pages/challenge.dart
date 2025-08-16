@@ -29,5 +29,5 @@ class Challenge {
     List<String>? tags,
     this.imageUrl,
     this.madebybetu,
-  }) : tags = tags ?? []; // null이면 빈 리스트로 초기화
+  }) : tags = tags ?? [];
 }

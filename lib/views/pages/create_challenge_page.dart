@@ -1,272 +1,196 @@
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/global_challenges.dart';
-import 'challenge.dart'; // Challenge 클래스 임포트 (필요시)
 
-// 챌린지 생성 페이지 (예시)
-class CreateChallengePage extends StatelessWidget {
+class CreateChallengePage extends StatefulWidget {
   const CreateChallengePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('챌린지 만들기')),
-      body: const Center(child: Text('여기는 챌린지 생성 페이지입니다.')),
-    );
-  }
+  State<CreateChallengePage> createState() => _CreateChallengePageState();
 }
 
-class ChallengePage extends StatefulWidget {
-  const ChallengePage({super.key});
-
-  @override
-  State<ChallengePage> createState() => _ChallengePageState();
-}
-
-int getDaysLeft(Challenge challenge) {
-  final now = DateTime.now();
-  final startDate = challenge.createdAt; // 또는 사용자가 참여한 시작일
-  final endDate = startDate.add(Duration(days: challenge.day));
-  final diff = endDate.difference(now).inDays;
-  return diff >= 0 ? diff : 0;
-}
-
-class _ChallengePageState extends State<ChallengePage> {
-  bool isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
-  String selectedCategory = '전체';
-  List<String> categories = [
-    '전체',
-    '수능',
-    '토익',
-    '공무원/행시',
-    '회계사',
-    'LEET',
-    '자격증',
-    '생활습관',
-    '자기계발',
-  ];
-
-  List<String> recentSearches = [];
-
-  List<Challenge> get filteredChallenges {
-    return betuChallenges.where((c) {
-      final matchesCategory =
-          selectedCategory == '전체' || c.category == selectedCategory;
-      final matchesSearch =
-          _searchController.text.isEmpty ||
-          c.title.contains(_searchController.text);
-      return matchesCategory && matchesSearch;
-    }).toList();
-  }
-
-  String getStatusText(ChallengeStatus status) {
-    switch (status) {
-      case ChallengeStatus.inProgress:
-        return '진행중';
-      case ChallengeStatus.done:
-        return '완료';
-      case ChallengeStatus.missed:
-        return '미참여';
-    }
-  }
-
-  void _addRecentSearch(String query) {
-    if (query.isEmpty) return;
-    if (!recentSearches.contains(query)) {
-      recentSearches.insert(0, query);
-      if (recentSearches.length > 5) recentSearches.removeLast();
-    }
-  }
+class _CreateChallengePageState extends State<CreateChallengePage> {
+  final _formKey = GlobalKey<FormState>();
+  String title = '';
+  String content = '';
+  String detail = '';
+  int period = 7;
+  List<String> tags = [];
+  final TextEditingController _tagController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('챌린지')),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('챌린지 생성하기', style: TextStyle(color: Colors.black)),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                // 챌린지 저장 로직
+              }
+            },
+            child: const Text(
+              '생성',
+              style: TextStyle(color: Colors.green, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔹 검색창 및 챌린지 생성 버튼
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        // 박스 왼쪽 아이콘 (임의의 이미지로 대체)
-                        // 'assets/placeholder.png' 경로의 이미지를 사용하세요.
-                        // 이 부분을 실제 이미지 위젯으로 교체해야 합니다.
-                        // 예시: Image.asset('assets/placeholder.png', width: 24, height: 24),
-                        const Icon(Icons.person, color: Colors.green), // 임시 아이콘
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            autofocus: false,
-                            decoration: InputDecoration(
-                              // 연한 색상의 힌트 텍스트
-                              hintText: '문제풀이  #수능  ...',
-                              hintStyle: TextStyle(color: Colors.grey.shade500),
-                              border: InputBorder.none,
-                              isDense: true,
-                            ),
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            onSubmitted: (value) {
-                              _addRecentSearch(value);
-                            },
-                          ),
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 챌린지 이름
+              _buildCard(
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: '챌린지 이름 *',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (val) => title = val,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? '챌린지 이름을 입력해주세요' : null,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 챌린지 내용
+              _buildCard(
+                TextFormField(
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    labelText: '챌린지 내용 *',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (val) => content = val,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? '챌린지 내용을 입력해주세요' : null,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 기간
+              _buildCard(
+                DropdownButtonFormField<int>(
+                  decoration: const InputDecoration(
+                    labelText: '기간 *',
+                    border: InputBorder.none,
+                  ),
+                  value: period,
+                  items: [7, 14, 30]
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text('$e일 동안 매일 수행'),
                         ),
-                        // 박스 오른쪽 돋보기 아이콘
-                        IconButton(
-                          icon: const Icon(Icons.search, color: Colors.green),
+                      )
+                      .toList(),
+                  onChanged: (val) => setState(() => period = val ?? 7),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 태그
+              _buildCard(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _tagController,
+                      decoration: InputDecoration(
+                        labelText: '태그 추가',
+                        border: InputBorder.none,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.add, color: Colors.green),
                           onPressed: () {
-                            _addRecentSearch(_searchController.text);
+                            final text = _tagController.text.trim();
+                            if (text.isNotEmpty) {
+                              setState(() {
+                                tags.add(text);
+                                _tagController.clear();
+                              });
+                            }
                           },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      children: tags
+                          .map(
+                            (tag) => Chip(
+                              label: Text(tag),
+                              backgroundColor: Colors.green.shade100,
+                              onDeleted: () {
+                                setState(() => tags.remove(tag));
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 사진 추가
+              _buildCard(
+                SizedBox(
+                  height: 120,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.image, size: 40, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () {
+                            // 이미지 선택 로직
+                          },
+                          icon: const Icon(Icons.add, color: Colors.green),
+                          label: const Text("사진 추가하기"),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                // 챌린지 생성 연필 아이콘 버튼
-                SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: IconButton(
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.create, color: Colors.white),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const CreateChallengePage(),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // 🔹 최근 검색어 표시
-            if (_searchController.text.isEmpty && recentSearches.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                children: recentSearches
-                    .map(
-                      (e) => GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _searchController.text = e;
-                          });
-                        },
-                        child: Chip(label: Text(e)),
-                      ),
-                    )
-                    .toList(),
               ),
+              const SizedBox(height: 16),
 
-            // 🔹 카테고리 2x4 그리드
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 1,
-              ),
-              itemCount: categories.length > 8 ? 8 : categories.length,
-              itemBuilder: (context, index) {
-                final cat = categories[index];
-                final isSelected = cat == selectedCategory;
-                return GestureDetector(
-                  onTap: () => setState(() => selectedCategory = cat),
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.green.shade700
-                          : Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      cat,
-                      style: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : Colors.green.shade800,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+              // 상세 설명
+              _buildCard(
+                TextFormField(
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    labelText: '상세 설명',
+                    border: InputBorder.none,
                   ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 12),
-
-            // 🔹 챌린지 리스트
-            ...filteredChallenges.map(
-              (challenge) => Card(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                child: ListTile(
-                  title: Text(challenge.title),
-                  subtitle: Text(
-                    '${challenge.category} • ${getStatusText(challenge.status)} • D-${getDaysLeft(challenge)}',
-                  ),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('${challenge.participants}명'),
-                      const SizedBox(height: 4),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            challenge.participants += 1;
-                          });
-                        },
-                        child: const Text('참여'),
-                      ),
-                    ],
-                  ),
+                  onChanged: (val) => detail = val,
                 ),
               ),
-            ), // <- 여기에 .toList()가 추가되었습니다.
-
-            const SizedBox(height: 20),
-
-            // 🔹 Presented by BetU
-            Center(
-              child: Text(
-                'Presented by BetU',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCard(Widget child) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: child,
       ),
     );
   }

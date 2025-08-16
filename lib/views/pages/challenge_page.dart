@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/create_challenge_page.dart';
 import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
@@ -93,6 +94,20 @@ class _ChallengePageState extends State<ChallengePage> {
     return sorted;
   }
 
+  List<Challenge> getRecommendedChallenges() {
+    List<Challenge> sorted = [...betuChallenges];
+    sorted.sort((a, b) {
+      int aVisit = recentChallengeVisits.indexOf(a.title);
+      int bVisit = recentChallengeVisits.indexOf(b.title);
+
+      if (aVisit == -1 && bVisit == -1) return 0; // 둘 다 방문 없음
+      if (aVisit == -1) return 1; // b가 먼저
+      if (bVisit == -1) return -1; // a가 먼저
+      return bVisit.compareTo(aVisit); // 최신 방문이 먼저
+    });
+    return sorted;
+  }
+
   List<Challenge> get filteredChallenges {
     return getSortedChallenges().where((c) {
       final matchesCategory =
@@ -128,10 +143,12 @@ class _ChallengePageState extends State<ChallengePage> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ProcessingChallengeDetailPage(challenge: challenge),
+        builder: (_) => ProcessingChallengeDetailPage(challenge: challenge),
       ),
-    );
+    ).then((_) {
+      recordChallengeVisit(challenge.title);
+      setState(() {}); // 방문 기록 갱신, 추천 탭 재정렬
+    });
 
     // 추천 탭이면 방문 기록 업데이트 & 정렬 갱신
     if (selectedTab == '추천' || fromSearch) {
@@ -149,6 +166,15 @@ class _ChallengePageState extends State<ChallengePage> {
       case ChallengeStatus.missed:
         return '미참여';
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 페이지가 다시 화면에 보일 때마다 인기 탭 고정
+    setState(() {
+      selectedCategory = '인기';
+    });
   }
 
   @override
@@ -255,26 +281,22 @@ class _ChallengePageState extends State<ChallengePage> {
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedCategory = cat; // 선택된 카테고리 적용
+                  selectedCategory = cat; // 다른 카테고리 선택 가능
                 });
               },
               child: Container(
-                margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+                  horizontal: 12,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.green : Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(20),
+                  color: isSelected ? Colors.blueAccent : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   cat,
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.black,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -350,7 +372,14 @@ class _ChallengePageState extends State<ChallengePage> {
                           elevation: 0,
                         ),
                         icon: const Icon(Icons.add, color: Colors.black),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CreateChallengePage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -566,7 +595,6 @@ class _ChallengePageState extends State<ChallengePage> {
     final top9Challenges = betuChallenges.take(9).toList();
     final PageController pageController = PageController();
     List<List<Challenge>> chunkedChallenges = [];
-    final pages = (betuChallenges.length / 3).ceil();
 
     for (int i = 0; i < top9Challenges.length; i += 3) {
       chunkedChallenges.add(
@@ -715,13 +743,15 @@ class _ChallengePageState extends State<ChallengePage> {
     );
   }
 
-  Widget buildChallengeCard(Challenge challenge, {bool showTags = true}) {
+  Widget buildChallengeCard(
+    Challenge challenge, {
+    bool showTags = true,
+    VoidCallback? onTap, // 외부에서 onTap 전달 가능
+  }) {
     return GestureDetector(
-      onTap: () {
-        _goToProcessingPage(challenge);
-      },
+      onTap: onTap ?? () => _goToProcessingPage(challenge), // 기본값으로 내부 이동 유지
       child: SizedBox(
-        height: 100, // 카드 고정 높이
+        height: 100,
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           shape: RoundedRectangleBorder(
@@ -731,10 +761,9 @@ class _ChallengePageState extends State<ChallengePage> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                // 왼쪽 정보 영역
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -794,7 +823,6 @@ class _ChallengePageState extends State<ChallengePage> {
                     ],
                   ),
                 ),
-                // 오른쪽 이미지
                 Container(
                   width: 50,
                   height: 50,

@@ -14,7 +14,6 @@ class Challenge {
   final String? type; // 챌린지 유형 (예: goal, time 등)
   final List<String> tags; // 태그 리스트
   final String? imageUrl; // 이미지 URL
-  final bool? madebybetu; // BetU 제작 여부
 
   Challenge({
     required this.title,
@@ -26,6 +25,5 @@ class Challenge {
     this.type,
     List<String>? tags,
     this.imageUrl,
-    this.madebybetu,
   }) : tags = tags ?? []; // null이면 빈 리스트로 초기화
 }

@@ -24,8 +24,12 @@ int getDaysLeft(Challenge challenge) {
 class _ChallengePageState extends State<ChallengePage> {
   final TextEditingController _searchController = TextEditingController();
   String selectedCategory = '전체';
+  List<String> recentChallengeVisits = [];
+
   String selectedTab = '인기';
   bool _isSearching = false;
+  final ScrollController _scrollController = ScrollController();
+
   List<Challenge> get challengesToShow => getSortedChallenges();
   List<String> categories = [
     '전체',
@@ -37,6 +41,11 @@ class _ChallengePageState extends State<ChallengePage> {
     '자격증',
     '자기계발',
   ];
+  void recordChallengeVisit(String challengeId) {
+    recentChallengeVisits.remove(challengeId); // 이미 있으면 삭제
+    recentChallengeVisits.insert(0, challengeId); // 맨 앞에 추가
+  }
+
   void _addRecentSearch(String title) {
     if (title.isEmpty) return;
     recentSearches.remove(title); // 중복 제거
@@ -45,25 +54,40 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 
   List<String> recentSearches = [];
+
   List<Challenge> getSortedChallenges() {
     List<Challenge> sorted = List.from(betuChallenges);
 
     if (selectedTab == '인기') {
-      // '인기' 탭: 참여자 순으로 정렬
       sorted.sort((a, b) => b.participants.compareTo(a.participants));
     } else if (selectedTab == '추천') {
-      // '추천' 탭: 최근에 본 순서대로 정렬
+      // 최근 방문 챌린지 우선 정렬 & 그 뒤 최근 검색 순으로 정렬
       sorted.sort((a, b) {
-        // recentSearches 리스트에서 각 챌린지의 순서(index)를 찾습니다.
-        int aIndex = recentSearches.indexOf(a.title);
-        int bIndex = recentSearches.indexOf(b.title);
+        int aVisit = recentChallengeVisits.indexOf(a.title);
+        int bVisit = recentChallengeVisits.indexOf(b.title);
 
-        // 리스트에 없는 항목(index가 -1)은 맨 뒤로 보냅니다.
-        if (aIndex == -1) aIndex = recentSearches.length;
-        if (bIndex == -1) bIndex = recentSearches.length;
-
-        // index가 작을수록(더 최신일수록) 앞으로 오도록 정렬합니다.
-        return aIndex.compareTo(bIndex);
+        // 방문기록이 있다면 우선
+        if (aVisit != -1 || bVisit != -1) {
+          if (aVisit == -1) return 1;
+          if (bVisit == -1) return -1;
+          return aVisit.compareTo(bVisit);
+        }
+        // 방문기록 없으면 최근 검색 순서
+        int aSearch = recentSearches.indexOf(a.title);
+        int bSearch = recentSearches.indexOf(b.title);
+        if (aSearch == -1) aSearch = recentSearches.length;
+        if (bSearch == -1) bSearch = recentSearches.length;
+        return aSearch.compareTo(bSearch);
+      });
+    }
+    // 추천 탭일 때 스크롤 최상단
+    if (selectedTab == '추천') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       });
     }
     return sorted;
@@ -78,6 +102,19 @@ class _ChallengePageState extends State<ChallengePage> {
           c.title.contains(_searchController.text);
       return matchesCategory && matchesSearch;
     }).toList();
+  }
+
+  void selectRecommendedTab() {
+    setState(() {
+      selectedTab = '추천';
+    });
+
+    // 탭 변경 후 최상단으로 스크롤
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _goToProcessingPage(
@@ -96,9 +133,11 @@ class _ChallengePageState extends State<ChallengePage> {
       ),
     );
 
-    setState(() {
-      selectedTab = fromSearch ? '추천' : '인기';
-    });
+    // 추천 탭이면 방문 기록 업데이트 & 정렬 갱신
+    if (selectedTab == '추천' || fromSearch) {
+      recordChallengeVisit(challenge.title); // title 기준으로 방문 기록
+      setState(() {}); // 다시 정렬
+    }
   }
 
   String getStatusText(ChallengeStatus status) {
@@ -166,16 +205,13 @@ class _ChallengePageState extends State<ChallengePage> {
                         Padding(
                           padding: const EdgeInsets.only(top: 12), // 상단 여유
                           child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            controller: _scrollController,
                             itemCount: filteredChallenges.length,
                             itemBuilder: (context, index) {
                               final challenge = filteredChallenges[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                ),
-                                child: buildChallengeCard(challenge),
-                              );
+                              return buildChallengeCard(
+                                challenge,
+                              ); // onTap은 이미 내부에서 처리됨
                             },
                           ),
                         ),

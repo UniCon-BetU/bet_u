@@ -1,7 +1,7 @@
 // lib/views/pages/betu_challenges_page.dart
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import 'processing_challenge_detail_page.dart';
+import 'challenge_detail_page.dart';
 
 class BetuChallengesPage extends StatelessWidget {
   final List<Challenge> betuChallenges;
@@ -29,7 +29,7 @@ class BetuChallengesPage extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            ProcessingChallengeDetailPage(challenge: challenge),
+                            ChallengeDetailPage(challenge: challenge),
                       ),
                     );
                   },

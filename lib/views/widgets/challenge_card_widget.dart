@@ -1,4 +1,4 @@
-import 'package:bet_u/views/pages/processing_challenge_detail_page.dart';
+import 'package:bet_u/views/pages/challenge_detail_page.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 
@@ -16,7 +16,7 @@ class ChallengeCard extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) =>
-                ProcessingChallengeDetailPage(challenge: challenge),
+                ChallengeDetailPage(challenge: challenge),
           ),
         );
       },

@@ -2,7 +2,7 @@ import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/global_challenges.dart';
 import '../../models/challenge.dart';
-import 'processing_challenge_detail_page.dart';
+import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -92,7 +92,7 @@ class _ChallengePageState extends State<ChallengePage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            ProcessingChallengeDetailPage(challenge: challenge),
+            ChallengeDetailPage(challenge: challenge),
       ),
     );
 

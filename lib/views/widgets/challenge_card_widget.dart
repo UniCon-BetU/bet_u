@@ -6,8 +6,7 @@ class ChallengeCard extends StatelessWidget {
   final Challenge challenge;
   final bool showTags;
 
-  const ChallengeCard({Key? key, required this.challenge, this.showTags = true})
-    : super(key: key);
+  const ChallengeCard({super.key, required this.challenge, this.showTags = true});
 
   @override
   Widget build(BuildContext context) {

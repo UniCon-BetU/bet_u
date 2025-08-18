@@ -160,8 +160,7 @@ class _ChallengePageState extends State<ChallengePage> {
                   ? Stack(
                       children: [
                         // 전체 배경 까맣게
-                        Container(color: Colors.black.withOpacity(0.5)),
-
+                        Container(color: Colors.black.withValues(alpha: 0.5)),
                         // 검색 결과 리스트 스크롤
                         Padding(
                           padding: const EdgeInsets.only(top: 12), // 상단 여유

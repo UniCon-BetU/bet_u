@@ -35,18 +35,21 @@ class ChallengeTileWidget extends StatelessWidget {
     ChallengeStatus.inProgress => const Color(0xFFEFFAE8),
     ChallengeStatus.done => const Color(0xFFEFFAE8),
     ChallengeStatus.missed => const Color(0xFFEFEFEF),
+    ChallengeStatus.notStarted => const Color(0xFFEFFAE8),
   };
 
   IconData get trailingIcon => switch (c.status) {
     ChallengeStatus.inProgress => Icons.check_box_outlined,
     ChallengeStatus.done => Icons.check_box,
     ChallengeStatus.missed => Icons.indeterminate_check_box,
+    ChallengeStatus.notStarted => Icons.check_box_outline_blank,
   };
 
   Color get trailingColor => switch (c.status) {
     ChallengeStatus.done => Colors.redAccent,
     ChallengeStatus.inProgress => Colors.black54,
     ChallengeStatus.missed => Colors.black54,
+    ChallengeStatus.notStarted => Colors.black54,
   };
 
   @override

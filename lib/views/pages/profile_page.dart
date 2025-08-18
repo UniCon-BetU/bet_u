@@ -1,4 +1,4 @@
-import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/point_page.dart';

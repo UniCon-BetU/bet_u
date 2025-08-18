@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import '../../models/challenge.dart'; // Challenge 클래스 임포트 (필요시)
 
 // 챌린지 생성 페이지 (예시)
@@ -67,6 +67,8 @@ class _ChallengePageState extends State<ChallengePage> {
         return '완료';
       case ChallengeStatus.missed:
         return '미참여';
+      case ChallengeStatus.notStarted:
+        return '-';
     }
   }
 

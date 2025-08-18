@@ -1,6 +1,6 @@
 import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import '../../models/challenge.dart';
 import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
@@ -109,6 +109,8 @@ class _ChallengePageState extends State<ChallengePage> {
         return '완료';
       case ChallengeStatus.missed:
         return '미참여';
+      case ChallengeStatus.notStarted:
+        return '-';
     }
   }
 

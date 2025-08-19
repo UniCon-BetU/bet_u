@@ -4,6 +4,8 @@ import 'package:bet_u/data/global_challenges.dart';
 import '../../models/challenge.dart';
 import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
+import 'package:bet_u/views/pages/create_challenge_page.dart';
+
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -318,15 +320,15 @@ class _ChallengePageState extends State<ChallengePage> {
                       width: 48,
                       height: 48,
                       child: IconButton(
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
                         icon: const Icon(Icons.add, color: Colors.black),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CreateChallengePage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

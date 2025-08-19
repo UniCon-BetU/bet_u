@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/community_tab/group_info_page.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/searchbar_widget.dart';
 import '../../widgets/group_card_widget.dart';
@@ -98,9 +99,20 @@ class _GroupFindPageState extends State<GroupFindPage> {
                       return GroupCardWidget(
                         group: g,
                         onTap: () {
-                          // TODO: 그룹 상세 페이지로 이동
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('열기: ${g.name}')),
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => GroupInfoPage(
+                                groupName: '영어 스터디',
+                                nickname: '토익/토플',
+                                createdDays: 16,
+                                dailyCount: 68,
+                                challengeCount: 17,
+                                tags: const ['수능', '알고인증도', '국어'],
+                                isPublic: false,
+                                description:
+                                    '매일 아침 6시에 일어나 30분 공부 인증하는 스터디입니다. 주중에는 회화, 주말에는 모의고사 풀이를 진행해요.',
+                              ),
+                            ),
                           );
                         },
                       );

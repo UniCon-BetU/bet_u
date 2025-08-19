@@ -1,7 +1,7 @@
-import 'package:bet_u/views/pages/post_page.dart';
+import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:flutter/material.dart';
-import '../widgets/searchbar_widget.dart';
-import '../widgets/postcard_widget.dart';
+import '../../widgets/searchbar_widget.dart';
+import '../../widgets/postcard_widget.dart';
 
 class BoardPage extends StatefulWidget {
   final String title;

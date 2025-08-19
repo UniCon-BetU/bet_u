@@ -2,7 +2,7 @@ import 'package:bet_u/views/pages/welcome_page.dart';
 import 'package:bet_u/views/pages/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/my_challenge_page.dart';
-import 'package:bet_u/views/pages/community_page.dart';
+import 'package:bet_u/views/pages/community_tab/community_page.dart';
 
 void main() {
   runApp(const MyApp());

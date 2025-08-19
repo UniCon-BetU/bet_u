@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/searchbar_widget.dart';
-import '../widgets/group_card_widget.dart';
+import '../../widgets/searchbar_widget.dart';
+import '../../widgets/group_card_widget.dart';
 
 class GroupFindPage extends StatefulWidget {
   const GroupFindPage({super.key});

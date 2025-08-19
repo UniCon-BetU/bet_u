@@ -25,6 +25,7 @@ int getDaysLeft(Challenge challenge) {
 class _ChallengePageState extends State<ChallengePage> {
   final TextEditingController _searchController = TextEditingController();
   String selectedCategory = '전체';
+  List<Challenge> recentVisitedChallenges = [];
   String selectedTab = '인기';
   bool _isSearching = false;
   List<Challenge> get challengesToShow => getSortedChallenges();
@@ -47,27 +48,16 @@ class _ChallengePageState extends State<ChallengePage> {
 
   List<String> recentSearches = [];
   List<Challenge> getSortedChallenges() {
-    List<Challenge> sorted = List.from(betuChallenges);
-
     if (selectedTab == '인기') {
-      // '인기' 탭: 참여자 순으로 정렬
+      List<Challenge> sorted = List.from(betuChallenges);
       sorted.sort((a, b) => b.participants.compareTo(a.participants));
+      return sorted;
     } else if (selectedTab == '추천') {
-      // '추천' 탭: 최근에 본 순서대로 정렬
-      sorted.sort((a, b) {
-        // recentSearches 리스트에서 각 챌린지의 순서(index)를 찾습니다.
-        int aIndex = recentSearches.indexOf(a.title);
-        int bIndex = recentSearches.indexOf(b.title);
-
-        // 리스트에 없는 항목(index가 -1)은 맨 뒤로 보냅니다.
-        if (aIndex == -1) aIndex = recentSearches.length;
-        if (bIndex == -1) bIndex = recentSearches.length;
-
-        // index가 작을수록(더 최신일수록) 앞으로 오도록 정렬합니다.
-        return aIndex.compareTo(bIndex);
-      });
+      // ✅ 최근 방문한 챌린지 순서대로
+      return recentVisitedChallenges;
+    } else {
+      return betuChallenges; // 전체
     }
-    return sorted;
   }
 
   List<Challenge> get filteredChallenges {
@@ -85,6 +75,13 @@ class _ChallengePageState extends State<ChallengePage> {
     Challenge challenge, {
     bool fromSearch = false,
   }) async {
+    // ✅ 방문 내역 저장
+    recentVisitedChallenges.remove(challenge); // 중복 제거
+    recentVisitedChallenges.insert(0, challenge); // 최신이 앞으로
+    if (recentVisitedChallenges.length > 10) {
+      recentVisitedChallenges.removeLast(); // 최대 10개만 보관
+    }
+
     if (fromSearch) {
       _addRecentSearch(challenge.title);
     }
@@ -143,7 +140,7 @@ class _ChallengePageState extends State<ChallengePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
+        behavior: HitTestBehavior.deferToChild,
         onTap: _onTapOutside,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +201,7 @@ class _ChallengePageState extends State<ChallengePage> {
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: ChallengeTileWidget(
                                 c: challenge,
-                                showTags: false,
+                                showTags: true,
                                 onTap: () => _goToProcessingPage(
                                   challenge,
                                   fromSearch: _isSearching,
@@ -474,21 +471,36 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 
   Widget buildRecentSearchChips() {
-    return Wrap(
-      spacing: 8,
-      children: recentSearches
-          .map(
-            (e) => GestureDetector(
-              onTap: () {
-                setState(() {
-                  _searchController.text = e;
-                  _isSearching = true; // 태그 클릭 시 검색 모드 활성화
-                });
-              },
-              child: Chip(label: Text(e)),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: recentSearches.map((search) {
+          final isSelected = _searchController.text == search; // 선택된 검색어
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _searchController.text = search;
+                _isSearching = true; // 태그 클릭 시 검색 모드 유지
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.green : Colors.green.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                search,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
             ),
-          )
-          .toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -600,7 +612,7 @@ class _ChallengePageState extends State<ChallengePage> {
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: ChallengeTileWidget(
                           c: challenge,
-                          showTags: true,
+                          showTags: false,
                           onTap: () => _goToProcessingPage(
                             challenge,
                             fromSearch: _isSearching,

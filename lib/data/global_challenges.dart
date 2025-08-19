@@ -34,16 +34,6 @@ final List<Challenge> betuChallenges = [
     tags: ['수학', '문제풀이'],
   ),
   Challenge(
-    title: '조깅 30분 걷기',
-    participants: 1120,
-    day: 10,
-    status: ChallengeStatus.notStarted,
-    category: '자기계발',
-    createdAt: DateTime(2025, 5, 30),
-    type: 'time',
-    tags: ['조깅', '유산소'],
-  ),
-  Challenge(
     title: '25-1학기 4.5 달성',
     participants: 1320,
     day: 25,

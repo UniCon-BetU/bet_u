@@ -15,17 +15,17 @@ class CommunityPage extends StatelessWidget {
   List<BoardPost> get _dummy => [
     BoardPost(title: '수능 국어 1일 3지문 팁 공유합니다', createdAt: DateTime(2025, 8, 8)),
     BoardPost(title: '영어 단어장 추천 부탁!', createdAt: DateTime(2025, 8, 7)),
-    BoardPost(title: '도전 인증 규칙 변경 안내', createdAt: DateTime(2025, 8, 6)),
-    BoardPost(title: '오늘의 챌린지 후기', createdAt: DateTime(2025, 8, 5)),
-    BoardPost(title: '오늘의 챌린지 후기', createdAt: DateTime(2025, 8, 5)),
+    BoardPost(title: '힘들 때 보면 좋은 글', createdAt: DateTime(2025, 8, 6)),
+    BoardPost(title: '요즘 토익 시험 특징', createdAt: DateTime(2025, 8, 5)),
+    BoardPost(title: '이 챌린지 성공하신 분 있나요?', createdAt: DateTime(2025, 8, 5)),
   ];
 
   final myGroups = <GroupInfo>[
     const GroupInfo(
-      name: '아침기상 챌린지',
-      description: '매일 6시에 일어나기',
+      name: '팀 수능',
+      description: '함께해요 정시 파이터들',
       memberCount: 124,
-      icon: Icons.wb_sunny,
+      icon: Icons.book_outlined,
       accent: Color(0xFF30B14A),
     ),
     const GroupInfo(

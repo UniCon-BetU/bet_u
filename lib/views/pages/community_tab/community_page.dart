@@ -1,4 +1,5 @@
 import 'package:bet_u/views/pages/community_tab/board_page.dart';
+import 'package:bet_u/views/pages/community_tab/group_create_page.dart';
 import 'package:bet_u/views/pages/community_tab/group_find_page.dart';
 import 'package:bet_u/views/pages/community_tab/group_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
@@ -97,6 +98,9 @@ class CommunityPage extends StatelessWidget {
               },
               onTapCreate: () {
                 /* 그룹 생성 페이지로 이동 */
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GroupCreatePage()),
+                );
               },
               onTapGroup: (g) {
                 /* 그룹 상세 페이지로 이동 */

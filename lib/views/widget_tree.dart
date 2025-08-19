@@ -1,7 +1,7 @@
 import 'package:bet_u/data/notifiers.dart';
 import 'package:bet_u/views/pages/challenge_page.dart';
 
-import 'package:bet_u/views/pages/community_page.dart';
+import 'package:bet_u/views/pages/community_tab/community_page.dart';
 import 'package:bet_u/views/pages/home_page.dart';
 import 'package:bet_u/views/pages/profile_page.dart';
 import 'package:bet_u/views/pages/settings_page.dart';

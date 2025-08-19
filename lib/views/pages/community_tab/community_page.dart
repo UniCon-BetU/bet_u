@@ -1,13 +1,13 @@
-import 'package:bet_u/views/pages/board_page.dart';
-import 'package:bet_u/views/pages/group_find_page.dart';
-import 'package:bet_u/views/pages/group_page.dart';
-import 'package:bet_u/views/pages/post_page.dart';
+import 'package:bet_u/views/pages/community_tab/board_page.dart';
+import 'package:bet_u/views/pages/community_tab/group_find_page.dart';
+import 'package:bet_u/views/pages/community_tab/group_page.dart';
+import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../widgets/board_widget.dart';
-import '../widgets/group_dashboard_widget.dart';
-import '../widgets/group_card_widget.dart';
+import '../../widgets/board_widget.dart';
+import '../../widgets/group_dashboard_widget.dart';
+import '../../widgets/group_card_widget.dart';
 
 class CommunityPage extends StatelessWidget {
   CommunityPage({super.key});

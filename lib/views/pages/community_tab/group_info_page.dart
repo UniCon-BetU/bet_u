@@ -7,8 +7,7 @@ class GroupInfoPage extends StatelessWidget {
     super.key,
     required this.groupName,
     this.nickname,
-    this.createdDays,
-    this.dailyCount,
+    this.memberCount,
     this.challengeCount,
     this.tags = const [],
     this.isPublic = true,
@@ -19,8 +18,7 @@ class GroupInfoPage extends StatelessWidget {
 
   final String groupName;
   final String? nickname; // 그룹 닉네임
-  final int? createdDays; // 개설 D+n
-  final int? dailyCount; // 예: 일일 68
+  final int? memberCount; // 예: 일일 68
   final int? challengeCount; // 예: 챌린지 17
   final List<String> tags;
   final bool isPublic;
@@ -85,14 +83,17 @@ class GroupInfoPage extends StatelessWidget {
                     Expanded(
                       child: _TitleBlock(
                         title: groupName,
-                        subtitle: _buildSubtitle(),
+                        subtitle: '그룹장 $nickname',
                       ),
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (dailyCount != null)
-                          _StatItem(label: '인원', value: dailyCount!.toString()),
+                        if (memberCount != null)
+                          _StatItem(
+                            label: '인원',
+                            value: memberCount!.toString(),
+                          ),
                         if (challengeCount != null) ...[
                           const SizedBox(width: 16),
                           _StatItem(
@@ -120,8 +121,8 @@ class GroupInfoPage extends StatelessWidget {
               ],
 
               // 공개 여부
-              _SectionHeader(icon: Icons.lock_outline, title: '공개 여부'),
-              const SizedBox(height: 8),
+              // _SectionHeader(icon: Icons.lock_outline, title: '공개 여부'),
+              // const SizedBox(height: 8),
 
               // 상세 설명
               _SectionHeader(icon: Icons.description_outlined, title: '상세 설명'),
@@ -152,17 +153,6 @@ class GroupInfoPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _buildSubtitle() {
-    final pieces = <String>[];
-    if (nickname != null && nickname!.trim().isNotEmpty) {
-      pieces.add('그룹명: $nickname');
-    }
-    if (createdDays != null) {
-      pieces.add('개설 D+${createdDays!}');
-    }
-    return pieces.isEmpty ? '' : pieces.join(' · ');
   }
 }
 

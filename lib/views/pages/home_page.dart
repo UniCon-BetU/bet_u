@@ -19,28 +19,31 @@ class HomePage extends StatelessWidget {
 
     final myChallenges = [
       Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
+        title: '비문학 1일 3지문',
+        participants: 153,
         day: 12,
         status: ChallengeStatus.done,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
+        type: 'time',
       ),
       Challenge(
-        title: '수능 영어 1일 3지문',
-        participants: 1723,
+        title: '모의고사 주요과목 4합 5달성',
+        participants: 524,
         day: 12,
         status: ChallengeStatus.inProgress,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
+        type: 'goal',
       ),
       Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
-        day: 12,
+        title: '매일 물리 사설 모의고사 1회 풀이',
+        participants: 38,
+        day: 9,
         status: ChallengeStatus.missed,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
+        type: 'time',
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
@@ -48,7 +51,7 @@ class HomePage extends StatelessWidget {
         day: 12,
         status: ChallengeStatus.done,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
       ),
       Challenge(
         title: '수능 국어 1일 3지문',
@@ -56,26 +59,28 @@ class HomePage extends StatelessWidget {
         day: 12,
         status: ChallengeStatus.inProgress,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
       ),
     ];
 
     final rankingChallenges = [
       Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
-        day: 12,
+        title: '하루 영단어 50개 암기',
+        participants: 1263,
+        day: 0,
         status: ChallengeStatus.inProgress,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
+        type: 'time',
       ),
       Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
-        day: 12,
+        title: '매일 수학 N제 20개 풀이',
+        participants: 818,
+        day: 0,
         status: ChallengeStatus.inProgress,
         category: '수능',
-    createdAt: DateTime(2025, 7, 1),
+        createdAt: DateTime(2025, 7, 1),
+        type: 'time',
       ),
     ];
 

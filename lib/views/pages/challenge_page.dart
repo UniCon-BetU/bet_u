@@ -1,6 +1,6 @@
 import 'package:bet_u/views/pages/search_result_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import '../../models/challenge.dart';
 import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
@@ -106,6 +106,8 @@ class _ChallengePageState extends State<ChallengePage> {
         return '완료';
       case ChallengeStatus.missed:
         return '미참여';
+      case ChallengeStatus.notStarted:
+        return '-';
     }
   }
 
@@ -157,8 +159,7 @@ class _ChallengePageState extends State<ChallengePage> {
                   ? Stack(
                       children: [
                         // 전체 배경 까맣게
-                        Container(color: Colors.black.withOpacity(0.5)),
-
+                        Container(color: Colors.black.withValues(alpha: 0.5)),
                         // 검색 결과 리스트 스크롤
                         Padding(
                           padding: const EdgeInsets.only(top: 12), // 상단 여유

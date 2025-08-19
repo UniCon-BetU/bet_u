@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'global_challenges.dart'; // betuChallenges, Challenge 모델 포함
+import '../../data/global_challenges.dart'; // betuChallenges, Challenge 모델 포함
 import 'package:bet_u/views/widgets/challenge_card_widget.dart'; // 우리가 만든 ChallengeCard 위젯
 
 class SearchResultPage extends StatelessWidget {

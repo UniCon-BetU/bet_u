@@ -2,6 +2,7 @@ enum ChallengeStatus {
   inProgress, // 진행 중
   done, // 완료
   missed, // 놓친 챌린지
+  notStarted,
 }
 
 class Challenge {

@@ -34,9 +34,9 @@ class PopularSectionWidget extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             scrollDirection: Axis.horizontal,
             children: [
-              CategoryChipWidget(label: '수능', count: 1723),
-              CategoryChipWidget(label: '토익', count: 1723),
-              CategoryChipWidget(label: '인강', count: 1723),
+              CategoryChipWidget(label: '수능', count: 2536),
+              CategoryChipWidget(label: '토익', count: 816),
+              CategoryChipWidget(label: '인강', count: 2013),
               CategoryChipWidget(label: '매일자습', count: 1723),
             ],
           ),

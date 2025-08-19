@@ -9,10 +9,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController controllerEmail = TextEditingController(text: '123');
-  TextEditingController controllerPw = TextEditingController(text: '456');
-  String confirmedEmail = '123';
-  String confirmedPw = '456';
+  TextEditingController controllerEmail = TextEditingController(
+    text: 'user@email.com',
+  );
+  TextEditingController controllerPw = TextEditingController(
+    text: 'password123',
+  );
+  String confirmedEmail = 'user@email.com';
+  String confirmedPw = 'password123';
 
   @override
   void dispose() {

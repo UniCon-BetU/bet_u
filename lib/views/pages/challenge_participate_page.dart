@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
+import '../../data/global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
 import 'package:bet_u/views/pages/challenge_start_page.dart';
 import '../../models/challenge.dart';
 import 'point_page.dart';

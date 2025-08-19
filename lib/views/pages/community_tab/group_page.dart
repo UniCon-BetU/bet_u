@@ -1,39 +1,41 @@
 import 'package:bet_u/models/challenge.dart';
-import 'package:bet_u/views/pages/board_page.dart';
-import 'package:bet_u/views/pages/post_page.dart';
+import 'package:bet_u/views/pages/community_tab/board_page.dart';
+import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
-import '../widgets/group_card_widget.dart'; // GroupInfo (이 타입을 전달받음)
+import '../../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
+import '../../widgets/group_card_widget.dart'; // GroupInfo (이 타입을 전달받음)
 // (상세 게시글 페이지 연결하려면) import '../pages/post_page.dart';
 
 final List<Challenge> groupChallenges = [
   Challenge(
-    title: '매일 아침 6시 기상',
+    title: 'EBS 모의고사 5회차 풀기',
     participants: 42,
     day: 5,
-    status: ChallengeStatus.inProgress,
+    status: ChallengeStatus.notStarted,
     category: '수능',
     createdAt: DateTime(2025, 7, 1),
   ),
   Challenge(
-    title: '주 3회 러닝 5km',
+    title: '매일 수학 N제 20개 풀이',
     participants: 31,
     day: 14,
-    status: ChallengeStatus.done,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-  ),
-  Challenge(
-    title: '매일 1시간 독서',
-    participants: 58,
-    day: 7,
     status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 7, 1),
+    type: 'time',
+  ),
+  Challenge(
+    title: '매일 영단어 30개',
+    participants: 58,
+    day: 7,
+    status: ChallengeStatus.notStarted,
+    category: '수능',
+    createdAt: DateTime(2025, 7, 1),
+    type: 'time',
   ),
   Challenge(
     title: '하루 물 2L 마시기',
@@ -54,11 +56,11 @@ final List<Challenge> groupChallenges = [
 ];
 
 final demoRanking = const [
-  RankingEntry(username: 'Alice', completed: 27),
-  RankingEntry(username: 'Bob', completed: 24),
-  RankingEntry(username: 'Charlie', completed: 22),
-  RankingEntry(username: 'Daisy', completed: 19),
-  RankingEntry(username: 'Ethan', completed: 17),
+  RankingEntry(username: '김철수', completed: 27),
+  RankingEntry(username: '아름이', completed: 24),
+  RankingEntry(username: '나는민수', completed: 22),
+  RankingEntry(username: '대구정시파이터', completed: 19),
+  RankingEntry(username: '고연오', completed: 17),
 ];
 
 class GroupPage extends StatelessWidget {
@@ -68,11 +70,11 @@ class GroupPage extends StatelessWidget {
 
   // TODO: 실제 데이터 연결 전 임시 더미
   List<BoardPost> get _dummyPosts => [
-    BoardPost(title: '그룹 공지: 이번 주 일정 안내', createdAt: DateTime(2025, 8, 9)),
+    BoardPost(title: '그룹 공지: 인증 규칙 안내', createdAt: DateTime(2025, 8, 9)),
     BoardPost(title: '신규 멤버 환영합니다 👋', createdAt: DateTime(2025, 8, 8)),
-    BoardPost(title: '주간 러닝 인증 스레드', createdAt: DateTime(2025, 8, 7)),
-    BoardPost(title: '장비 추천 토론', createdAt: DateTime(2025, 8, 6)),
-    BoardPost(title: '첫 모임 회고', createdAt: DateTime(2025, 8, 5)),
+    BoardPost(title: '이번 회차 모의고사 잘 보셨나요', createdAt: DateTime(2025, 8, 7)),
+    BoardPost(title: '수학 N제 추천', createdAt: DateTime(2025, 8, 6)),
+    BoardPost(title: '챌린지 인증하고 돈 버는 꿀팁', createdAt: DateTime(2025, 8, 5)),
   ];
 
   @override
@@ -144,7 +146,7 @@ class GroupPage extends StatelessWidget {
             SizedBox(height: 10.0),
             RankingWidget(
               entries: demoRanking,
-              title: 'RANKING',
+              title: '랭킹',
               onTap: (e) {
                 // TODO: 사용자 프로필/상세로 이동
               },

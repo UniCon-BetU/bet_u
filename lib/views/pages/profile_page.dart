@@ -1,4 +1,4 @@
-import 'package:bet_u/views/pages/global_challenges.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/point_page.dart';
@@ -175,7 +175,7 @@ class TossStyleCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

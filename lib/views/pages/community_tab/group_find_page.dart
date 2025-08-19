@@ -104,8 +104,7 @@ class _GroupFindPageState extends State<GroupFindPage> {
                               builder: (_) => GroupInfoPage(
                                 groupName: '영어 스터디',
                                 nickname: '토익/토플',
-                                createdDays: 16,
-                                dailyCount: 68,
+                                memberCount: 68,
                                 challengeCount: 17,
                                 tags: const ['수능', '알고인증도', '국어'],
                                 isPublic: false,

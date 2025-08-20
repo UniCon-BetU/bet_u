@@ -79,8 +79,10 @@ class _CommunityPageState extends State<CommunityPage> {
           final m = e as Map<String, dynamic>;
           final isPublic = m['isPublic'] == true;
           return GroupInfo(
+            crewId: (m['crewId'] ?? 0) as int,
+            crewCode: (m['crewCode'] ?? '').toString(),
             name: (m['crewName'] ?? '이름없음').toString(),
-            description: (m['crewCode'] ?? '').toString(), // 상세 정보 미정 → 코드 노출
+            description: '상세정보 예시'.toString(), // 상세 정보 미정 → 코드 노출
             memberCount: 0, // API에 없으므로 기본값
             icon: isPublic ? Icons.public : Icons.lock,
           );

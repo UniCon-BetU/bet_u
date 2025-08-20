@@ -27,7 +27,6 @@ class CommunityPage extends StatelessWidget {
       description: '함께해요 정시 파이터들',
       memberCount: 124,
       icon: Icons.book_outlined,
-      accent: Color(0xFF30B14A),
     ),
     const GroupInfo(
       name: '영어 스터디',

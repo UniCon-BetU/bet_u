@@ -5,14 +5,12 @@ class GroupInfo {
   final String description; // 한 줄 설명
   final int memberCount; // 멤버 수
   final IconData icon; // 대표 아이콘
-  final Color? accent; // 포인트 컬러(선택)
 
   const GroupInfo({
     required this.name,
     required this.description,
     required this.memberCount,
     required this.icon,
-    this.accent,
   });
 }
 
@@ -25,7 +23,7 @@ class GroupCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = group.accent ?? const Color(0xFF30B14A);
+    final accent = const Color(0xFF30B14A);
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),

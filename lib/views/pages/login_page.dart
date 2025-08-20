@@ -58,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
           print('>>> 저장된 accessToken: $token');
         }
 
+        if (!mounted) return;
         // 이동
         Navigator.pushAndRemoveUntil(
           context,

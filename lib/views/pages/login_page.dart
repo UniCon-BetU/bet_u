@@ -1,4 +1,5 @@
 // lib/views/pages/login_page.dart
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/widget_tree.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
@@ -50,20 +51,14 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-        String message = '로그인 성공!';
-        try {
-          final json = jsonDecode(res.body);
-          if (json is Map && json['message'] is String) {
-            message = json['message'];
-          }
-        } catch (_) {
-          if (res.body.isNotEmpty) message = res.body;
+        final token = res.headers['authorization'];
+
+        if (token != null) {
+          await TokenStorage.saveToken(token);
+          print('>>> 저장된 accessToken: $token');
         }
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-
+        if (!mounted) return;
         // 이동
         Navigator.pushAndRemoveUntil(
           context,

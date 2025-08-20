@@ -1,4 +1,5 @@
 import 'package:bet_u/models/challenge.dart';
+import 'package:bet_u/models/group.dart';
 import 'package:bet_u/views/pages/community_tab/board_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:bet_u/views/widgets/challenge_section_widget.dart';
@@ -7,7 +8,6 @@ import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
-import '../../widgets/group_card_widget.dart'; // GroupInfo (이 타입을 전달받음)
 // (상세 게시글 페이지 연결하려면) import '../pages/post_page.dart';
 
 final List<Challenge> groupChallenges = [

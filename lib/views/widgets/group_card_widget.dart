@@ -1,20 +1,5 @@
+import 'package:bet_u/models/group.dart';
 import 'package:flutter/material.dart';
-
-class GroupInfo {
-  final String name; // 그룹 이름
-  final String description; // 한 줄 설명
-  final int memberCount; // 멤버 수
-  final IconData icon; // 대표 아이콘
-  final Color? accent; // 포인트 컬러(선택)
-
-  const GroupInfo({
-    required this.name,
-    required this.description,
-    required this.memberCount,
-    required this.icon,
-    this.accent,
-  });
-}
 
 /// 재사용 가능한 그룹 카드 (그룹 찾기 페이지에서도 재사용)
 class GroupCardWidget extends StatelessWidget {
@@ -25,7 +10,7 @@ class GroupCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = group.accent ?? const Color(0xFF30B14A);
+    final accent = const Color(0xFF30B14A);
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),

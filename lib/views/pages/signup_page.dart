@@ -53,6 +53,13 @@ class _SignupPageState extends State<SignupPage> {
 
       // 성공 코드가 200/201 중 무엇인지 확정이 안되어 둘 다 처리
       if (res.statusCode == 200 || res.statusCode == 201) {
+        // 헤더 전체 출력
+        print('--- SIGNUP RESPONSE HEADERS ------------------');
+        res.headers.forEach((key, value) {
+          print('$key: $value');
+        });
+        print('----------------------------------------------');
+
         if (!mounted) return;
         ScaffoldMessenger.of(
           context,

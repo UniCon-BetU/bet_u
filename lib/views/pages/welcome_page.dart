@@ -1,5 +1,5 @@
 import 'package:bet_u/views/pages/login_page.dart';
-import 'package:bet_u/views/pages/register_page.dart';
+import 'package:bet_u/views/pages/signup_page.dart';
 import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -32,7 +32,7 @@ class WelcomePage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return RegisterPage();
+                          return SignupPage();
                         },
                       ),
                     );

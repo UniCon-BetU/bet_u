@@ -1,6 +1,7 @@
 // lib/views/pages/community_tab/group_find_page.dart
 import 'dart:convert';
 
+import 'package:bet_u/models/group.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/group_info_page.dart';
 import 'package:bet_u/views/widgets/group_card_widget.dart';

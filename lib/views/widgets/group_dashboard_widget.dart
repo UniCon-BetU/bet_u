@@ -1,3 +1,4 @@
+import 'package:bet_u/models/group.dart';
 import 'package:flutter/material.dart';
 import 'group_card_widget.dart';
 

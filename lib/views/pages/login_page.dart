@@ -47,6 +47,8 @@ class _LoginPageState extends State<LoginPage> {
         body: jsonEncode({'userName': userName, 'userPassword': userPassword}),
       );
 
+      if (!mounted) return;
+
       if (res.statusCode == 200 || res.statusCode == 201) {
         String message = '로그인 성공!';
         try {

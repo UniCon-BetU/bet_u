@@ -38,6 +38,7 @@ dependencies:
   tosspayments_widget_sdk_flutter: ^2.1.1
   intl: ^0.20.2
   http: ^1.5.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

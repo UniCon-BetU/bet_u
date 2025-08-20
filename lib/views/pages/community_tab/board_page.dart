@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/community_tab/post_create_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/searchbar_widget.dart';
@@ -80,6 +81,17 @@ class _BoardPageState extends State<BoardPage> {
                   ),
           ),
         ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green.shade600,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PostCreatePage()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

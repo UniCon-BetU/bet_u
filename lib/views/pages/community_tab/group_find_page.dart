@@ -106,36 +106,19 @@ class _GroupFindPageState extends State<GroupFindPage> {
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // 서버가 text를 줄 수도 있으니 안전하게 처리
-        final msg = res.body.isNotEmpty
-            ? (() {
-                try {
-                  final v = jsonDecode(res.body);
-                  return (v is Map && v['message'] != null)
-                      ? v['message'].toString()
-                      : res.body;
-                } catch (_) {
-                  return res.body;
-                }
-              })()
-            : '그룹 참여에 성공했어요';
+        final msg = '그룹 참여에 성공했어요';
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(msg)));
+        print(msg);
 
         // 필요하면 이전 화면으로 돌아가기 등
         // Navigator.of(context).pop(true);
       } else {
         final err = res.body.isNotEmpty ? res.body : 'status ${res.statusCode}';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('참여 실패: $err')));
+        print('참여 실패: $err');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+      print('네트워크 오류: $e');
     }
   }
 

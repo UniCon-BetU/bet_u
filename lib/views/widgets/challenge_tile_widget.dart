@@ -32,10 +32,10 @@ class ChallengeTileWidget extends StatelessWidget {
   });
 
   Color get bg => switch (c.status) {
-    ChallengeStatus.inProgress => const Color(0xFFEFFAE8),
-    ChallengeStatus.done => const Color(0xFFEFFAE8),
-    ChallengeStatus.missed => const Color(0xFFEFEFEF),
-    ChallengeStatus.notStarted => const Color(0xFFEFFAE8),
+    ChallengeStatus.inProgress => const Color.fromARGB(255, 255, 255, 255),
+    ChallengeStatus.done => const Color.fromARGB(255, 255, 255, 255),
+    ChallengeStatus.missed => const Color.fromARGB(255, 255, 255, 255),
+    ChallengeStatus.notStarted => const Color.fromARGB(255, 255, 255, 255),
   };
 
   IconData get trailingIcon => switch (c.status) {

@@ -12,32 +12,53 @@ class BetuChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const green = Color(0xFF1BAB0F);
 
-    // Stack을 사용하여 ChallengeCard 위에 초록색 배경을 추가합니다.
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // 1. 하단 초록색 배경을 먼저 깔아줍니다.
+        // 1. 하단 초록색 배경
         Positioned(
-          left: 16,
-          right: 16,
-          bottom: 0,
-          height: 20,
+          left: 12,
+          right: 12,
+          bottom: -20,
+          height: 80,
           child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+            ).copyWith(bottom: 4),
             decoration: BoxDecoration(
               color: green,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end, // ← 아래쪽으로 정렬
+              children: [
+                if (challenge.bannerPeriod != null)
+                  Text(
+                    challenge.bannerPeriod!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                const SizedBox(height: 2), // 텍스트 간격 조금 줄임
+                if (challenge.bannerDescription != null)
+                  Text(
+                    challenge.bannerDescription!,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                    maxLines: 1, // 최대 2줄
+                    overflow: TextOverflow.ellipsis, // 넘치면 ... 처리
+                  ),
+              ],
             ),
           ),
         ),
 
-        // 2. 그 위에 ChallengeCard 위젯을 배치합니다.
-        // ChallengeCard에 필요한 데이터를 전달합니다.
+        // 2. 카드 위젯
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: ChallengeTileWidget(
-            c: challenge, // 'challenge' 변수를 'c' 파라미터에 전달
-            onTap: onTap,
-          ),
+          child: ChallengeTileWidget(c: challenge, onTap: onTap),
         ),
       ],
     );

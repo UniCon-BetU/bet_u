@@ -3,6 +3,7 @@ import 'package:bet_u/views/pages/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
+import 'theme/app_colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +23,9 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        fontFamily: 'Freesentation',
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        primaryColor: AppColors.primaryGreen,
       ),
       home: const WelcomePage(),
       routes: {

@@ -15,6 +15,8 @@ class Challenge {
   final String? type; // 챌린지 유형 (예: goal, time 등)
   final List<String> tags; // 태그 리스트
   final String? imageUrl; // 이미지 URL
+  final String? bannerPeriod; // 선택적 기간 표시
+  final String? bannerDescription; // 선택적 상세 설명
 
   Challenge({
     required this.title,
@@ -26,5 +28,7 @@ class Challenge {
     this.type,
     List<String>? tags,
     this.imageUrl,
+    this.bannerPeriod,
+    this.bannerDescription,
   }) : tags = tags ?? []; // null이면 빈 리스트로 초기화
 }

@@ -1,113 +1,65 @@
-// lib/views/pages/betu_challenges_page.dart
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import 'challenge_detail_page.dart';
+import 'package:bet_u/views/widgets/betu_challenge_card_widget.dart';
+import 'package:bet_u/views/widgets/challenge_card_widget.dart';
 
-class BetuChallengesPage extends StatelessWidget {
+import 'package:bet_u/views/pages/challenge_detail_page.dart';
+
+class BetuChallengesPage extends StatefulWidget {
   final List<Challenge> betuChallenges;
 
   const BetuChallengesPage({super.key, required this.betuChallenges});
 
   @override
+  State<BetuChallengesPage> createState() => _BetuChallengesPageState();
+}
+
+class _BetuChallengesPageState extends State<BetuChallengesPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('BETU CHALLENGES'),
-        backgroundColor: Colors.lightGreen,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF007AFF)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'BETU 제공 챌린지',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: betuChallenges.length,
-              itemBuilder: (context, index) {
-                final challenge = betuChallenges[index];
-                return GestureDetector(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("images/BETU_challenge_background.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            itemCount: widget.betuChallenges.length,
+            itemBuilder: (context, index) {
+              final challenge = widget.betuChallenges[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: BetuChallengeCard(
+                  challenge: challenge,
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ChallengeDetailPage(challenge: challenge),
-                      ),
-                    );
+                    // 카드 탭 시 동작 (선택 사항)
                   },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 챌린지 제목
-                        Text(
-                          challenge.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        // 참여자 + 기간
-                        Row(
-                          children: [
-                            const Icon(Icons.person, size: 14),
-                            const SizedBox(width: 4),
-                            Text('${challenge.participants}'),
-                            const SizedBox(width: 12),
-                            const Icon(Icons.calendar_today, size: 14),
-                            const SizedBox(width: 4),
-                            Text('${getDaysLeft(challenge)} Days'),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        // 태그
-                        Wrap(
-                          spacing: 4,
-                          children: challenge.tags
-                              .map(
-                                (tag) => Chip(
-                                  label: Text(tag),
-                                  backgroundColor: Colors.green.shade50,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-          // 하단 아이콘
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.eco, size: 40, color: Colors.green),
-                SizedBox(width: 12),
-                Icon(Icons.emoji_events, size: 40, color: Colors.amber),
-                SizedBox(width: 12),
-                Icon(Icons.emoji_food_beverage, size: 40, color: Colors.red),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
-  }
-
-  int getDaysLeft(Challenge challenge) {
-    final now = DateTime.now();
-    final startDate = challenge.createdAt;
-    final endDate = startDate.add(Duration(days: challenge.day));
-    final diff = endDate.difference(now).inDays;
-    return diff >= 0 ? diff : 0;
   }
 }

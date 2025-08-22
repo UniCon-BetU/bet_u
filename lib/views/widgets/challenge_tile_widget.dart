@@ -32,10 +32,10 @@ class ChallengeTileWidget extends StatelessWidget {
   });
 
   Color get bg => switch (c.status) {
-    ChallengeStatus.inProgress => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.done => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.missed => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.notStarted => const Color.fromARGB(255, 255, 255, 255),
+    ChallengeStatus.inProgress => const Color.fromARGB(255, 246, 255, 233),
+    ChallengeStatus.done => const Color.fromARGB(255, 246, 255, 233),
+    ChallengeStatus.missed => const Color.fromARGB(255, 246, 255, 233),
+    ChallengeStatus.notStarted => const Color.fromARGB(255, 246, 255, 233),
   };
 
   IconData get trailingIcon => switch (c.status) {
@@ -73,7 +73,7 @@ class ChallengeTileWidget extends StatelessWidget {
         color: background ?? bg,
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 3,
+        elevation: 0,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,

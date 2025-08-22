@@ -5,7 +5,7 @@ import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -18,11 +18,20 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    // 기존 TextTheme 가져오기
+    final baseTextTheme = ThemeData.light().textTheme;
+
+    // 전체 폰트만 변경
+    final customTextTheme = baseTextTheme.apply(
+      fontFamily: 'freesentation', // 여기 원하는 폰트 이름
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        textTheme: customTextTheme, // 전체 폰트 적용
       ),
       home: const WelcomePage(),
       routes: {

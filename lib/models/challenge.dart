@@ -8,7 +8,7 @@ enum ChallengeStatus {
 class Challenge {
   final String title; // 챌린지 제목
   int participants; // 참여자 수
-  final int day; // 챌린지 기간(일)
+  final int day; // 챌린지 진행 기간(일)
   final ChallengeStatus status; // 진행 상태
   final String category; // 카테고리
   final DateTime createdAt; // 생성일

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
+import '../../theme/app_colors.dart';
 
 class BetuChallengeCard extends StatelessWidget {
   final Challenge challenge;
@@ -10,8 +11,6 @@ class BetuChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const green = Color(0xFF1BAB0F);
-
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -26,7 +25,7 @@ class BetuChallengeCard extends StatelessWidget {
               horizontal: 12,
             ).copyWith(bottom: 4),
             decoration: BoxDecoration(
-              color: green,
+              color: AppColors.primaryGreen,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(

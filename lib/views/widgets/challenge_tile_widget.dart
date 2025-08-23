@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '/models/challenge.dart';
+import '../../theme/app_colors.dart';
 
 /// 하나로 합친 챌린지 타일 위젯:
 /// - 오른쪽 영역: trailingOverride > (preferImageRight && image) > 기본 아이콘
@@ -32,10 +33,10 @@ class ChallengeTileWidget extends StatelessWidget {
   });
 
   Color get bg => switch (c.status) {
-    ChallengeStatus.inProgress => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.done => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.missed => const Color.fromARGB(255, 255, 255, 255),
-    ChallengeStatus.notStarted => const Color.fromARGB(255, 255, 255, 255),
+    ChallengeStatus.inProgress => AppColors.lightYellow,
+    ChallengeStatus.done => AppColors.lightGreen,
+    ChallengeStatus.missed => AppColors.lightRed,
+    ChallengeStatus.notStarted => Colors.white,
   };
 
   IconData get trailingIcon => switch (c.status) {
@@ -68,17 +69,16 @@ class ChallengeTileWidget extends StatelessWidget {
             : Icon(trailingIcon, size: 24, color: trailingColor));
 
     return SizedBox(
-      height: 100,
+      height: 48,
       child: Card(
         color: background ?? bg,
-        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        elevation: 0,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               children: [
                 Expanded(
@@ -93,40 +93,39 @@ class ChallengeTileWidget extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      // const SizedBox(height: 6),
 
                       // 참여자/기간(또는 목표형)
                       Row(
                         children: [
                           const Icon(
                             Icons.people_alt_rounded,
-                            size: 14,
-                            color: Colors.black54,
+                            size: 12,
+                            color: AppColors.darkerGray,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           Text(
                             '${c.participants}',
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
+                              fontSize: 10,
+                              color: AppColors.darkerGray,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 6),
                           const Icon(
-                            Icons.calendar_today_rounded,
-                            size: 13,
-                            color: Colors.black54,
+                            Icons.today_rounded,
+                            size: 12,
+                            color: AppColors.darkerGray,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           Text(
                             c.type == 'time' ? '${c.day}일' : '목표 달성 챌린지',
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
+                              fontSize: 10,
+                              color: AppColors.darkerGray,
                             ),
                           ),
                         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '/models/challenge.dart';
 import 'challenge_tile_widget.dart';
+import '../../theme/app_colors.dart';
 
 class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;
@@ -9,7 +10,7 @@ class ChallengeSectionWidget extends StatefulWidget {
   const ChallengeSectionWidget({
     super.key,
     required this.items,
-    this.title = '챌린지 목록 🥇',
+    this.title = 'MY CHALLENGE 🥇',
   });
 
   @override
@@ -37,16 +38,16 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      padding: const EdgeInsets.only(bottom: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(11),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 6),
+            color: Colors.black.withValues(alpha:0.25),
+            blurRadius: 4,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -54,12 +55,13 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
             child: Text(
               widget.title,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
             ),
           ),
+
           SizedBox(
             height: 300,
             child: PageView.builder(
@@ -73,7 +75,9 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
               ),
             ),
           ),
+
           const SizedBox(height: 4),
+
           Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -85,16 +89,17 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                     horizontal: 3,
                     vertical: 6,
                   ),
-                  width: active ? 10 : 6,
+                  width: active ? 12 : 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: active ? Colors.grey[800] : Colors.grey[400],
+                    color: active ? AppColors.primaryGreen : AppColors.Gray,
                     borderRadius: BorderRadius.circular(6),
                   ),
                 );
               }),
             ),
           ),
+
         ],
       ),
     );

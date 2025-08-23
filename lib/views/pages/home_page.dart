@@ -4,6 +4,7 @@ import '../../models/challenge.dart';
 import '../../models/category.dart';
 import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
+import 'package:bet_u/views/pages/settings_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -84,19 +85,66 @@ class HomePage extends StatelessWidget {
       ),
     ];
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 20.0),
-            ChallengeSectionWidget(items: myChallenges),
-            AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
-            PopularSectionWidget(
-              categories: categories,
-              ranking: rankingChallenges,
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 64,
+        backgroundColor: Colors.white, 
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/images/normal_lettuce.png', 
+                    width: 48, height: 48,
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                  ),
+
+                  Image.asset(
+                    'assets/images/BETU_letters.png', 
+                    width: 96, height: 48,
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                  )
+                ],
+              ),
+
+              IconButton(
+                icon: const Icon(Icons.notifications_none_outlined),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return SettingsPage();
+                      },
+                    ),
+                  );
+                },
+              )
+            ],
+          )
+        )
+      ),  
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),  
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ChallengeSectionWidget(items: myChallenges),
+              AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
+              PopularSectionWidget(
+                categories: categories,
+                ranking: rankingChallenges,
+              ),
+            ],
+          ),
         ),
       ),
     );

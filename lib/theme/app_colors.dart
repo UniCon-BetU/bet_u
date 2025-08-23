@@ -17,7 +17,8 @@ class AppColors {
   static const lightRed = Color(0xFFFFC2C2);
 
   static const primaryBlue = Color(0xFF007AFF);
-  static const lightblue = Color(0xFFAFD5FF);
+  static const lightBlue = Color(0xFFAFD5FF);
 
   static const outline = Color(0x33000000);
+  static const lightYellow = Color(0xFFFFFF9D);
 }

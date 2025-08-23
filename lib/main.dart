@@ -24,8 +24,9 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Freesentation',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        primaryColor: AppColors.primaryGreen,
+        colorScheme: ColorScheme.light(
+          surface: Colors.white,
+        ),
       ),
       home: const WelcomePage(),
       routes: {

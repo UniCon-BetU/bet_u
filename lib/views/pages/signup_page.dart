@@ -115,76 +115,97 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // 선택: AppBar 뒤까지 배경 보이게 하고 싶다면 주석 해제
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: AppColors.yellowGreen,
+        backgroundColor: Colors.transparent, 
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, 
           color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.yellowGreen, AppColors.primaryGreen],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(48),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-              SizedBox(
-                width: 176,
-                height: 176,
-                child: FittedBox(
-                  child: Image.asset(
-                    'assets/images/BETU_mainlogo.png',
-                    fit: BoxFit.contain,
-                  ),
+
+      resizeToAvoidBottomInset: false, // ← 배경 고정
+
+      body: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.yellowGreen, AppColors.primaryGreen],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
-              const SizedBox(height: 60),
-              TextField(
-                controller: emailController,
-                decoration: customInputDecoration("이메일"),
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: customInputDecoration("비밀번호"),
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: usernameController,
-                decoration: customInputDecoration("사용자 이름"),
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 60),
-              LongButtonWidget(text: '가입하기', onPressed: signup, backgroundColor: AppColors.primaryBlue),
-            ]
             ),
           ),
-        ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(48, 24, 48, 24 + bottomInset),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: 176,
+                          height: 176,
+                          child: FittedBox(
+                            child: Image.asset(
+                              'assets/images/BETU_mainlogo.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        TextField(
+                          controller: emailController,
+                          decoration: customInputDecoration("이메일"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: customInputDecoration("비밀번호"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: usernameController,
+                          decoration: customInputDecoration("사용자 이름"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        LongButtonWidget(text: '가입하기', onPressed: signup, backgroundColor: AppColors.primaryBlue),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '/models/challenge.dart';
-import 'challenge_tile_widget.dart';
+import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 
 class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;

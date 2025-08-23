@@ -17,6 +17,7 @@ class Challenge {
   final String? imageUrl; // 이미지 URL
   final String? bannerPeriod; // 선택적 기간 표시
   final String? bannerDescription; // 선택적 상세 설명
+  bool isFavorite; // 추가
 
   Challenge({
     required this.title,
@@ -30,6 +31,7 @@ class Challenge {
     this.imageUrl,
     this.bannerPeriod,
     this.bannerDescription,
+    this.isFavorite = false, // 기본값
   }) : tags = tags ?? [];
 
   /// JSON → Challenge 변환

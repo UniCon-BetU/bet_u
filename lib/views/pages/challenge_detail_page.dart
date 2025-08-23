@@ -1,167 +1,304 @@
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
+import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/challenge_participate_page.dart';
+import 'package:bet_u/views/widgets/chip_widget.dart';
+import 'package:bet_u/views/widgets/long_button_widget.dart';
 
-class ChallengeDetailPage extends StatelessWidget {
+void main() {
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ChallengeDetailPage(challenge: betuChallenges[0]),
+    ),
+  );
+}
+
+class ChallengeDetailPage extends StatefulWidget {
   final Challenge challenge;
 
   const ChallengeDetailPage({super.key, required this.challenge});
 
   @override
-  Widget build(BuildContext context) {
-    final isInProgress = challenge.status == ChallengeStatus.inProgress;
-    final isMissed = challenge.status == ChallengeStatus.missed;
+  State<ChallengeDetailPage> createState() => _ChallengeDetailPageState();
+}
 
+class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
+  bool isFavorite = false; // 즐겨찾기 상태
+
+  @override
+  Widget build(BuildContext context) {
+    final challenge = widget.challenge;
     return Scaffold(
-      appBar: AppBar(title: Text(challenge.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단 이미지 or 이미지 박스 자리 (이미지는 임의 색상박스로 대체)
-            Container(
-              height: 150,
-              color: Colors.grey.shade300,
-              child: const Center(
-                child: Icon(Icons.image, size: 50, color: Colors.grey),
+            // ----------------------------
+            // 상단 이미지 섹션
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final double totalWidth = constraints.maxWidth;
+                  final double totalHeight = totalWidth * 2 / 3; // 3:2 비율
+                  final double leftWidth = totalHeight; // 왼쪽 큰 정사각형 가로 = 높이
+                  final double rightWidth = totalWidth - leftWidth; // 오른쪽 가로
+
+                  return Center(
+                    child: SizedBox(
+                      width: totalWidth,
+                      height: totalHeight,
+                      child: Row(
+                        children: [
+                          // 왼쪽 큰 이미지 + 버튼 겹치기
+                          SizedBox(
+                            width: leftWidth,
+                            height: totalHeight,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: leftWidth,
+                                  height: totalHeight,
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(Icons.image, size: 40),
+                                ),
+                                Positioned(
+                                  top: 15,
+                                  left: 15,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white.withOpacity(
+                                        0,
+                                      ), // 배경 투명
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.arrow_back_ios_new,
+                                      ),
+                                      onPressed: () {
+                                        // 뒤로가기 동작
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // 오른쪽 레이아웃
+                          SizedBox(
+                            width: rightWidth,
+                            height: totalHeight,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(color: Colors.grey.shade400),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                color: Colors.grey.shade400,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                color: Colors.grey.shade400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                color: Colors.grey.shade400,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                color: const Color.fromARGB(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                ),
+                                                child: const Center(
+                                                  child: Text(
+                                                    '+3',
+                                                    style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                        255,
+                                                        0,
+                                                        0,
+                                                        0,
+                                                      ),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 12),
 
-            Text(
-              challenge.title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 20),
 
-            Text(
-              '인원 ${challenge.participants}명',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontFamily: 'freesentation',
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // 태그들 (예시로 category 위주, 필요시 추가)
-            Wrap(
-              spacing: 6,
-              children: [
-                Chip(label: Text(challenge.category)),
-                Chip(label: const Text('인강진도')),
-                Chip(label: const Text('국어')),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // 진행도 표시 (예: 37% 등)
-            if (isInProgress) ...[
-              Text('챌린지 진행도', style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 6),
-              LinearProgressIndicator(
-                value: 0.37, // 실제 데이터 기반으로 수정 가능
-                color: Colors.red,
-                backgroundColor: Colors.grey.shade300,
-                minHeight: 8,
-              ),
-              const SizedBox(height: 8),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade400,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '성공까지 D-${challenge.day}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 공개 여부, 기간, 인증 방식 등 텍스트
-              Text('공개 여부: 공개 챌린지'),
-              Text('챌린지 행동: 성공 조건'),
-              Text('기간: ${challenge.day}일'),
-              Text('인증 방식: 인증 방식'),
-
-              const SizedBox(height: 12),
-
-              // 상세 설명 (더미 텍스트)
-              const Text(
-                '상세 설명\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-              ),
-
-              const Spacer(),
-
-              // 인증하기 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.check),
-                  label: const Text('인증하기'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+            // 챌린지 이름 + 인원 + 태그
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    challenge.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  onPressed: () {
-                    // 인증하기 버튼 클릭 시 동작 카메라 창 구현
-                  },
-                ),
-              ),
-            ] else if (isMissed) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade400,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 공개 여부, 기간, 인증 방식 등 텍스트
-              Text('공개 여부: 공개 챌린지'),
-              Text('챌린지 행동: 성공 조건'),
-              Text('기간: ${challenge.day}일'),
-              Text('인증 방식: 인증 방식'),
-
-              const SizedBox(height: 12),
-
-              // 상세 설명 (더미 텍스트)
-              const Text('상세 설명: 이건 누가 만들었으며 상시모집이고 기간 인증은 24시 기준으로 돌아간다.'),
-
-              const Spacer(),
-
-              // 인증하기 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.check),
-                  label: const Text('도전하기'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  const SizedBox(height: 6),
+                  Text(
+                    "인원 ${challenge.participants}명",
+                    style: const TextStyle(color: Colors.grey),
                   ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: challenge.tags
+                        .map((tag) => ChipWidget(text: tag))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(height: 32),
+
+            // 상세 정보
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const InfoRow(title: "공개 여부", value: "공개 챌린지 or 그룹 내부 챌린지"),
+                  const SizedBox(height: 8),
+                  const InfoRow(title: "챌린지 내용", value: "성공 조건"),
+                  const SizedBox(height: 8),
+                  InfoRow(title: "기간", value: "${challenge.day}일"),
+                  const SizedBox(height: 8),
+                  const InfoRow(title: "인증 방식", value: "사진 인증"),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "상세 설명",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(challenge.bannerDescription ?? "상세 설명이 제공되지 않았습니다."),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 120), // 하단 버튼과 겹치지 않도록 여백 확보
+          ],
+        ),
+      ),
+
+      // ----------------------------
+      // 하단 즐겨찾기 + 배팅 버튼
+      // ----------------------------
+      bottomSheet: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                  color: isFavorite ? Colors.green : Colors.grey,
+                  size: 40,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                },
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: LongButtonWidget(
+                  text: "배팅하고 참여하기",
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            ChallengeParticipatePage(challenge: challenge),
+                        builder: (_) => ChallengeParticipatePage(
+                          challenge: widget.challenge,
+                        ),
                       ),
                     );
                   },
                 ),
               ),
-            ] else ...[
-              // 상태가 done 등 다른 경우 처리 가능
-              const Text('챌린지가 완료되었습니다.'),
             ],
-          ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+// 재사용 가능한 행 위젯
+class InfoRow extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const InfoRow({super.key, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(width: 12),
+        Expanded(child: Text(value)),
+      ],
     );
   }
 }

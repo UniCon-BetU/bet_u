@@ -89,14 +89,8 @@ class _BetuChallengesPageState extends State<BetuChallengesPage> {
                         padding: const EdgeInsets.only(bottom: 40),
                         child: BetuChallengeCard(
                           challenge: challenge,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ChallengeDetailPage(challenge: challenge),
-                              ),
-                            );
+                          afterPop: () {
+                            setState(() {}); // DetailPage에서 돌아오면 화면 갱신
                           },
                         ),
                       );

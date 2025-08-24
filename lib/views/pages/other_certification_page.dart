@@ -5,12 +5,6 @@ import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/views/pages/challenge_detail_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 
-void main() {
-  final Challenge challenge = betuChallenges[0]; // 예시: 첫 번째 챌린지
-
-  runApp(MaterialApp(home: OtherCertificationPage(challenge: challenge)));
-}
-
 class OtherCertificationPage extends StatefulWidget {
   final Challenge challenge; // Challenge 객체 통째로 받기
 

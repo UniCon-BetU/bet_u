@@ -6,18 +6,20 @@ enum ChallengeStatus {
 }
 
 class Challenge {
-  final String title; // 챌린지 제목
-  int participants; // 참여자 수
-  final int day; // 챌린지 기간(일)
-  final ChallengeStatus status; // 진행 상태
-  final String category; // 카테고리
-  final DateTime createdAt; // 생성일
-  final String? type; // 챌린지 유형
-  final List<String> tags; // 태그 리스트
-  final String? imageUrl; // 이미지 URL
-  final String? bannerPeriod; // 선택적 기간 표시
-  final String? bannerDescription; // 선택적 상세 설명
-  bool isFavorite; // 추가
+  final String title;
+  int participants;
+  final int day; // 총 챌린지 일수
+  final ChallengeStatus status;
+  final String category;
+  final DateTime createdAt;
+  final String? type;
+  final List<String> tags;
+  final String? imageUrl;
+  final String? bannerPeriod;
+  final String? bannerDescription;
+  bool isFavorite;
+
+  int progressDays; // ✅ 여기 추가 (사용자가 인증한 일수)
 
   Challenge({
     required this.title,
@@ -31,8 +33,11 @@ class Challenge {
     this.imageUrl,
     this.bannerPeriod,
     this.bannerDescription,
-    this.isFavorite = false, // 기본값
+    this.isFavorite = false,
+    this.progressDays = 0, // 기본 0일
   }) : tags = tags ?? [];
+
+  double get progressPercent => day > 0 ? progressDays / day : 0;
 
   /// JSON → Challenge 변환
   factory Challenge.fromJson(Map<String, dynamic> json) {

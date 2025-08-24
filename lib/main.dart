@@ -5,7 +5,7 @@ import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

@@ -1,5 +1,6 @@
 // lib/views/pages/post_page.dart
 import 'package:bet_u/utils/token_util.dart';
+import 'package:bet_u/views/pages/community_tab/post_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -107,10 +108,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   bool _commenting = false; // ★ 댓글 전송 중 플래그
 
+  int? _currentUserId;
+
   @override
   void initState() {
     super.initState();
     _likes = widget.args.likeCountInitial;
+    _initUser();
     _fetchPost();
   }
 
@@ -118,6 +122,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void dispose() {
     _commentCtl.dispose();
     super.dispose();
+  }
+
+  Future<void> _initUser() async {
+    final uid = await TokenStorage.getUserId();
+    if (mounted) {
+      setState(() => _currentUserId = uid);
+      print('현재 로그인 유저 ID: $_currentUserId');
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -257,12 +269,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
         },
       );
 
-      // 디버그: 응답 바디 출력
-      // ignore: avoid_print
-      print('POST DETAIL BODY: ${res.body}');
-
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
+        print('POST DETAIL MAP: $data'); // key-value 쌍 확인
+
         final dto = PostDetailDto.fromJson(data);
         if (!mounted) return;
         setState(() {
@@ -287,6 +297,63 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  Future<void> _deletePost() async {
+    if (_post == null) return;
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('삭제하시겠어요?'),
+        content: const Text('삭제 후에는 되돌릴 수 없어요'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    final token = await TokenStorage.getToken();
+    final uri = Uri.parse('$baseUrl/api/community/posts/${_post!.postId}');
+
+    try {
+      final res = await http.delete(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (res.statusCode < 300) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('게시물이 삭제되었습니다')));
+        Navigator.pop(context, 'deleted'); // 목록으로 돌아가기
+      } else {
+        final body = res.body.isNotEmpty
+            ? res.body
+            : 'status ${res.statusCode}';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('삭제 실패: $body')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dto = _post;
@@ -298,7 +365,77 @@ class _PostDetailPageState extends State<PostDetailPage> {
         centerTitle: true,
         backgroundColor: const Color(0xFFF9F9E8),
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'edit') {
+                final updated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PostEditPage(
+                      postId: _post!.postId,
+                      initialTitle: _post!.title,
+                      initialContent: _post!.content,
+                    ),
+                  ),
+                );
+                if (updated == true) {
+                  _fetchPost();
+                }
+              } else if (value == 'delete') {
+                await _deletePost();
+              } else if (value == 'report') {
+                // TODO: 신고 기능 연결
+              }
+            },
+            itemBuilder: (context) {
+              final isAuthor =
+                  (_post?.authorId != null &&
+                  _currentUserId != null &&
+                  _post!.authorId == _currentUserId);
+
+              if (isAuthor) {
+                return [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18),
+                        SizedBox(width: 8),
+                        Text('수정'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 18),
+                        SizedBox(width: 8),
+                        Text('삭제'),
+                      ],
+                    ),
+                  ),
+                ];
+              } else {
+                return [
+                  const PopupMenuItem(
+                    value: 'report',
+                    child: Row(
+                      children: [
+                        Icon(Icons.flag, size: 18),
+                        SizedBox(width: 8),
+                        Text('신고'),
+                      ],
+                    ),
+                  ),
+                ];
+              }
+            },
+          ),
+        ],
       ),
+
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())

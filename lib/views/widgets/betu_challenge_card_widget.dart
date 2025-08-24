@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
-import '../../theme/app_colors.dart';
+import 'package:bet_u/views/pages/challenge_detail_page.dart';
+import 'package:bet_u/utils/recent_challenges.dart';
+import 'package:bet_u/theme/app_colors.dart';
 
+// ✅ StatelessWidget으로 변경
 class BetuChallengeCard extends StatelessWidget {
   final Challenge challenge;
-  final VoidCallback? onTap;
+  final VoidCallback? afterPop; // DetailPage에서 돌아왔을 때 실행할 콜백
 
-  const BetuChallengeCard({super.key, required this.challenge, this.onTap});
+  const BetuChallengeCard({super.key, required this.challenge, this.afterPop});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class BetuChallengeCard extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end, // ← 아래쪽으로 정렬
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (challenge.bannerPeriod != null)
                   Text(
@@ -41,23 +44,35 @@ class BetuChallengeCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                const SizedBox(height: 2), // 텍스트 간격 조금 줄임
+                const SizedBox(height: 2),
                 if (challenge.bannerDescription != null)
                   Text(
                     challenge.bannerDescription!,
                     style: const TextStyle(color: Colors.white, fontSize: 10),
-                    maxLines: 1, // 최대 2줄
-                    overflow: TextOverflow.ellipsis, // 넘치면 ... 처리
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
           ),
         ),
 
-        // 2. 카드 위젯
+        // 2. ChallengeTileWidget
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: ChallengeTileWidget(c: challenge, onTap: onTap),
+          child: ChallengeTileWidget(
+            c: challenge,
+            onTap: () {
+              addRecentVisitedChallenge(challenge);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChallengeDetailPage(challenge: challenge),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );

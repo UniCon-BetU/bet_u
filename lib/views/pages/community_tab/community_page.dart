@@ -11,7 +11,6 @@ import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 import '../../widgets/board_widget.dart';
 import '../../widgets/group_dashboard_widget.dart';
@@ -119,17 +118,8 @@ class _CommunityPageState extends State<CommunityPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PostDetailPage(
-                      args: PostDetailArgs(
-                        title: post.title,
-                        author: '관리자',
-                        dateString: DateFormat(
-                          'yyyy.MM.dd',
-                        ).format(post.createdAt),
-                        content: '게시물 본문 내용 예시입니다.',
-                        likeCountInitial: 12,
-                      ),
-                    ),
+                    builder: (_) =>
+                        PostDetailPage(args: PostDetailArgs(postId: 5)),
                   ),
                 );
               },

@@ -6,7 +6,7 @@ import 'package:bet_u/views/pages/community_tab/community_page.dart';
 import 'theme/app_colors.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

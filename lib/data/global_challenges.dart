@@ -7,7 +7,7 @@ final List<Challenge> betuChallenges = [
     title: '휴대폰 보기를 돌 같이 하라  |  스크린타임 인증 챌린지',
     participants: 2686,
     day: 14,
-    status: ChallengeStatus.notStarted,
+    status: ChallengeStatus.inProgress,
     category: '생활습관',
     createdAt: DateTime(2025, 8, 20),
     type: 'time',

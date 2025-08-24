@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   smooth_page_indicator: ^1.2.0
+  image_picker: ^1.1.2   # (버전은 pub.dev 최신 걸로!)
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

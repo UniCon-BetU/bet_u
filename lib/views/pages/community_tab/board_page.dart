@@ -64,14 +64,7 @@ class _BoardPageState extends State<BoardPage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => PostDetailPage(
-                                args: PostDetailArgs(
-                                  title: "예시 게시물",
-                                  author: "글쓴이", // 예시
-                                  dateString:
-                                      '2025.08.09', // DateFormat으로 변환해서 전달
-                                  content: '본문 내용 예시',
-                                  likeCountInitial: 0,
-                                ),
+                                args: PostDetailArgs(postId: 5),
                               ),
                             ),
                           );

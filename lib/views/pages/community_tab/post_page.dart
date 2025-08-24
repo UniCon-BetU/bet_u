@@ -1,17 +1,84 @@
+// lib/views/pages/post_page.dart
+import 'package:bet_u/utils/token_util.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+const String baseUrl = 'https://54.180.150.39.nip.io';
+
+// --- API 모델 ---
+class PostComment {
+  final int commentId;
+  final int userId;
+  final String userName;
+  final String content;
+  PostComment({
+    required this.commentId,
+    required this.userId,
+    required this.userName,
+    required this.content,
+  });
+  factory PostComment.fromJson(Map<String, dynamic> j) => PostComment(
+        commentId: j['commentId'] ?? 0,
+        userId: j['userId'] ?? 0,
+        userName: j['userName'] ?? '',
+        content: j['content'] ?? '',
+      );
+}
+
+class PostDetailDto {
+  final int postId;
+  final int? crewId;
+  final int? authorId;
+  final String authorName;
+  final String title;
+  final String content;
+  final int likeCount;
+  final List<String> imageUrls;
+  final List<PostComment> comments;
+
+  PostDetailDto({
+    required this.postId,
+    this.crewId,
+    this.authorId,
+    required this.authorName,
+    required this.title,
+    required this.content,
+    required this.likeCount,
+    required this.imageUrls,
+    required this.comments,
+  });
+
+  factory PostDetailDto.fromJson(Map<String, dynamic> j) => PostDetailDto(
+        postId: j['postId'] ?? 0,
+        crewId: j['crewId'],
+        authorId: j['authorId'],
+        authorName: j['authorName'] ?? '',
+        title: j['title'] ?? '',
+        content: j['content'] ?? '',
+        likeCount: j['likeCount'] ?? 0,
+        imageUrls: (j['imageUrls'] as List?)?.map((e) => '$e').toList() ?? [],
+        comments: (j['comments'] as List?)
+                ?.map((e) => PostComment.fromJson(e))
+                .toList() ??
+            [],
+      );
+}
 
 class PostDetailArgs {
-  final String title;
-  final String author;
-  final String dateString;
-  final String content;
+  final int postId;
+  final String? title;
+  final String? author;
+  final String? dateString;
+  final String? content;
   final int likeCountInitial;
 
   const PostDetailArgs({
-    required this.title,
-    required this.author,
-    required this.dateString,
-    required this.content,
+    required this.postId,
+    this.title,
+    this.author,
+    this.dateString,
+    this.content,
     this.likeCountInitial = 0,
   });
 }
@@ -29,12 +96,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
   bool _liked = false;
 
   final _commentCtl = TextEditingController();
-  final List<String> _comments = [];
+
+  PostDetailDto? _post;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _likes = widget.args.likeCountInitial;
+    _fetchPost();
   }
 
   @override
@@ -43,26 +113,62 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
+  Future<void> _fetchPost() async {
+    try {
+      final token = await TokenStorage.getToken(); // ★ 토큰
+      final uri =
+          Uri.parse('$baseUrl/api/community/posts/${widget.args.postId}');
+      final res = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      // 디버그: 응답 바디 출력
+      // ignore: avoid_print
+      print('POST DETAIL BODY: ${res.body}');
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body) as Map<String, dynamic>;
+        final dto = PostDetailDto.fromJson(data);
+        if (!mounted) return;
+        setState(() {
+          _post = dto;
+          _likes = dto.likeCount;
+          _loading = false;
+        });
+      } else {
+        if (!mounted) return;
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('불러오기 실패: ${res.statusCode}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류: $e')),
+      );
+    }
+  }
+
   void _toggleLike() {
     setState(() {
       _liked = !_liked;
       _likes += _liked ? 1 : -1;
     });
-  }
-
-  void _submitComment() {
-    final text = _commentCtl.text.trim();
-    if (text.isEmpty) return;
-    setState(() {
-      _comments.add(text);
-      _commentCtl.clear();
-    });
+    // TODO: 좋아요 토글 API 연동 시 여기서 호출
   }
 
   @override
   Widget build(BuildContext context) {
+    final dto = _post;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9E8), // 홈과 동일한 크림톤
+      backgroundColor: const Color(0xFFF9F9E8),
       appBar: AppBar(
         title: const Text('게시물'),
         centerTitle: true,
@@ -70,195 +176,257 @@ class _PostDetailPageState extends State<PostDetailPage> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // 상단 카드: 제목 / 작성자 / 좋아요
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 제목
-                  Text(
-                    widget.args.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // 작성자
-                  Text(
-                    widget.args.author,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  // 날짜
-                  Text(
-                    widget.args.dateString, // ← 여기에 날짜 문자열
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // 좋아요
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: _toggleLike,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          _liked ? Icons.favorite : Icons.favorite_border,
-                          size: 20,
-                          color: _liked
-                              ? const Color(0xFFE2504C)
-                              : Colors.grey.shade700,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : dto == null
+                ? const Center(child: Text('게시물을 찾을 수 없습니다'))
+                : Column(
+                    children: [
+                      // 상단 카드
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x14000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$_likes',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade800,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // 본문 내용 박스
-            Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(
-                minHeight: 200, // 최소 높이 설정
-              ),
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Text(
-                widget.args.content,
-                style: const TextStyle(fontSize: 15, height: 1.5),
-              ),
-            ),
-
-            // 댓글 리스트
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x14000000),
-                      blurRadius: 12,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: _comments.isEmpty
-                    ? Center(
-                        child: Text(
-                          '아직 댓글이 없어요',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      )
-                    : ListView.separated(
-                        itemCount: _comments.length,
-                        separatorBuilder: (_, __) =>
-                            const Divider(height: 16, thickness: 1),
-                        itemBuilder: (context, i) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const CircleAvatar(
-                                radius: 12,
-                                child: Icon(Icons.person, size: 14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dto.title.isNotEmpty
+                                  ? dto.title
+                                  : (widget.args.title ?? ''),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  _comments[i],
-                                  style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              dto.authorName.isNotEmpty
+                                  ? dto.authorName
+                                  : (widget.args.author ?? ''),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if ((widget.args.dateString ?? '').isNotEmpty)
+                              Text(
+                                widget.args.dateString!,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade500,
                                 ),
                               ),
-                            ],
-                          );
-                        },
+                            const SizedBox(height: 8),
+                            InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: _toggleLike,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(
+                                    _liked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    size: 20,
+                                    color: _liked
+                                        ? const Color(0xFFE2504C)
+                                        : Colors.grey.shade700,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '$_likes',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade800,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-              ),
-            ),
 
-            // 댓글 입력창
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _commentCtl,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _submitComment(),
-                      decoration: const InputDecoration(
-                        hintText: '댓글을 입력하세요',
-                        border: InputBorder.none,
+                      // 이미지 섹션
+                      if (dto.imageUrls.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          height: 180,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: dto.imageUrls.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, i) {
+                              final url = dto.imageUrls[i];
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: Image.network(
+                                    url,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      color: Colors.grey.shade200,
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                          Icons.image_not_supported),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      // 본문
+                      Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(minHeight: 200),
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x14000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          (dto.content.isNotEmpty
+                                  ? dto.content
+                                  : (widget.args.content ?? ''))
+                              .toString(),
+                          style: const TextStyle(fontSize: 15, height: 1.5),
+                        ),
                       ),
-                    ),
+
+                      // 댓글 리스트 (서버에서 온 것만 표시)
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: dto.comments.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    '아직 댓글이 없어요',
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  itemCount: dto.comments.length,
+                                  separatorBuilder: (_, __) => const Divider(
+                                      height: 16, thickness: 1),
+                                  itemBuilder: (context, i) {
+                                    final c = dto.comments[i];
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const CircleAvatar(
+                                          radius: 12,
+                                          child: Icon(Icons.person, size: 14),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            '${c.userName}: ${c.content}',
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                        ),
+                      ),
+
+                      // 댓글 입력창 (UI만, 전송 X)
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x14000000),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _commentCtl,
+                                readOnly:
+                                    true, // 아직 백엔드 미연결이므로 입력만 막아둠(원하면 제거)
+                                decoration: const InputDecoration(
+                                  hintText: '댓글 작성은 곧 연결될 예정입니다',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('댓글 작성 API 준비 중입니다'),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.send),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _submitComment,
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

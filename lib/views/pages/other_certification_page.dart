@@ -1,4 +1,3 @@
-import 'package:bet_u/views/widgets/chip_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/models/challenge.dart';

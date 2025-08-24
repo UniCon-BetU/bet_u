@@ -89,8 +89,9 @@ class Challenge {
     final now = DateTime.now();
 
     if (now.isBefore(start)) return ChallengeStatus.notStarted; // 시작 전
-    if (now.isAfter(end) && (progress == null || progress == 0))
+    if (now.isAfter(end) && (progress == null || progress == 0)) {
       return ChallengeStatus.missed; // 놓친 챌린지
+    }
     if (progress != null && progress < 100) return ChallengeStatus.inProgress;
     if (progress != null && progress >= 100) return ChallengeStatus.done;
 

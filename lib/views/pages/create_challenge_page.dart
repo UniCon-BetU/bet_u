@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CreateChallengePage extends StatefulWidget {
-  const CreateChallengePage({Key? key}) : super(key: key);
+  const CreateChallengePage({super.key});
 
   @override
   State<CreateChallengePage> createState() => _CreateChallengePageState();
@@ -192,11 +192,11 @@ class _SearchBar extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
 
   const _SearchBar({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     this.onSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -245,14 +245,14 @@ class ChallengeCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ChallengeCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.participants,
     required this.periodText,
     required this.tags,
     required this.bannerLines,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -402,7 +402,7 @@ class ChallengeCard extends StatelessWidget {
 
 /// 실제 생성 폼(더미) - 플로팅 버튼 눌렀을 때 열리는 페이지
 class _CreateFormPage extends StatelessWidget {
-  const _CreateFormPage({Key? key}) : super(key: key);
+  const _CreateFormPage({super.key});
 
   @override
   Widget build(BuildContext context) {

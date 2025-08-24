@@ -1,4 +1,3 @@
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import 'package:bet_u/views/widgets/betu_challenge_card_widget.dart';

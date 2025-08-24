@@ -1,3 +1,4 @@
+import 'package:bet_u/views/pages/community_tab/post_create_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/searchbar_widget.dart';
@@ -63,14 +64,7 @@ class _BoardPageState extends State<BoardPage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => PostDetailPage(
-                                args: PostDetailArgs(
-                                  title: "예시 게시물",
-                                  author: "글쓴이", // 예시
-                                  dateString:
-                                      '2025.08.09', // DateFormat으로 변환해서 전달
-                                  content: '본문 내용 예시',
-                                  likeCountInitial: 0,
-                                ),
+                                args: PostDetailArgs(postId: 5),
                               ),
                             ),
                           );
@@ -80,6 +74,17 @@ class _BoardPageState extends State<BoardPage> {
                   ),
           ),
         ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green.shade600,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PostCreatePage()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

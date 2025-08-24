@@ -6,7 +6,6 @@ import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
 // (상세 게시글 페이지 연결하려면) import '../pages/post_page.dart';
 
@@ -101,17 +100,8 @@ class GroupPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PostDetailPage(
-                      args: PostDetailArgs(
-                        title: post.title,
-                        author: group.name,
-                        dateString: DateFormat(
-                          'yyyy.MM.dd',
-                        ).format(post.createdAt),
-                        content: '그룹 게시물 본문 예시입니다.',
-                        likeCountInitial: 0,
-                      ),
-                    ),
+                    builder: (_) =>
+                        PostDetailPage(args: PostDetailArgs(postId: 5)),
                   ),
                 );
               },

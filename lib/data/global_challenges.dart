@@ -14,7 +14,7 @@ final List<Challenge> betuChallenges = [
     tags: ['#수능', '#생활습관', '#기상'],
     bannerPeriod: '챌린지 제공 기간: 상시',
     bannerDescription:
-        '이 챌린지는 하루 동안 휴대폰 사용을 줄이고, 스크린타임 인증을 통해 집중 습관을 만드는 챌린지입니다.',
+        '이 챌린지는 하루 동안 휴대폰 사용을 줄이고, 스크린타임 인증을 통해 집중 습관을 만드는 챌린지입니다.\n스크롤 테스트용 문장 길이 늘리기\n\n\n\n\n\n\nㅁ\n\nㅁ\n\nㅁ\nㅁ\n\n\n\nㅁ',
   ),
   Challenge(
     title: '수능 국어 1일 3지문',

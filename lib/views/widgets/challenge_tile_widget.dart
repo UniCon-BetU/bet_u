@@ -68,95 +68,93 @@ class ChallengeTileWidget extends StatelessWidget {
             ? _imageBox(imageUrl)
             : Icon(trailingIcon, size: 24, color: trailingColor));
 
-    return SizedBox(
-      height: 48,
-      child: Card(
-        color: background ?? bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-        elevation: 0,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 제목
-                      Text(
-                        c.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
+    return Card(
+      color: background ?? bg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 제목
+                    Text(
+                      c.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        height: 1.1,
                       ),
-                      // const SizedBox(height: 6),
+                    ),
+                    // const SizedBox(height: 6),
 
-                      // 참여자/기간(또는 목표형)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.people_alt_rounded,
-                            size: 12,
-                            color: AppColors.darkerGray,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${c.participants}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.darkerGray,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(
-                            Icons.today_rounded,
-                            size: 12,
-                            color: AppColors.darkerGray,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            c.type == 'time' ? '${c.day}일' : '목표 달성 챌린지',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.darkerGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                      // 태그
-                      if (showTags && c.tags.isNotEmpty)
-                        const SizedBox(height: 4),
-                      if (showTags && c.tags.isNotEmpty)
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: -2,
-                          children: c.tags
-                              .map(
-                                (tag) => Text(
-                                  '#$tag',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.green,
-                                    height: 1.0,
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                    // 참여자/기간(또는 목표형)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.people_alt_rounded,
+                          size: 12,
+                          color: AppColors.darkerGray,
                         ),
-                    ],
-                  ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${c.participants}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.darkerGray,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.today_rounded,
+                          size: 12,
+                          color: AppColors.darkerGray,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          c.type == 'time' ? '${c.day}일' : '목표 달성 챌린지',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.darkerGray,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // 태그
+                    if (showTags && c.tags.isNotEmpty)
+                      const SizedBox(height: 4),
+                    if (showTags && c.tags.isNotEmpty)
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: -2,
+                        children: c.tags
+                            .map(
+                              (tag) => Text(
+                                '#$tag',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.green,
+                                  height: 1.0,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                rightWidget,
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              rightWidget,
+            ],
           ),
         ),
       ),

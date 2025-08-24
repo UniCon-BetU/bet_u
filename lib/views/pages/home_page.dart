@@ -5,6 +5,11 @@ import '../../models/category.dart';
 import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
+import '../../theme/app_colors.dart';
+import '../../data/global_challenges.dart';
+import 'package:bet_u/views/pages/betu_challenges_page.dart';
+
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -64,7 +69,16 @@ class HomePage extends StatelessWidget {
       ),
     ];
 
-    final rankingChallenges = [
+    // 1) 개수 계산
+    final int totalCount = myChallenges.length;
+    final int doneCount = myChallenges
+        .where((c) => c.status == ChallengeStatus.done)
+        .length;
+
+    // 2) 진행률 (0.0 ~ 1.0)
+    final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
+
+    final rankingChallenges = [ 
       Challenge(
         title: '하루 영단어 50개 암기',
         participants: 1263,
@@ -133,16 +147,132 @@ class HomePage extends StatelessWidget {
         )
       ),  
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),  
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),  
         child: SingleChildScrollView(
           child: Column(
             children: [
               ChallengeSectionWidget(items: myChallenges),
-              AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
-              PopularSectionWidget(
-                categories: categories,
-                ranking: rankingChallenges,
+              // AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
+
+              SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+                  Expanded(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: progress), // progress = doneCount / totalCount
+                      duration: const Duration(milliseconds: 1000),
+                      curve: Curves.easeOut,
+                      builder: (context, value, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(64),
+                              child: LinearProgressIndicator(
+                                value: value,
+                                minHeight: 18,
+                                backgroundColor: AppColors.darkestGray,
+                                valueColor: const AlwaysStoppedAnimation(AppColors.primaryGreen),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+
+                  SizedBox(width: 12),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text(
+                        '오늘의 인증 완료',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      
+                      Row(
+                        children: [
+                          Text('$doneCount',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryGreen,
+                            )
+                          ),
+
+                          Text('/ 전체 $totalCount',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w300,
+                              color: AppColors.darkestGray,
+                            )
+                          ),
+                        ]
+                      )
+                    ],
+                  ),
+
+                  SizedBox(width: 12),
+                  Card(
+                    color: AppColors.primaryGreen,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: Center(
+                        child: Text('$userPoints P',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ) 
+                        )
+                      ),
+                    ),
+                  ),
+                ],  
               ),
+              
+              SizedBox(height: 12),
+              InkWell(
+                borderRadius: BorderRadius.circular(11),
+                onTap: () {
+                  final betuOnlyChallenges =
+                      betuChallenges.where((c) => c.type == 'betu').toList();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => BetuChallengesPage(
+                        betuChallenges: betuOnlyChallenges,
+                      ),
+                    ),
+                  );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: const [
+                        Text(
+                          'BETU Challenges',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(width: 6), // 아이콘과 텍스트 사이 간격 넓힘
+                        Icon(Icons.eco, color: AppColors.primaryGreen),
+                      ],
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black),
+                  ],
+                ),
+              ),
+
+              
             ],
           ),
         ),

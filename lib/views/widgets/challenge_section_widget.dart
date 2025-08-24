@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '/models/challenge.dart';
-import 'challenge_tile_widget.dart';
+import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import '../../theme/app_colors.dart';
 
 class ChallengeSectionWidget extends StatefulWidget {
@@ -38,8 +38,8 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+      //margin: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(11),
@@ -55,7 +55,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Text(
               widget.title,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
@@ -63,7 +63,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
           ),
 
           SizedBox(
-            height: 300,
+            height: 190,
             child: PageView.builder(
               controller: _pc,
               itemCount: _pages.length,

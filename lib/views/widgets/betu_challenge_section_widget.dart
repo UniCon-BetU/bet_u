@@ -1,81 +1,52 @@
+// lib/views/widgets/betu_challenge_section_widget.dart
 import 'package:flutter/material.dart';
-import 'package:bet_u/data/global_challenges.dart';
-import '../../models/challenge.dart';
-import '../pages/challenge_detail_page.dart';
-import 'package:bet_u/views/pages/betu_challenges_page.dart';
-import 'package:bet_u/views/pages/create_challenge_page.dart';
-
-import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../../models/challenge.dart';
 import '../../theme/app_colors.dart';
+import '../widgets/challenge_tile_widget.dart';
+import '../pages/betu_challenges_page.dart';
 
-class ChallengePage extends StatefulWidget {
-  const ChallengePage({super.key});
-
-  @override
-  State<ChallengePage> createState() => _ChallengePageState();
-}
-
-class BetuChallengeSectionWidget extends StatefulWidget {
-  final List<Challenge> items;
-
+class BetuChallengeSectionWidget extends StatelessWidget {
   const BetuChallengeSectionWidget({
     super.key,
-    required this.items,
+    required this.allChallenges,
+    this.title = 'BETU Challenges',
+    this.leadingIcon = const Icon(Icons.eco, color: AppColors.primaryGreen),
+    this.cardBackground = AppColors.lighterGreen,
+    this.itemsPerPage = 3,
+    this.onTileTap,
   });
 
-  @override
-  State<BetuChallengeSectionWidget> createState() => _BetuChallengeSectionWidgetState();
-}
+  /// (보통 betuChallenges)
+  final List<Challenge> allChallenges;
 
-class _BetuChallengeSectionWidgetState extends State<BetuChallengeSectionWidget> {
-  final _pc = PageController(viewportFraction: 1.0);
-  int _page = 0;
+  final String title;
+  final Widget leadingIcon;
+  final Color cardBackground;
+  final int itemsPerPage;
 
-  List<List<Challenge>> get _pages {
-    final chunk = <List<Challenge>>[];
-    for (var i = 0; i < widget.items.length; i += 3) {
-      chunk.add(widget.items.sublist(i, (i + 3).clamp(0, widget.items.length)));
-    }
-    return chunk.isEmpty ? [[]] : chunk;
-  }
-
-  @override
-  void dispose() {
-    _pc.dispose();
-    super.dispose();
-  }
+  /// 카드 탭 시 실행. (null이면 ChallengeTileWidget의 기본 네비 동작)
+  final void Function(Challenge challenge)? onTileTap;
 
   @override
   Widget build(BuildContext context) {
-    final top9Challenges = betuChallenges.take(9).toList();
-    final PageController pageController = PageController();
-    List<List<Challenge>> chunkedChallenges = [];
-
-    for (int i = 0; i < top9Challenges.length; i += 3) {
-      chunkedChallenges.add(
-        top9Challenges.sublist(
-          i,
-          i + 3 > top9Challenges.length ? top9Challenges.length : i + 3,
-        ),
-      );
-    }
+    // 원 코드: top9 (= itemsPerPage * 3)
+    final top = allChallenges.take(itemsPerPage * 3).toList();
+    final chunked = _chunk(top, itemsPerPage);
+    final pageController = PageController();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24), // 위/아래 간격 넓히고 좌측 여유 추가
-          child: InkWell(
+        // 헤더
+          InkWell(
             borderRadius: BorderRadius.circular(11),
             onTap: () {
-              final betuOnlyChallenges =
-                  betuChallenges.where((c) => c.type == 'betu').toList();
+              final betuOnly = allChallenges.where((c) => c.type == 'betu').toList();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => BetuChallengesPage(
-                    betuChallenges: betuOnlyChallenges,
-                  ),
+                  builder: (_) => BetuChallengesPage(betuChallenges: betuOnly),
                 ),
               );
             },
@@ -83,45 +54,38 @@ class _BetuChallengeSectionWidgetState extends State<BetuChallengeSectionWidget>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: const [
-                    Text(
-                      'BETU Challenges',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(width: 6), // 아이콘과 텍스트 사이 간격 넓힘
-                    Icon(Icons.eco, color: AppColors.primaryGreen),
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 6),
+                    leadingIcon,
                   ],
                 ),
                 const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black),
               ],
             ),
-          ),
         ),
+        const SizedBox(height: 6),
 
-        // 페이지 뷰
+        // 3개 세로 PageView
         SizedBox(
-          height: 165, // 카드 3개 세로로 들어갈 높이
+          height: 220,
           child: PageView.builder(
             controller: pageController,
-            itemCount: chunkedChallenges.length,
+            itemCount: chunked.length,
             itemBuilder: (context, pageIndex) {
+              final pageItems = chunked[pageIndex];
               return Column(
-                children: chunkedChallenges[pageIndex]
-                    .map(
-                      (challenge) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: ChallengeTileWidget(
-                          background: AppColors.lighterGreen,
-                          c: challenge,
-                          showTags: false,
-                          onTap: () => _goToProcessingPage(
-                            challenge,
-                            fromSearch: _isSearching,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+                children: pageItems.map((c) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: ChallengeTileWidget(
+                      background: cardBackground,
+                      c: c,
+                      showTags: false,
+                      onTap: onTileTap == null ? null : () => onTileTap!(c),
+                    ),
+                  );
+                }).toList(),
               );
             },
           ),
@@ -129,12 +93,11 @@ class _BetuChallengeSectionWidgetState extends State<BetuChallengeSectionWidget>
 
         const SizedBox(height: 8),
 
-        // . . . 점 인디케이터
         Center(
           child: SmoothPageIndicator(
             controller: pageController,
-            count: chunkedChallenges.length,
-            effect: WormEffect(
+            count: chunked.length,
+            effect: const WormEffect(
               dotHeight: 8,
               dotWidth: 8,
               activeDotColor: AppColors.yellowGreen,
@@ -144,5 +107,13 @@ class _BetuChallengeSectionWidgetState extends State<BetuChallengeSectionWidget>
         ),
       ],
     );
+  }
+
+  List<List<Challenge>> _chunk(List<Challenge> list, int size) {
+    final chunks = <List<Challenge>>[];
+    for (int i = 0; i < list.length; i += size) {
+      chunks.add(list.sublist(i, i + size > list.length ? list.length : i + size));
+    }
+    return chunks;
   }
 }

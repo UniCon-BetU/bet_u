@@ -1,4 +1,5 @@
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
+import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import '../../models/category.dart';
@@ -6,9 +7,9 @@ import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import '../../theme/app_colors.dart';
-import '../../data/global_challenges.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
-
+import 'package:bet_u/data/global_challenges.dart';
+import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -221,6 +222,7 @@ class HomePage extends StatelessWidget {
                   ),
 
                   SizedBox(width: 12),
+
                   Card(
                     color: AppColors.primaryGreen,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
@@ -240,39 +242,16 @@ class HomePage extends StatelessWidget {
                 ],  
               ),
               
-              SizedBox(height: 12),
-              InkWell(
-                borderRadius: BorderRadius.circular(11),
-                onTap: () {
-                  final betuOnlyChallenges =
-                      betuChallenges.where((c) => c.type == 'betu').toList();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => BetuChallengesPage(
-                        betuChallenges: betuOnlyChallenges,
-                      ),
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Text(
-                          'BETU Challenges',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(width: 6), // 아이콘과 텍스트 사이 간격 넓힘
-                        Icon(Icons.eco, color: AppColors.primaryGreen),
-                      ],
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black),
-                  ],
-                ),
-              ),
+              SizedBox(height: 18),
 
-              
+              BetuChallengeSectionWidget(
+                allChallenges: betuChallenges, // ← betu 도메인만 보여주려면 이 리스트 그대로
+                // onTileTap: (c) {
+                //   // 필요시 커스텀 탭 동작(예: 추적/로그/analytics 등)
+                //   // 기본 동작(상세 페이지로 이동)은 ChallengeTileWidget이 이미 처리하므로 생략 가능
+                // },
+              ),
+             
             ],
           ),
         ),

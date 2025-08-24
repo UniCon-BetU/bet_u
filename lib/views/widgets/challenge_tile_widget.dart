@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import '/models/challenge.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/challenge_history.dart';
+import '../../views/pages/challenge_detail_page.dart';
 
-/// 하나로 합친 챌린지 타일 위젯:
-/// - 오른쪽 영역: trailingOverride > (preferImageRight && image) > 기본 아이콘
-/// - 배경색: 외부에서 주입 없으면 상태 기반(bg 게터)
-/// - 태그 표시, 참여자/기간(또는 목표형) 표시
-/// - 탭 동작은 onTap으로 주입 (라우팅 분리)
-class ChallengeTileWidget extends StatelessWidget {
+/// 챌린지 타일 위젯
+/// - 탭 시: 어디서든 ChallengeHistory 기록 → onTap 있으면 실행, 없으면 상세 페이지로 이동
+/// - 길게/짧게 누를 때: 살짝 축소되는 프레스 애니메이션(AnimatedScale)
+class ChallengeTileWidget extends StatefulWidget {
+  const ChallengeTileWidget({
+    super.key,
+    required this.c,
+    this.onTap,
+    this.background,
+    this.trailingOverride,
+    this.preferImageRight = true,
+    this.showTags = true,
+    this.pressedScale = 0.97,
+    this.pressedAnimDuration = const Duration(milliseconds: 90),
+  });
+
   final Challenge c;
   final VoidCallback? onTap;
   final Color? background;
@@ -22,139 +34,175 @@ class ChallengeTileWidget extends StatelessWidget {
   /// 해시태그 보이기 (기본값 true)
   final bool showTags;
 
-  const ChallengeTileWidget({
-    super.key,
-    required this.c,
-    this.onTap,
-    this.background,
-    this.trailingOverride,
-    this.preferImageRight = true,
-    this.showTags = true,
-  });
+  /// 눌렀을 때 축소 비율
+  final double pressedScale;
 
-  Color get bg => switch (c.status) {
-    ChallengeStatus.inProgress => AppColors.lightYellow,
-    ChallengeStatus.done => AppColors.lightGreen,
-    ChallengeStatus.missed => AppColors.lightRed,
-    ChallengeStatus.notStarted => Colors.white,
-  };
+  /// 프레스 애니메이션 지속시간
+  final Duration pressedAnimDuration;
 
-  IconData get trailingIcon => switch (c.status) {
-    ChallengeStatus.inProgress => Icons.check_box_outlined,
-    ChallengeStatus.done => Icons.check_box,
-    ChallengeStatus.missed => Icons.indeterminate_check_box,
-    ChallengeStatus.notStarted => Icons.check_box_outline_blank,
-  };
+  @override
+  State<ChallengeTileWidget> createState() => _ChallengeTileWidgetState();
+}
 
-  Color get trailingColor => switch (c.status) {
-    ChallengeStatus.done => Colors.redAccent,
-    ChallengeStatus.inProgress => Colors.black54,
-    ChallengeStatus.missed => Colors.black54,
-    ChallengeStatus.notStarted => Colors.black54,
-  };
+class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (_pressed == v) return;
+    setState(() => _pressed = v);
+  }
+
+  Color get _bg => switch (widget.c.status) {
+        ChallengeStatus.inProgress => AppColors.lightYellow,
+        ChallengeStatus.done => AppColors.lightGreen,
+        ChallengeStatus.missed => AppColors.lightRed,
+        ChallengeStatus.notStarted => Colors.white,
+      };
+
+  IconData get _trailingIcon => switch (widget.c.status) {
+        ChallengeStatus.inProgress => Icons.check_box_outlined,
+        ChallengeStatus.done => Icons.check_box,
+        ChallengeStatus.missed => Icons.indeterminate_check_box,
+        ChallengeStatus.notStarted => Icons.check_box_outline_blank,
+      };
+
+  Color get _trailingColor => switch (widget.c.status) {
+        ChallengeStatus.done => Colors.redAccent,
+        ChallengeStatus.inProgress => Colors.black54,
+        ChallengeStatus.missed => Colors.black54,
+        ChallengeStatus.notStarted => Colors.black54,
+      };
 
   @override
   Widget build(BuildContext context) {
-    final String? imageUrl = c.imageUrl?.trim();
+    final String? imageUrl = widget.c.imageUrl?.trim();
     final bool hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     // 오른쪽에 들어갈 위젯 우선순위:
     // 1) trailingOverride
     // 2) preferImageRight && hasImage => 이미지
     // 3) 기본 아이콘
-    final Widget rightWidget =
-        trailingOverride ??
-        (preferImageRight && hasImage
-            ? _imageBox(imageUrl)
-            : Icon(trailingIcon, size: 24, color: trailingColor));
+    final Widget rightWidget = widget.trailingOverride ??
+        (widget.preferImageRight && hasImage
+            ? _imageBox(imageUrl!)
+            : Icon(_trailingIcon, size: 24, color: _trailingColor));
 
-    return Card(
-      color: background ?? bg,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 제목
-                    Text(
-                      c.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        height: 1.1,
-                      ),
-                    ),
-                    // const SizedBox(height: 6),
+    return AnimatedScale(
+      scale: _pressed ? widget.pressedScale : 1.0,
+      duration: widget.pressedAnimDuration,
+      curve: Curves.easeOut,
+      child: Card(
+        color: widget.background ?? _bg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        elevation: 0,
+        clipBehavior: Clip.antiAlias,
+        child: Listener(
+          onPointerDown: (_) => _setPressed(true),
+          onPointerUp: (_) => _setPressed(false),
+          onPointerCancel: (_) => _setPressed(false),
+          child: InkWell(
+            onTap: () async {
+              // 1) 어디서든 기록
+              ChallengeHistory.instance.record(widget.c);
 
-                    // 참여자/기간(또는 목표형)
-                    Row(
+              // 2) 라우팅: onTap 제공 시 우선, 아니면 기본 상세페이지 이동
+              if (widget.onTap != null) {
+                widget.onTap!();
+              } else {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ChallengeDetailPage(challenge: widget.c),
+                  ),
+                );
+              }
+            },
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.people_alt_rounded,
-                          size: 12,
-                          color: AppColors.darkerGray,
-                        ),
-                        const SizedBox(width: 2),
+                        // 제목
                         Text(
-                          '${c.participants}',
+                          widget.c.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.darkerGray,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            height: 1.1,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.today_rounded,
-                          size: 12,
-                          color: AppColors.darkerGray,
+
+                        // 참여자/기간(또는 목표형)
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.people_alt_rounded,
+                              size: 12,
+                              color: AppColors.darkerGray,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${widget.c.participants}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.darkerGray,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.today_rounded,
+                              size: 12,
+                              color: AppColors.darkerGray,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              widget.c.type == 'time'
+                                  ? '${widget.c.day} Days'
+                                  : '목표 달성 챌린지',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.darkerGray,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 2),
-                        Text(
-                          c.type == 'time' ? '${c.day}일' : '목표 달성 챌린지',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.darkerGray,
+
+                        // 태그
+                        if (widget.showTags && widget.c.tags.isNotEmpty)
+                          const SizedBox(height: 4),
+                        if (widget.showTags && widget.c.tags.isNotEmpty)
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: -2,
+                            children: widget.c.tags
+                                .map(
+                                  (tag) => Text(
+                                    '#$tag',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.green,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                           ),
-                        ),
                       ],
                     ),
-                    // 태그
-                    if (showTags && c.tags.isNotEmpty)
-                      const SizedBox(height: 4),
-                    if (showTags && c.tags.isNotEmpty)
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: -2,
-                        children: c.tags
-                            .map(
-                              (tag) => Text(
-                                '#$tag',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.green,
-                                  height: 1.0,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  rightWidget,
+                ],
               ),
-              const SizedBox(width: 8),
-              rightWidget,
-            ],
+            ),
           ),
         ),
       ),

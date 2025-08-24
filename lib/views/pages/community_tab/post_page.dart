@@ -107,10 +107,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   bool _commenting = false; // ★ 댓글 전송 중 플래그
 
+  int? _currentUserId;
+
   @override
   void initState() {
     super.initState();
     _likes = widget.args.likeCountInitial;
+    _initUser();
     _fetchPost();
   }
 
@@ -118,6 +121,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void dispose() {
     _commentCtl.dispose();
     super.dispose();
+  }
+
+  Future<void> _initUser() async {
+    final uid = await TokenStorage.getUserId();
+    if (mounted) {
+      setState(() => _currentUserId = uid);
+      print('현재 로그인 유저 ID: $_currentUserId');
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -257,12 +268,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
         },
       );
 
-      // 디버그: 응답 바디 출력
-      // ignore: avoid_print
-      print('POST DETAIL BODY: ${res.body}');
-
       if (res.statusCode == 200) {
         final data = json.decode(res.body) as Map<String, dynamic>;
+        print('POST DETAIL MAP: $data'); // key-value 쌍 확인
+
         final dto = PostDetailDto.fromJson(data);
         if (!mounted) return;
         setState(() {
@@ -298,6 +307,57 @@ class _PostDetailPageState extends State<PostDetailPage> {
         centerTitle: true,
         backgroundColor: const Color(0xFFF9F9E8),
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              // TODO: 기능 연결
+            },
+            itemBuilder: (context) {
+              final isAuthor =
+                  (_post?.authorId != null &&
+                  _currentUserId != null &&
+                  _post!.authorId == _currentUserId);
+              // ↑ 실제로는 로그인한 유저 id랑 비교해야 함
+              if (isAuthor) {
+                return [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: const [
+                        Icon(Icons.edit, size: 18),
+                        SizedBox(width: 8),
+                        Text('수정'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: const [
+                        Icon(Icons.delete, size: 18),
+                        SizedBox(width: 8),
+                        Text('삭제'),
+                      ],
+                    ),
+                  ),
+                ];
+              } else {
+                return [
+                  PopupMenuItem(
+                    value: 'report',
+                    child: Row(
+                      children: const [
+                        Icon(Icons.flag, size: 18),
+                        SizedBox(width: 8),
+                        Text('신고'),
+                      ],
+                    ),
+                  ),
+                ];
+              }
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: _loading

@@ -105,6 +105,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
   PostDetailDto? _post;
   bool _loading = true;
 
+  bool _commenting = false; // ★ 댓글 전송 중 플래그
+
   @override
   void initState() {
     super.initState();
@@ -183,6 +185,60 @@ class _PostDetailPageState extends State<PostDetailPage> {
       ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
     } finally {
       _liking = false;
+    }
+  }
+
+  Future<void> _submitComment() async {
+    if (_commenting || _loading) return;
+
+    final text = _commentCtl.text.trim();
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('댓글 내용을 입력해 주세요')));
+      return;
+    }
+
+    setState(() => _commenting = true);
+
+    try {
+      final token = await TokenStorage.getToken();
+      final uri = Uri.parse('$baseUrl/api/community/comments');
+
+      final res = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'postId': widget.args.postId, 'content': text}),
+      );
+
+      // ignore: avoid_print
+      print('COMMENT CREATE BODY: ${res.body}');
+
+      if (res.statusCode == 200) {
+        _commentCtl.clear();
+        FocusScope.of(context).unfocus();
+        await _fetchPost(); // ★ 최신 댓글 목록 다시 불러오기
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글이 등록되었습니다')));
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('댓글 등록 실패: ${res.statusCode}')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    } finally {
+      if (mounted) setState(() => _commenting = false);
     }
   }
 
@@ -444,7 +500,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     ),
                   ),
 
-                  // 댓글 입력창 (UI만, 전송 X)
+                  // 댓글 입력창
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -464,23 +520,29 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         Expanded(
                           child: TextField(
                             controller: _commentCtl,
-                            readOnly: true, // 아직 백엔드 미연결이므로 입력만 막아둠(원하면 제거)
+                            readOnly: false, // ★ 입력 가능
+                            minLines: 1,
+                            maxLines: 3,
                             decoration: const InputDecoration(
-                              hintText: '댓글 작성은 곧 연결될 예정입니다',
+                              hintText: '댓글을 입력하세요',
                               border: InputBorder.none,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('댓글 작성 API 준비 중입니다'),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.send),
+                          onPressed: _commenting
+                              ? null
+                              : _submitComment, // ★ 연결
+                          icon: _commenting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.send),
                         ),
                       ],
                     ),

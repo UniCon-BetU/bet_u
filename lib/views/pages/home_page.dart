@@ -11,7 +11,6 @@ import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -79,7 +78,7 @@ class HomePage extends StatelessWidget {
     // 2) 진행률 (0.0 ~ 1.0)
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
-    final rankingChallenges = [ 
+    final rankingChallenges = [
       Challenge(
         title: '하루 영단어 50개 암기',
         participants: 1263,
@@ -103,7 +102,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
-        backgroundColor: Colors.white, 
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -115,18 +114,20 @@ class HomePage extends StatelessWidget {
               Row(
                 children: [
                   Image.asset(
-                    'assets/images/normal_lettuce.png', 
-                    width: 48, height: 48,
+                    'assets/images/normal_lettuce.png',
+                    width: 48,
+                    height: 48,
                     alignment: Alignment.center,
                     fit: BoxFit.contain,
                   ),
 
                   Image.asset(
-                    'assets/images/BETU_letters.png', 
-                    width: 96, height: 48,
+                    'assets/images/BETU_letters.png',
+                    width: 96,
+                    height: 48,
                     alignment: Alignment.center,
                     fit: BoxFit.contain,
-                  )
+                  ),
                 ],
               ),
 
@@ -142,28 +143,30 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 },
-              )
+              ),
             ],
-          )
-        )
-      ),  
+          ),
+        ),
+      ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),  
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
         child: SingleChildScrollView(
           child: Column(
             children: [
               ChallengeSectionWidget(items: myChallenges),
-              // AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
 
+              // AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
               SizedBox(height: 12),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   Expanded(
                     child: TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: progress), // progress = doneCount / totalCount
+                      tween: Tween(
+                        begin: 0,
+                        end: progress,
+                      ), // progress = doneCount / totalCount
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeOut,
                       builder: (context, value, _) {
@@ -176,7 +179,9 @@ class HomePage extends StatelessWidget {
                                 value: value,
                                 minHeight: 18,
                                 backgroundColor: AppColors.darkestGray,
-                                valueColor: const AlwaysStoppedAnimation(AppColors.primaryGreen),
+                                valueColor: const AlwaysStoppedAnimation(
+                                  AppColors.primaryGreen,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -198,26 +203,28 @@ class HomePage extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      
+
                       Row(
                         children: [
-                          Text('$doneCount',
+                          Text(
+                            '$doneCount',
                             style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                               color: AppColors.primaryGreen,
-                            )
+                            ),
                           ),
 
-                          Text('/ 전체 $totalCount',
+                          Text(
+                            '/ 전체 $totalCount',
                             style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w300,
                               color: AppColors.darkestGray,
-                            )
+                            ),
                           ),
-                        ]
-                      )
+                        ],
+                      ),
                     ],
                   ),
 
@@ -225,23 +232,29 @@ class HomePage extends StatelessWidget {
 
                   Card(
                     color: AppColors.primaryGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(11),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       child: Center(
-                        child: Text('$userPoints P',
+                        child: Text(
+                          '$userPoints P',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
-                          ) 
-                        )
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ],  
+                ],
               ),
-              
+
               SizedBox(height: 18),
 
               BetuChallengeSectionWidget(
@@ -251,7 +264,6 @@ class HomePage extends StatelessWidget {
                 //   // 기본 동작(상세 페이지로 이동)은 ChallengeTileWidget이 이미 처리하므로 생략 가능
                 // },
               ),
-             
             ],
           ),
         ),

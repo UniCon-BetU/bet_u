@@ -5,6 +5,10 @@ import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
 import 'theme/app_colors.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -28,7 +32,9 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Freesentation',
-        colorScheme: ColorScheme.light(surface: Colors.white),
+        colorScheme: ColorScheme.light(
+          surface: const Color.fromARGB(255, 255, 255, 255),
+        ),
       ),
       home: const WelcomePage(),
       routes: {

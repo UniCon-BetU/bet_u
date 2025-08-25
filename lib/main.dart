@@ -5,10 +5,6 @@ import 'package:bet_u/views/pages/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
 import 'theme/app_colors.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 

@@ -66,6 +66,7 @@ flutter:
   # assets와 fonts는 동일한 들여쓰기 레벨이어야 합니다.
   assets:
     - assets/images/
+    - assets/category/
 
 
     

@@ -40,29 +40,47 @@ class BetuChallengeSectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 헤더
-          InkWell(
-            borderRadius: BorderRadius.circular(11),
-            onTap: () {
-              final betuOnly = allChallenges.where((c) => c.type == 'betu').toList();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BetuChallengesPage(betuChallenges: betuOnly),
-                ),
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+        InkWell(
+          borderRadius: BorderRadius.circular(11),
+          onTap: () {
+            final betuOnly = allChallenges
+                .where((c) => c.type == 'betu')
+                .toList();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BetuChallengesPage(betuChallenges: betuOnly),
+              ),
+            );
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12), // 왼쪽 여백
+                child: Row(
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(width: 6),
                     leadingIcon,
+                    const SizedBox(width: 260),
+
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.black,
+                    ),
                   ],
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black),
-              ],
-            ),
+              ),
+
+              const SizedBox(width: 1),
+            ],
+          ),
         ),
         const SizedBox(height: 6),
 
@@ -112,7 +130,9 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   List<List<Challenge>> _chunk(List<Challenge> list, int size) {
     final chunks = <List<Challenge>>[];
     for (int i = 0; i < list.length; i += size) {
-      chunks.add(list.sublist(i, i + size > list.length ? list.length : i + size));
+      chunks.add(
+        list.sublist(i, i + size > list.length ? list.length : i + size),
+      );
     }
     return chunks;
   }

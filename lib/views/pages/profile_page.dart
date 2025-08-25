@@ -160,7 +160,7 @@ class ProfilePage extends StatelessWidget {
                 MyPageSettingWidget(
                   title: '포인트 결제',
                   image: AssetImage('images/point_icon.png'),
-                  point: '100P',
+                  point: '$userPoints P', // userPoints 변수 사용
                   onTap: () {
                     Navigator.push(
                       context,

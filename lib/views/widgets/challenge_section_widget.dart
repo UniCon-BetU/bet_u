@@ -45,7 +45,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
         borderRadius: BorderRadius.circular(11),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 4,
             offset: Offset(0, 4),
           ),
@@ -58,7 +58,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Text(
               widget.title,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ),
 
@@ -70,7 +70,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
               onPageChanged: (i) => setState(() => _page = i),
               itemBuilder: (_, idx) => Column(
                 children: _pages[idx]
-                    .map((c) => ChallengeTileWidget(c: c))
+                    .map((c) => ChallengeTileWidget(c: c, showTags: false))
                     .toList(),
               ),
             ),
@@ -99,7 +99,6 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
               }),
             ),
           ),
-
         ],
       ),
     );

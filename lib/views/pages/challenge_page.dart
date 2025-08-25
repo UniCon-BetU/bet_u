@@ -9,6 +9,24 @@ import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/challenge_history.dart' as ch;
 
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Profile Page Demo',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: const ChallengePage(),
+    );
+  }
+}
+
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 
@@ -37,16 +55,18 @@ class _ChallengePageState extends State<ChallengePage> {
   bool _isTagDropdownOpen = false;
 
   final TextEditingController _searchController = TextEditingController();
-  String selectedCategory = '전체';
-  final List<String> categories = [
-    '전체',
-    '수능',
-    '토익',
-    '공무원/행시',
-    '회계사',
-    'LEET',
-    '자격증',
-    '자기계발',
+  String selectedCategory = '수능';
+  final List<Map<String, String>> categories = [
+    {"name": "수능", "image": "assets/category/suneung.png"},
+    {"name": "대학", "image": "assets/category/university.png"},
+
+    {"name": "토익", "image": "assets/category/toeic.png"},
+    {"name": "자격증", "image": "assets/category/certificate.png"},
+
+    {"name": "공무원/행시", "image": "assets/category/gongmuwon.png"},
+    {"name": "회계사", "image": "assets/category/account.png"},
+    {"name": "LEET", "image": "assets/category/leet.png"},
+    {"name": "생활/자기계발", "image": "assets/category/self.png"},
   ];
 
   List<String> recentSearches = [];
@@ -381,9 +401,9 @@ class _ChallengePageState extends State<ChallengePage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: categories.map((cat) {
-              final isSelected = selectedCategory == cat;
+              final isSelected = selectedCategory == cat["name"];
               return GestureDetector(
-                onTap: () => setState(() => selectedCategory = cat),
+                onTap: () => setState(() => selectedCategory = cat["name"]!),
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
                   padding: const EdgeInsets.symmetric(
@@ -395,7 +415,7 @@ class _ChallengePageState extends State<ChallengePage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    cat,
+                    cat["name"]!,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
                       fontWeight: isSelected
@@ -448,7 +468,7 @@ class _ChallengePageState extends State<ChallengePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: 48),
+          SizedBox(height: 30),
           AnimatedContainer(
             duration: Duration(milliseconds: 300),
             curve: Curves.easeOut,
@@ -554,7 +574,7 @@ class _ChallengePageState extends State<ChallengePage> {
                     child: IgnorePointer(
                       ignoring: _isSearching, // 사라지는 중 터치 막기
                       child: IconButton(
-                        iconSize: 24,
+                        iconSize: 40,
                         icon: const Icon(
                           Icons.add_rounded,
                           color: Colors.black,
@@ -582,9 +602,11 @@ class _ChallengePageState extends State<ChallengePage> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: categories.map((cat) {
-                    final isSelected = selectedCategory == cat;
+                    final isSelected = selectedCategory == cat['name'];
                     return GestureDetector(
-                      onTap: () => setState(() => selectedCategory = cat),
+                      onTap: () => setState(
+                        () => selectedCategory = cat['name']!,
+                      ), // ✅ 선택도 name으로
                       child: Container(
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(
@@ -598,7 +620,7 @@ class _ChallengePageState extends State<ChallengePage> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          cat,
+                          cat['name']!, // ✅ 이렇게 수정
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.black,
                             fontWeight: isSelected
@@ -663,6 +685,7 @@ class _ChallengePageState extends State<ChallengePage> {
       child: Column(
         children: [
           const Spacer(),
+
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -678,20 +701,23 @@ class _ChallengePageState extends State<ChallengePage> {
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    selectedCategory = cat;
+                    selectedCategory = cat["name"]!;
                     _isSearching = true;
                   });
                 },
                 child: Column(
                   children: [
-                    const CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Color(0xFF1BAB0F),
-                      child: Icon(Icons.school, color: Colors.white),
+                    // CircleAvatar 대신 이미지 그대로
+                    Image.asset(
+                      cat["image"]!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.none, // <- 픽셀 낮춤
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      cat,
+                      cat["name"]!,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,

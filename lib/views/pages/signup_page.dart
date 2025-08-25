@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/io_client.dart';
+import '../../theme/app_colors.dart';
 
 const String baseUrl = 'https://54.180.150.39.nip.io'; // ← 그대로 사용
 
@@ -85,63 +86,126 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  InputDecoration customInputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black54),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12), // 둥근 모서리
-        borderSide: BorderSide(color: Colors.grey.shade400), // 회색 테두리
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: Colors.green,
-          width: 2,
-        ), // 포커스 시 초록 테두리
-      ),
-    );
-  }
+    InputDecoration customInputDecoration(String hint) {
+      return InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          color: AppColors.Gray,
+          fontSize: 17,
+          fontWeight: FontWeight.w400,
+        ),
+        filled: true,
+        fillColor: AppColors.lighterGreen,
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.all(12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11), // 둥근 모서리
+          borderSide: BorderSide.none, // 테두리 없음
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11),
+          borderSide: const BorderSide(
+            color: AppColors.primaryGreen,
+            width: 1.5,
+          ), // 포커스 시 초록 테두리
+        ),
+      );
+    }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // 선택: AppBar 뒤까지 배경 보이게 하고 싶다면 주석 해제
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent, 
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 50),
-            TextField(
-              controller: usernameController,
-              decoration: customInputDecoration("사용자 이름"),
-              style: const TextStyle(color: Colors.black),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: customInputDecoration("이메일"),
-              style: const TextStyle(color: Colors.black),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: customInputDecoration("비밀번호"),
-              style: const TextStyle(color: Colors.black),
-            ),
-            const SizedBox(height: 30),
-            LongButtonWidget(text: '가입하기', onPressed: signup),
-          ],
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, 
+          color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
+      ),
+
+      resizeToAvoidBottomInset: false, // ← 배경 고정
+
+      body: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.yellowGreen, AppColors.primaryGreen],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(48, 24, 48, 24 + bottomInset),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: 176,
+                          height: 176,
+                          child: FittedBox(
+                            child: Image.asset(
+                              'assets/images/BETU_mainlogo.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        TextField(
+                          controller: emailController,
+                          decoration: customInputDecoration("이메일"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: customInputDecoration("비밀번호"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: usernameController,
+                          decoration: customInputDecoration("사용자 이름"),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        LongButtonWidget(text: '가입하기', onPressed: signup, backgroundColor: AppColors.primaryBlue),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

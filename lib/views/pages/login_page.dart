@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/io_client.dart';
+import '../../theme/app_colors.dart';
 
 // (SignupPage와 동일)
 const String baseUrl = 'https://54.180.150.39.nip.io';
@@ -82,55 +83,128 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  InputDecoration customInputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black54),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade400),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.green, width: 2),
-      ),
-    );
-  }
+    InputDecoration customInputDecoration(String hint) {
+      return InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          color: AppColors.Gray,
+          fontSize: 17,
+          fontWeight: FontWeight.w400,
+        ),
+        filled: true,
+        fillColor: AppColors.lighterGreen,
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.all(12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11), // 둥근 모서리
+          borderSide: BorderSide.none, // 테두리 없음
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(11),
+          borderSide: const BorderSide(
+            color: AppColors.primaryGreen,
+            width: 1.5,
+          ), // 포커스 시 초록 테두리
+        ),
+      );
+    }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // 선택: AppBar 뒤까지 배경 보이게 하고 싶다면 주석 해제
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent, 
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 50),
-            TextField(
-              controller: userNameController,
-              decoration: customInputDecoration('아이디'),
-              style: const TextStyle(color: Colors.black),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: customInputDecoration('비밀번호'),
-              style: const TextStyle(color: Colors.black),
-              onSubmitted: (_) => login(),
-            ),
-            const SizedBox(height: 30),
-            LongButtonWidget(text: '로그인', onPressed: login),
-          ],
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, 
+          color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
+      ),
+
+      resizeToAvoidBottomInset: false, // ← 배경 고정
+
+      body: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.lightGreen, AppColors.yellowGreen],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(48, 48, 48, 48 + bottomInset),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 로고
+                        Image.asset(
+                          'assets/images/betu_happy.png',
+                          width: 96, height: 96, fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('기다리고 있었어요,',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+                        const Text('돌아오신 걸 환영해요!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 32),
+
+                        // 아이디/비번
+                        TextField(
+                          controller: userNameController,
+                          decoration: customInputDecoration('아이디'),
+                          style: const TextStyle(                            
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,),
+                          textInputAction: TextInputAction.next,
+                          autofillHints: const [AutofillHints.username],
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: passwordController,
+                          decoration: customInputDecoration('비밀번호'),
+                          style: const TextStyle(                            
+                            color: Colors.black,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,),
+                          obscureText: true,
+                          onSubmitted: (_) => login(),
+                          textInputAction: TextInputAction.done,
+                          autofillHints: const [AutofillHints.password],
+                        ),
+
+                        const SizedBox(height: 30),
+                        LongButtonWidget(
+                          text: '로그인',
+                          onPressed: login,
+                          backgroundColor: AppColors.primaryGreen,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

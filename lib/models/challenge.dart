@@ -18,6 +18,7 @@ class Challenge {
   final String? bannerPeriod;
   final String? bannerDescription;
   final String? WhoMadeIt;
+  bool todayCheck; // 오늘 인증했는지 여부
 
   bool isFavorite;
 
@@ -38,6 +39,7 @@ class Challenge {
     this.isFavorite = false,
     this.progressDays = 0, // 기본 0일
     this.WhoMadeIt, // 기본 0일
+    this.todayCheck = false, // 오늘 인증했는지 여부
   }) : tags = tags ?? [];
 
   double get progressPercent => day > 0 ? progressDays / day : 0;

@@ -10,23 +10,6 @@ import 'package:image_picker/image_picker.dart';
 
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Challenge App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const CreateChallengePage(),
-    );
-  }
-}
-
 class ChipDropdownWidget extends StatelessWidget {
   const ChipDropdownWidget({
     super.key,

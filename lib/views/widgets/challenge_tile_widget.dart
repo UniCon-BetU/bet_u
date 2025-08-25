@@ -46,25 +46,25 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
   }
 
   Color get _bg => switch (widget.c.status) {
-        ChallengeStatus.inProgress => AppColors.lightYellow,
-        ChallengeStatus.done => AppColors.lightGreen,
-        ChallengeStatus.missed => AppColors.lightRed,
-        ChallengeStatus.notStarted => Colors.white,
-      };
+    ChallengeStatus.inProgress => AppColors.lightYellow,
+    ChallengeStatus.done => AppColors.lightGreen,
+    ChallengeStatus.missed => AppColors.lightRed,
+    ChallengeStatus.notStarted => Colors.white,
+  };
 
   IconData get _trailingIcon => switch (widget.c.status) {
-        ChallengeStatus.inProgress => Icons.check_box_outlined,
-        ChallengeStatus.done => Icons.check_box,
-        ChallengeStatus.missed => Icons.indeterminate_check_box,
-        ChallengeStatus.notStarted => Icons.check_box_outline_blank,
-      };
+    ChallengeStatus.inProgress => Icons.check_box_outlined,
+    ChallengeStatus.done => Icons.check_box,
+    ChallengeStatus.missed => Icons.indeterminate_check_box,
+    ChallengeStatus.notStarted => Icons.check_box_outline_blank,
+  };
 
   Color get _trailingColor => switch (widget.c.status) {
-        ChallengeStatus.done => Colors.redAccent,
-        ChallengeStatus.inProgress => Colors.black54,
-        ChallengeStatus.missed => Colors.black54,
-        ChallengeStatus.notStarted => Colors.black54,
-      };
+    ChallengeStatus.done => Colors.redAccent,
+    ChallengeStatus.inProgress => Colors.black54,
+    ChallengeStatus.missed => Colors.black54,
+    ChallengeStatus.notStarted => Colors.black54,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +75,8 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
     // 1) trailingOverride
     // 2) preferImageRight && hasImage => 이미지
     // 3) 기본 아이콘
-    final Widget rightWidget = widget.trailingOverride ??
+    final Widget rightWidget =
+        widget.trailingOverride ??
         (widget.preferImageRight && hasImage
             ? _imageBox(imageUrl!)
             : Icon(_trailingIcon, size: 24, color: _trailingColor));
@@ -112,8 +113,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
               }
             },
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Row(
                 children: [
                   Expanded(
@@ -127,7 +127,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                             height: 1.1,
                           ),

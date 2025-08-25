@@ -9,6 +9,8 @@ import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/challenge_history.dart' as ch;
 
+
+
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 
@@ -488,7 +490,7 @@ class _ChallengePageState extends State<ChallengePage> {
                           isDense: true,
                           // height: 54이면 vertical padding을 조금 줄이는 게 좋아요
                           contentPadding: const EdgeInsets.symmetric(
-                            vertical: 11,
+                            vertical: 15,
                             horizontal: 12,
                           ),
                           prefixIcon: Padding(
@@ -542,7 +544,6 @@ class _ChallengePageState extends State<ChallengePage> {
                     ),
                   ),
                 ),
-
                 // 플러스 버튼: 화면 밖으로 슬라이드 + 페이드아웃
                 AnimatedPositioned(
                   duration: Duration(milliseconds: 300),
@@ -657,7 +658,7 @@ class _ChallengePageState extends State<ChallengePage> {
 
   Widget buildCategoryGridWithBackground() {
     return Container(
-      width: 450,
+      width: 460,
       height: 250,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -692,12 +693,11 @@ class _ChallengePageState extends State<ChallengePage> {
                     // CircleAvatar 대신 이미지 그대로
                     Image.asset(
                       cat["image"]!,
-                      width: 48,
-                      height: 48,
+                      width: 60,
+                      height: 60,
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.none, // <- 픽셀 낮춤
                     ),
-                    const SizedBox(height: 6),
                     Text(
                       cat["name"]!,
                       style: const TextStyle(

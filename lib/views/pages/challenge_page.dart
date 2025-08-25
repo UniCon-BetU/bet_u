@@ -11,12 +11,6 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 // ✨ 새로 만든 전역 유틸리티 함수를 import합니다.
 import 'package:bet_u/utils/recent_challenges.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(debugShowCheckedModeBanner: false, home: ChallengePage()),
-  );
-}
-
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 

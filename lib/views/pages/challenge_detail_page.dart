@@ -317,9 +317,12 @@ class ProgressStatusBar extends StatelessWidget {
   final int totalDay;
   final int remainDay;
 
-  ProgressStatusBar({super.key, required this.day, required this.totalDay})
-    : percent = day / totalDay,
-      remainDay = totalDay - day;
+  const ProgressStatusBar({
+    super.key,
+    required this.day,
+    required this.totalDay,
+  }) : percent = day / totalDay,
+       remainDay = totalDay - day;
   @override
   Widget build(BuildContext context) {
     return Container(

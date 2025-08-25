@@ -5,6 +5,7 @@ import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/challenge_participate_page.dart';
 import 'package:bet_u/views/widgets/chip_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
+import '../../theme/app_colors.dart';
 
 import 'package:bet_u/views/widgets/goal_bubble_widget.dart';
 
@@ -41,9 +42,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 160), // 하단바 높이만큼 여백 확보
-        child: Column(
+      body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ----------------------------
@@ -81,7 +80,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white.withOpacity(0),
+                                      color: Colors.white.withValues(alpha: 0), // 배경 투명
                                     ),
                                     child: IconButton(
                                       icon: const Icon(
@@ -166,27 +165,30 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
               ),
             ),
 
-            const SizedBox(height: 20),
-
             // 챌린지 이름 + 인원 + 태그
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     challenge.title,
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                      height: 1.05,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     "인원 ${challenge.participants}명",
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.darkerGray),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
                     children: challenge.tags
@@ -202,57 +204,51 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
               ),
             ),
 
-            const Divider(height: 32),
-
             // 상세 정보
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const InfoRow(title: "공개 여부", value: "공개 챌린지 or 그룹 내부 챌린지"),
-                  const SizedBox(height: 8),
-                  const InfoRow(title: "챌린지 내용", value: "성공 조건"),
-                  const SizedBox(height: 8),
-                  InfoRow(title: "기간", value: "${challenge.day}일"),
-                  const SizedBox(height: 8),
-                  const InfoRow(title: "인증 방식", value: "사진 인증"),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "상세 설명",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(challenge.bannerDescription ?? "상세 설명이 제공되지 않았습니다."),
-                  const SizedBox(height: 200),
-                ],
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const InfoRow(title: "공개 여부", value: "공개 챌린지 or 그룹 내부 챌린지"),
+                    const SizedBox(height: 6),
+                    const InfoRow(title: "챌린지 내용", value: "성공 조건"),
+                    const SizedBox(height: 6),
+                    InfoRow(title: "기간", value: "${challenge.day}일"),
+                    const SizedBox(height: 6),
+                    const InfoRow(title: "인증 방식", value: "사진 인증"),
+                    const SizedBox(height: 6),
+                    const Text(
+                      "상세 설명",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                    ),
+                    Text(challenge.bannerDescription ?? "상세 설명이 제공되지 않았습니다.",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 120), // 하단 버튼과 겹치지 않도록 여백 확보
           ],
         ),
-      ),
-
       // ----------------------------
       // 하단 진행도 + 즐겨찾기/배팅 버튼
       // ----------------------------
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (challenge.status == ChallengeStatus.inProgress)
-            ProgressStatusBar(day: 1, totalDay: challenge.day),
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+      bottomSheet: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
               ),
+            ],
+          ),
               child: Row(
                 children: [
                   IconButton(
@@ -293,7 +289,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                             MaterialPageRoute(
                               builder: (_) => ChallengeParticipatePage(
                                 challenge: widget.challenge,
-                              ),
+                               ),
                             ),
                           );
                         }
@@ -302,9 +298,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

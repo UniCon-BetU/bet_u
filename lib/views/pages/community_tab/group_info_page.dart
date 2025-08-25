@@ -1,6 +1,7 @@
 import 'package:bet_u/views/widgets/chip_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/app_colors.dart';
 
 class GroupInfoPage extends StatelessWidget {
   const GroupInfoPage({
@@ -150,6 +151,7 @@ class GroupInfoPage extends StatelessWidget {
         child: LongButtonWidget(
           text: '그룹 참여하기',
           onPressed: onJoinPressed ?? () {},
+          backgroundColor: AppColors.primaryGreen,
         ),
       ),
     );

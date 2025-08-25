@@ -21,25 +21,6 @@ class WidgetTree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Bet U'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return SettingsPage();
-                  },
-                ),
-              );
-            },
-            icon: Icon(Icons.settings),
-          ),
-        ],
-      ),
       body: ValueListenableBuilder(
         valueListenable: selectedPageNotifier,
         builder: (context, selectedPage, child) {

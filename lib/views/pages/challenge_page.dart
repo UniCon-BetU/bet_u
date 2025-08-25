@@ -10,7 +10,6 @@ import '../../theme/app_colors.dart';
 import '../../utils/challenge_history.dart' as ch;
 
 
-
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 

@@ -8,7 +8,8 @@ import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/challenge_history.dart' as ch;
-
+import 'package:bet_u/views/widgets/search_bar_widget.dart';
+import 'package:bet_u/views/widgets/search_tag_chip_widget.dart';
 
 
 class ChallengePage extends StatefulWidget {
@@ -118,7 +119,8 @@ class _ChallengePageState extends State<ChallengePage> {
           selectedCategory == '전체' || c.category == selectedCategory;
       final matchesSearch =
           _searchController.text.isEmpty ||
-          c.title.contains(_searchController.text);
+          c.title.contains(_searchController.text) ||
+          c.tags.contains(_searchController.text);
 
       final matchesTag =
           selectedTag == 'all' ||
@@ -210,23 +212,102 @@ class _ChallengePageState extends State<ChallengePage> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
+    // 3) ChallengePage의 AppBar에 적용
+    appBar: AppBar(
+      backgroundColor: Colors.white,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      elevation: _isSearching ? 2 : 0,
+      shadowColor: Colors.black.withValues(alpha: 0.25),
+      centerTitle: false,
+      titleSpacing: 0,
+      // 검색바 높이 + 살짝 여유
+      toolbarHeight: 64,
+
+      title: Padding(
+        // toolbarHeight 64에서 세로 패딩 12면 살짝 넘칠 수 있어요 → 6 정도로 줄이거나, toolbarHeight를 늘리세요
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SearchBarOnly(
+          controller: _searchController,
+          focusNode: _searchFocusNode,
+          isSearching: _isSearching,
+          onSearchingChanged: (v) => setState(() => _isSearching = v),
+          onPlusPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CreateChallengePage()),
+            );
+          },
+          decoration: InputDecoration(
+            hintText: '문제풀이, #수능 ...',
+            hintStyle: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.darkerGray,
+            ),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Image.asset('assets/images/normal_lettuce.png', width: 48, height: 48),
+            ),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_isSearching)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _searchController.clear();
+                        _isSearching = false;
+                        selectedCategory = '전체';
+                        _searchFocusNode.unfocus();
+                      });
+                    },
+                    child: const Icon(Icons.close, color: Color(0xFF9E9E9E)),
+                  ),
+                const SizedBox(width: 7),
+                const Icon(Icons.search, size: 30, color: Color(0xFF757575)),
+                const SizedBox(width: 15),
+              ],
+            ),
+          ),
+        ),
+      ),
+
+      // ✅ bottom은 항상 유지하고, 높이만 0↔44로 애니메이션
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(_isSearching ? 44 : 0),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: _isSearching
+              ? CategoryChipsBar(
+                  categories: categories,
+                  selected: selectedCategory,
+                  onSelect: (cat) => setState(() => selectedCategory = cat),
+                )
+              : const SizedBox(height: 0),
+        ),
+      ),
+    ),
+
+
+
     body: GestureDetector(
       behavior: HitTestBehavior.deferToChild,
       onTap: _onTapOutside,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildSearchAndCreateRow(),
-          const SizedBox(height: 5),
           if (!_isSearching && recentSearches.isNotEmpty)
             buildRecentSearchChips(),
-          const SizedBox(height: 12),
 
           Expanded(
             child: _isSearching
                 // ===== 검색 모드 =====
                 ? Container(
-                    color: const Color.fromRGBO(246, 246, 246, 1),
+                    color: AppColors.lightGray,
                     padding: const EdgeInsets.only(top: 12),
                     child: ListView.builder(
                       padding:
@@ -239,7 +320,7 @@ Widget build(BuildContext context) {
                               const EdgeInsets.symmetric(vertical: 4),
                           child: ChallengeTileWidget(
                             c: challenge,
-                            showTags: false,
+                            showTags: true,
                             background: Colors.white,
                             onTap: () => _goToProcessingPage(
                               challenge,
@@ -252,12 +333,12 @@ Widget build(BuildContext context) {
                   )
                 // ===== 일반 모드 =====
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Center(child: buildCategoryGridWithBackground()),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 24),
 
                         // BETU 섹션
                         BetuChallengeSectionWidget(
@@ -427,158 +508,7 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget buildSearchAndCreateRow() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24), 
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 48),
-        AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          height: 54,
-          width: double.infinity,
-          child: Stack(
-            children: [
-              // 검색바: 오른쪽 여백만 애니메이션으로 80 -> 0
-              AnimatedPositioned(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-                left: 0,
-                right: _isSearching ? 0 : 80,
-                child: Material(
-                  color: AppColors.lightGreen,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                  child: SizedBox(
-                    height: 54,
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      autofocus: _isSearching,
-                      onTap: _onSearchTap,              // 여기서 _isSearching=true로
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: '문제풀이, #수능 ...',
-                        hintStyle: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade600,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        // height: 54이면 vertical padding을 조금 줄이는 게 좋아요
-                        contentPadding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: ClipRRect(
-                            child: Image.asset(
-                              'assets/images/normal_lettuce.png',
-                              fit: BoxFit.contain,
-                              width: 48,
-                              height: 48,
-                            ),
-                          ),
-                        ),
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (_isSearching)
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _isSearching = false;
-                                    selectedCategory = '전체';
-                                    _searchFocusNode.unfocus();
-                                  });
-                                },
-                                child: const Icon(Icons.close, color: Color.fromRGBO(158, 158, 158, 1)),
-                              ),
-                            const SizedBox(width: 7),
-                            GestureDetector(
-                              onTap: () {
-                                final query = _searchController.text.trim();
-                                if (query.isNotEmpty) {
-                                  // TODO: 검색 액션
-                                }
-                              },
-                              child: const Icon(Icons.search, size: 30, color: Color.fromRGBO(117, 117, 117, 1)),
-                            ),
-                            const SizedBox(width: 15),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // 플러스 버튼: 화면 밖으로 슬라이드 + 페이드아웃
-              AnimatedPositioned(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-                right: _isSearching ? -72 : 0, // -72 정도면 완전히 사라짐
-                top: 0,
-                bottom: 0,
-                child: AnimatedOpacity(
-                  duration: Duration(milliseconds: 300),
-                  opacity: _isSearching ? 0.5 : 1,
-                  child: IgnorePointer(
-                    ignoring: _isSearching, // 사라지는 중 터치 막기
-                    child: IconButton(
-                      iconSize: 24,
-                      icon: const Icon(Icons.add_rounded, color: Colors.black),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CreateChallengePage()),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-
-        if (_isSearching)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: categories.map((cat) {
-                  final isSelected = selectedCategory == cat;
-                  return GestureDetector(
-                    onTap: () => setState(() => selectedCategory = cat),
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.green : Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        cat,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget buildRecentSearchChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -615,16 +545,20 @@ Widget build(BuildContext context) {
 
   Widget buildCategoryGridWithBackground() {
     return Container(
-      width: 450,
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 246, 255, 233),
-        borderRadius: BorderRadius.circular(25),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(11),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 4,
+            offset: const Offset(0, 4),
+          )
+        ]
       ),
       child: Column(
         children: [
-          const Spacer(),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -682,7 +616,7 @@ Widget build(BuildContext context) {
           ),
           const SizedBox(width: 24),
           _buildTabItem(
-            label: '추천',
+            label: '최근',
             isSelected: selectedTab == '추천',
             onTap: () => setState(() { selectedTab = '추천'; selectedTag = 'all'; }),
           ),

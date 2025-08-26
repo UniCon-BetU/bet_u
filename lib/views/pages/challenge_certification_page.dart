@@ -1,4 +1,3 @@
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/views/pages/other_certification_page.dart';
 import 'package:flutter/material.dart';

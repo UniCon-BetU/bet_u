@@ -2,7 +2,7 @@ import '../models/challenge.dart';
 
 int userPoints = 50000; // 더미 포인트
 
-final List<Challenge> betuChallenges = [
+final List<Challenge> allChallenges = [
   Challenge(
     title: '휴대폰 보기를 돌 같이 하라  |  스크린타임 인증 챌린지',
     participants: 2686,
@@ -11,7 +11,7 @@ final List<Challenge> betuChallenges = [
     category: '생활습관',
     createdAt: DateTime(2025, 8, 20),
     type: 'time',
-    tags: ['#수능', '#생활습관', '#기상'],
+    tags: ['수능', '생활습관', '기상'],
     bannerPeriod: '챌린지 제공 기간: 상시',
     bannerDescription:
         '이 챌린지는 하루 동안 휴대폰 사용을 줄이고, 스크린타임 인증을 통해 집중 습관을 만드는 챌린지입니다.',
@@ -21,7 +21,7 @@ final List<Challenge> betuChallenges = [
     title: '수능 국어 1일 3지문',
     participants: 1723,
     day: 12,
-    status: ChallengeStatus.notStarted,
+    status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 7, 1),
     type: 'time',
@@ -29,12 +29,13 @@ final List<Challenge> betuChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.7.1~2025.7.12',
     bannerDescription: '하루 3지문씩 꾸준히 읽으며 수능 국어 독해력을 향상시키는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: true,
   ),
   Challenge(
     title: '영어 단어 30개 암기',
     participants: 2105,
     day: 30,
-    status: ChallengeStatus.notStarted,
+    status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 6, 15),
     type: 'time',
@@ -42,12 +43,13 @@ final List<Challenge> betuChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.6.15~2025.7.14',
     bannerDescription: '매일 30개의 영어 단어를 암기하며 토익/수능 영어 실력을 높이는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: true,
   ),
   Challenge(
     title: '수학 문제집 하루 20문제',
     participants: 1980,
     day: 20,
-    status: ChallengeStatus.notStarted,
+    status: ChallengeStatus.inProgress,
     category: '수능',
     createdAt: DateTime(2025, 6, 20),
     type: 'time',

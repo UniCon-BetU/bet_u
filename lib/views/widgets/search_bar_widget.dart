@@ -8,6 +8,7 @@ class SearchBarOnly extends StatelessWidget {
   final ValueChanged<bool> onSearchingChanged;
   final InputDecoration decoration;
   final VoidCallback? onPlusPressed;
+  final VoidCallback? onTapSearch;
 
   const SearchBarOnly({
     super.key,
@@ -17,6 +18,7 @@ class SearchBarOnly extends StatelessWidget {
     required this.onSearchingChanged,
     required this.decoration,
     this.onPlusPressed,
+    this.onTapSearch,
   });
 
   static const double _plusHitWidth = 48;     // IconButton 최소 터치 폭
@@ -52,29 +54,33 @@ class SearchBarOnly extends StatelessWidget {
                 ),
                 controller: controller,
                 focusNode: focusNode,
-                autofocus: isSearching,
-                onTap: () => onSearchingChanged(true),
+                autofocus: false,
+                onTap: () {
+                  onTapSearch?.call();
+                  if (!isSearching) onSearchingChanged(true);
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (focusNode.canRequestFocus && !focusNode.hasFocus) focusNode.requestFocus();
+                  });
+                },
                 decoration: decoration,
               ),
             ),
           ),
 
           // ▼ + 아이콘: 검색 중이면 바깥으로 슬라이드 아웃
-          AnimatedPositioned(
-            duration: _anim,
-            curve: Curves.easeOut,
-            right: isSearching ? -(_plusHitWidth + _gapBetween) : 0,
-            top: 0,
-            bottom: 0,
-            child: AnimatedOpacity(
+          // 기존 AnimatedPositioned 블록 대신
+          Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedContainer(
               duration: _anim,
-              opacity: isSearching ? 0.0 : 1.0,
+              curve: Curves.easeOut,
+              width: isSearching ? 0 : _plusHitWidth,
               child: IgnorePointer(
                 ignoring: isSearching,
                 child: Padding(
                   padding: EdgeInsets.only(left: _gapBetween),
                   child: SizedBox(
-                    width: _plusHitWidth,
                     height: 54,
                     child: IconButton(
                       iconSize: 24,

@@ -1,455 +1,648 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/io_client.dart';
+import 'package:http/http.dart' as http;
+import 'package:bet_u/utils/token_util.dart';
+import 'package:bet_u/views/widgets/field_card_widget.dart';
+import 'package:image_picker/image_picker.dart';
+
+const String baseUrl = 'https://54.180.150.39.nip.io';
+
+class ChipDropdownWidget extends StatelessWidget {
+  const ChipDropdownWidget({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.backgroundColor = const Color(0xFF1BAB0F),
+    this.foregroundColor = const Color(0xFFEFFAE8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    this.required = false, // 추가: 필수 표시 여부
+    this.validator, // 추가: 선택 검증
+  });
+
+  final String text;
+  final VoidCallback onTap;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final EdgeInsets padding;
+  final bool required;
+  final String? Function(String?)? validator;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: foregroundColor.withOpacity(0.25)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: foregroundColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                  ),
+                ),
+                if (required) ...[
+                  const SizedBox(width: 2), // 텍스트와 * 사이 간격
+                  const Text(
+                    '*',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 4),
+                Icon(Icons.arrow_drop_down, color: foregroundColor, size: 20),
+              ],
+            ),
+          ),
+        ),
+        if (required) const Padding(padding: EdgeInsets.only(left: 4)),
+      ],
+    );
+  }
+}
+
+/// 화살표 포함 칩
+class ChipDropdownFormField extends FormField<String> {
+  ChipDropdownFormField({
+    super.key,
+    required String initialValue,
+    required bool required,
+    required void Function(String) onChanged,
+    required List<String> options,
+  }) : super(
+         initialValue: initialValue,
+         validator: (v) {
+           if (required && (v == null || v.isEmpty || v == '공부 내용')) {
+             return '태그를 선택해주세요';
+           }
+           return null;
+         },
+         builder: (field) {
+           return Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               ChipDropdownWidget(
+                 text: field.value!,
+                 onTap: () async {
+                   // Dropdown logic 그대로
+                   final selected = await showDialog<String>(
+                     context: field.context,
+                     builder: (_) => SimpleDialog(
+                       children: options
+                           .map(
+                             (o) => SimpleDialogOption(
+                               onPressed: () => Navigator.pop(field.context, o),
+                               child: Text(o),
+                             ),
+                           )
+                           .toList(),
+                     ),
+                   );
+                   if (selected != null) {
+                     field.didChange(selected);
+                     onChanged(selected);
+                   }
+                 },
+                 required: required,
+               ),
+               if (field.hasError)
+                 Padding(
+                   padding: const EdgeInsets.only(top: 4),
+                   child: Text(
+                     field.errorText!,
+                     style: const TextStyle(
+                       color: Colors.redAccent,
+                       fontSize: 12,
+                     ),
+                   ),
+                 ),
+             ],
+           );
+         },
+       );
+}
 
 class CreateChallengePage extends StatefulWidget {
-  const CreateChallengePage({Key? key}) : super(key: key);
+  const CreateChallengePage({super.key});
 
   @override
   State<CreateChallengePage> createState() => _CreateChallengePageState();
 }
 
 class _CreateChallengePageState extends State<CreateChallengePage> {
-  final TextEditingController _searchController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  List<XFile> _images = [];
+  final ImagePicker _picker = ImagePicker();
 
-  // 하단 네비게이션 현재 탭 (챌린지 활성화)
-  int _currentIndex = 1;
+  final _nameCtrl = TextEditingController();
+  final _tagsInputCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _detailCtrl = TextEditingController();
+  final _periodCtrl = TextEditingController();
+
+  List<String> _selectedTags = [];
+  bool _isPublic = true;
+
+  // Overlay용 드롭다운
+  OverlayEntry? _tagOverlayEntry;
+  bool _isTagDropdownOpen = false;
+  final GlobalKey _dropdownKey = GlobalKey();
+
+  final List<String> tagOptions = [
+    "EXERCISE",
+    "STUDY",
+    "READING",
+    "CODING",
+    "HABIT",
+  ];
+
+  String selectedTagText = '공부 내용';
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _tagsInputCtrl.dispose();
+    _descCtrl.dispose();
+    _detailCtrl.dispose();
+    _periodCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<http.Client> _devClient() async {
+    final ioc = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    return IOClient(ioc);
+  }
+
+  void _addTag(String value) {
+    final tags = value
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    if (tags.isNotEmpty) {
+      setState(() {
+        _selectedTags.addAll(tags.where((tag) => !_selectedTags.contains(tag)));
+      });
+    }
+    _tagsInputCtrl.clear();
+  }
+
+  Future<void> _createChallenge() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final title = _nameCtrl.text.trim();
+    final periodDays = int.parse(_periodCtrl.text);
+    final tagsString = _selectedTags.join(',');
+    final description = _descCtrl.text.trim();
+    final token = await TokenStorage.getToken();
+
+    try {
+      final client = await _devClient();
+      final uri = Uri.parse('$baseUrl/api/challenges');
+      final res = await client.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'title': title,
+          'isPublic': _isPublic,
+          'tags': tagsString,
+          'description': description,
+          'periodDays': periodDays,
+        }),
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('챌린지가 성공적으로 생성되었습니다.')));
+        Navigator.pop(context);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('생성 실패: ${res.statusCode} ${res.body}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('에러: $e')));
+    }
+  }
+
+  void _openTagDropdown() {
+    final overlay = Overlay.of(context);
+    _tagOverlayEntry = _createTagOverlayEntry();
+    overlay.insert(_tagOverlayEntry!);
+    setState(() => _isTagDropdownOpen = true);
+  }
+
+  void _closeTagDropdown() {
+    _tagOverlayEntry?.remove();
+    _tagOverlayEntry = null;
+    setState(() => _isTagDropdownOpen = false);
+  }
+
+  OverlayEntry _createTagOverlayEntry() {
+    RenderBox box =
+        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final pos = box.localToGlobal(Offset.zero);
+    final size = box.size;
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        left: pos.dx,
+        top: pos.dy + size.height + 4,
+        width: size.width,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.85),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: tagOptions
+                  .where((tag) => tag != selectedTagText)
+                  .map(
+                    (tag) => InkWell(
+                      onTap: () {
+                        setState(() {
+                          selectedTagText = tag;
+                        });
+                        _closeTagDropdown();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 12,
+                        ),
+                        child: Text(
+                          tag,
+                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF007AFF)),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Title',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-        actions: const [SizedBox(width: 16)],
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("images/BETU_challenge_background.jpg"),
-            fit: BoxFit.cover, // 화면 전체 꽉 채우기
+        title: const Text('챌린지 생성하기'),
+        actions: [
+          TextButton(
+            onPressed: _createChallenge,
+            child: Text(
+              '생성',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: const Color(0xFF34A853),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
+        ],
+      ),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
-              // 상단 프롬프트 메시지
-              const Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: Text(
-                  'This is a prompt message.',
-                  style: TextStyle(fontSize: 14, color: Colors.black),
+              // 제목, 공개여부, 내용, 기간 FieldCardWidget 동일
+              FieldCardWidget(
+                title: '챌린지 제목',
+                required: true,
+                subtitle: '챌린지의 제목을 입력해주세요.',
+                child: TextFormField(
+                  controller: _nameCtrl,
+                  style: const TextStyle(fontSize: 14),
+                  decoration: const InputDecoration(
+                    hintText: '예) 스크린타임 2시간 이내 챌린지',
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '제목은 필수입니다' : null,
                 ),
               ),
+              const SizedBox(height: 12),
 
-              // 검색바
-              _SearchBar(
-                controller: _searchController,
-                hintText: 'Search',
-                onSubmitted: (q) {
-                  // TODO: 검색 제출 동작
-                },
-              ),
-              const SizedBox(height: 16),
+              // 공개 여부
 
-              // 섹션 타이틀
-              const Text(
-                'BETU 제공 챌린지 모아보기 🥬',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              // 챌린지 내용
+              FieldCardWidget(
+                title: '챌린지 내용',
+                required: true,
+                subtitle: '수행하여 인증해야 하는 내용을 구체적으로 설명해 주세요.',
+                child: TextFormField(
+                  controller: _descCtrl,
+                  style: const TextStyle(fontSize: 14),
+                  maxLines: 8,
+                  minLines: 6,
+                  decoration: const InputDecoration(
+                    hintText: '예) 매일 30분 러닝 인증 챌린지입니다. 주 1회 리캡 게시글 작성!',
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '챌린지 내용은 필수입니다' : null,
+                ),
               ),
               const SizedBox(height: 12),
 
-              // 카드들
-              ChallengeCard(
-                title: '매일 아침 7시 기상  |  수능을 위한 미라클 모닝',
-                participants: '2,686',
-                periodText: '30 Days',
-                tags: const ['#수능', '#생활습관', '#기상'],
-                bannerLines: const [
-                  '챌린지 제공 기간: 7/16 ~ 11/13 (마지막 참여 10/13) ',
-                  '수능 D-120, ‘수능 시간표’에 패턴을 맞히려는 수험생들을 위한 기상 챌린지!',
-                ],
-                onTap: () {
-                  // TODO: 카드 탭 시 상세 이동
-                },
+              // 기간
+              FieldCardWidget(
+                title: '기간',
+                required: true,
+                subtitle: '챌린지를 수행해야 하는 기간을 설정해 주세요.',
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      child: TextFormField(
+                        controller: _periodCtrl,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ],
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14),
+                        decoration: const InputDecoration(
+                          hintText: '기간',
+                          border: UnderlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 4),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty)
+                            return '기간 입력은 필수입니다';
+                          final n = int.tryParse(v);
+                          if (n == null) return '숫자만 입력하세요';
+                          if (n < 1) return '1일 이상이어야 합니다';
+                          if (n > 180) return '최대 180일까지 가능합니다';
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('일 동안 매일 수행'),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
-              ChallengeCard(
-                title: '가을 학기 대학 학점 4.0 도전!',
-                participants: '2,686',
-                periodText: '목표 달성 챌린지',
-                tags: const ['#수능', '#생활습관', '#기상'],
-                bannerLines: const [
-                  '챌린지 제공 기간: 9/1 ~ 12/31',
-                  '위처럼 간략한 챌린지 설명이 들어갈 공간입니다. ',
-                ],
-                onTap: () {},
+              FieldCardWidget(
+                title: '태그',
+                required: true,
+                subtitle: '챌린지의 공부 내용과 방법 등을 묘사할 태그를 등록해 주세요.',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _selectedTags.map((tag) {
+                        return SelectedTagChip(
+                          text: tag,
+                          onDeleted: () {
+                            setState(() {
+                              _selectedTags.remove(tag);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF6FFE9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            key: _dropdownKey,
+                            onTap: () {
+                              if (_isTagDropdownOpen) {
+                                _closeTagDropdown();
+                              } else {
+                                _openTagDropdown();
+                              }
+                            },
+                            child: ChipDropdownFormField(
+                              initialValue: selectedTagText,
+                              required: true,
+                              options: tagOptions,
+                              onChanged: (val) {
+                                setState(() {
+                                  selectedTagText = val;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _tagsInputCtrl,
+                              decoration: const InputDecoration(
+                                hintText: '#태그 형태로 입력하여 추가...',
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 7,
+                                  horizontal: 5,
+                                ),
+                              ),
+                              onSubmitted: (val) => _addTag(val),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
-              ChallengeCard(
-                title: '휴대폰 보기를 돌 같이 하라  |  스크린타임 인증 챌린지',
-                participants: '2,686',
-                periodText: '14 Days',
-                tags: const ['#수능', '#생활습관', '#기상'],
-                bannerLines: const [
-                  '챌린지 제공 기간: 상시',
-                  '위처럼 간략한 챌린지 설명이 들어갈 공간입니다. ',
-                ],
-                onTap: () {},
+              // 사진 추가
+
+              // State 안에 추가
+
+              // 사진 추가 FieldCardWidget
+              FieldCardWidget(
+                childBackgroundColor: Colors.transparent, // ⬅️ 배경 제거
+
+                title: '사진 추가하기',
+                subtitle: '챌린지 내용을 설명하는 미리보기 이미지를 추가해 보세요.',
+                child: SizedBox(
+                  height: 120,
+
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _images.length + 1, // +1은 항상 추가 버튼
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // 항상 맨 앞: 추가 버튼
+                        return GestureDetector(
+                          onTap: () async {
+                            final XFile? pickedImage = await _picker.pickImage(
+                              source: ImageSource.gallery,
+                            );
+                            if (pickedImage != null) {
+                              setState(() {
+                                _images.add(pickedImage);
+                              });
+                            }
+                          },
+                          child: Container(
+                            width: 120,
+                            height: 120,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Center(
+                              child: Image.asset(
+                                'images/image_add.png', // 여기 경로에 올린 이미지 넣기
+                                width: 120,
+                                height: 120,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        final image = _images[index - 1];
+                        return Container(
+                          width: 120,
+                          height: 120,
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                              image: FileImage(File(image.path)),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
 
-              ChallengeCard(
-                title: '챌린지 이름',
-                participants: '2,686',
-                periodText: '챌린지 기간',
-                tags: const ['#수능', '#생활습관', '#기상'],
-                bannerLines: const [
-                  '챌린지 제공 기간: 상시',
-                  '위처럼 간략한 챌린지 설명이 들어갈 공간입니다. ',
-                ],
-                onTap: () {},
-              ),
-              const SizedBox(height: 12),
-
-              ChallengeCard(
-                title: '휴대폰 보기를 돌 같이 하라  |  스크린타임 인증 챌린지',
-                participants: '2,686',
-                periodText: '14 Days',
-                tags: const ['#수능', '#생활습관', '#기상'],
-                bannerLines: const [
-                  '챌린지 제공 기간: 상시',
-                  '위처럼 간략한 챌린지 설명이 들어갈 공간입니다. ',
-                ],
-                onTap: () {},
+              // 상세설명
+              FieldCardWidget(
+                title: '상세설명',
+                subtitle: '챌린지의 내용, 목적, 추천하는 분들 등의 상세 설명을 입력해 보세요.',
+                child: TextFormField(
+                  controller: _detailCtrl,
+                  style: const TextStyle(fontSize: 14),
+                  maxLines: 8,
+                  minLines: 6,
+                  decoration: const InputDecoration(
+                    hintText: '예) 이 챌린지는 건강한 생활 습관을 위해 기획되었습니다.',
+                    border: InputBorder.none,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
 
-      // 우측 상단 플러스(생성) 버튼 느낌을 살리고 싶으면 FAB 사용도 OK
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // 실제 "챌린지 생성 폼" 페이지로 이동
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const _CreateFormPage()),
-          );
-        },
-        label: const Text('새 챌린지 만들기'),
-        icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF1BAB0F),
+/// 직접 선택한 태그용 커스텀 칩
+class SelectedTagChip extends StatelessWidget {
+  const SelectedTagChip({
+    super.key,
+    required this.text,
+    required this.onDeleted,
+  });
+
+  final String text;
+  final VoidCallback onDeleted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6FFE9),
+        borderRadius: BorderRadius.circular(20), // 완만하게 둥글게
+        border: Border.all(color: Colors.green.withOpacity(0.5)),
       ),
-
-      // 하단 네비게이션 (홈/챌린지/소셜/마이페이지)
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) {
-          setState(() => _currentIndex = i);
-          // TODO: 각 탭 이동
-        },
-        selectedItemColor: const Color(0xFF1BAB0F),
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '홈'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events_outlined),
-            label: '챌린지',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+              fontSize: 12.5,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt_outlined),
-            label: '소셜',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: '마이페이지',
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onDeleted,
+            child: const Icon(Icons.close, size: 16, color: Colors.redAccent),
           ),
         ],
-        type: BottomNavigationBarType.fixed,
-      ),
-    );
-  }
-}
-
-/// 검색바 위젯 (상단 Search 섹션 대응)
-class _SearchBar extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final ValueChanged<String>? onSubmitted;
-
-  const _SearchBar({
-    Key? key,
-    required this.controller,
-    required this.hintText,
-    this.onSubmitted,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFF6FFE9),
-      borderRadius: BorderRadius.circular(12),
-      child: SizedBox(
-        height: 44,
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            const Icon(Icons.search, size: 20, color: Color(0xFF3C3C43)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: controller,
-                onSubmitted: onSubmitted,
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.mic_none,
-                size: 20,
-                color: Color(0xFF3C3C43),
-              ),
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 챌린지 카드 (상단 라이트 패널 + 하단 그린 배너 2단 구성)
-class ChallengeCard extends StatelessWidget {
-  final String title;
-  final String participants;
-  final String periodText; // "30 Days", "목표 달성 챌린지" 등
-  final List<String> tags;
-  final List<String> bannerLines; // 그린 배너 텍스트 2줄
-  final VoidCallback? onTap;
-
-  const ChallengeCard({
-    Key? key,
-    required this.title,
-    required this.participants,
-    required this.periodText,
-    required this.tags,
-    required this.bannerLines,
-    this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    const green = Color(0xFF1BAB0F);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.03),
-              offset: const Offset(0, 1),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            // 상단(밝은 배경)
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF6FFE9),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(8),
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 텍스트 영역
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 타이틀
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-
-                        // 참여자 / 기간
-                        Row(
-                          children: [
-                            _miniStat(
-                              icon: Icons.groups_2_outlined,
-                              text: participants,
-                            ),
-                            const SizedBox(width: 12),
-                            _miniStat(
-                              icon: Icons.schedule_outlined,
-                              text: periodText,
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 8),
-                        // 태그
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: tags
-                              .map(
-                                (t) => Text(
-                                  t,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: green,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // 썸네일 (옵션)
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFE8F6D1)),
-                    ),
-                    child: const Icon(Icons.eco, color: green),
-                  ),
-                ],
-              ),
-            ),
-
-            // 하단(그린 배너)
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: green,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
-              ),
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final line in bannerLines)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        line,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _miniStat({required IconData icon, required String text}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: const Color(0xFF646464)),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF646464)),
-        ),
-      ],
-    );
-  }
-}
-
-/// 실제 생성 폼(더미) - 플로팅 버튼 눌렀을 때 열리는 페이지
-class _CreateFormPage extends StatelessWidget {
-  const _CreateFormPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final green = const Color(0xFF1BAB0F);
-    return Scaffold(
-      appBar: AppBar(title: const Text('새 챌린지 만들기')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '챌린지 제목',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              minLines: 3,
-              maxLines: 6,
-              decoration: const InputDecoration(
-                labelText: '챌린지 설명',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: '기간(예: 30 Days / 목표 달성 챌린지)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: 생성 로직
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.check),
-                label: const Text('생성하기'),
-                style: ElevatedButton.styleFrom(backgroundColor: green),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

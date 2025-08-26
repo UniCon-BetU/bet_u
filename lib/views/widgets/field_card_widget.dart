@@ -7,6 +7,7 @@ class FieldCardWidget extends StatelessWidget {
   final String? subtitle;
   final Widget child;
   final bool required;
+  final Color? childBackgroundColor; // 추가
 
   const FieldCardWidget({
     super.key,
@@ -14,6 +15,7 @@ class FieldCardWidget extends StatelessWidget {
     required this.child,
     this.subtitle,
     this.required = false,
+    this.childBackgroundColor = const Color.fromRGBO(246, 255, 233, 1),
   });
 
   @override
@@ -22,7 +24,7 @@ class FieldCardWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F7F8), // 배경
+        color: const Color.fromARGB(255, 255, 255, 255), // 배경
         borderRadius: BorderRadius.circular(14),
         // boxShadow: const [
         //   BoxShadow(
@@ -54,27 +56,34 @@ class FieldCardWidget extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+
+              if (subtitle != null) ...[
+                const SizedBox(width: 8, height: 0),
+                Text(
+                  subtitle!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.black54,
+                    height: 1.2,
+                  ),
+                ),
+              ],
             ],
           ),
-
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.black54,
-                height: 1.2,
-              ),
-            ),
-          ],
 
           const SizedBox(height: 8),
 
           // 입력 영역
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            constraints: const BoxConstraints(minHeight: 44), // 최소 높이 확보
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 5,
+            ), // ⬅️ 3 → 5
             decoration: BoxDecoration(
-              color: const Color(0xFFEFFAE8), // 텍스트필드 배경색
+              color:
+                  childBackgroundColor ??
+                  const Color.fromRGBO(246, 255, 233, 1),
+
               borderRadius: BorderRadius.circular(12),
             ),
             child: child,

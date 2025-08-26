@@ -41,19 +41,24 @@ class _ChallengePageState extends State<ChallengePage> {
 
   final TextEditingController _searchController = TextEditingController();
   String selectedCategory = '전체';
-  final List<String> categories = [
-    '전체',
-    '수능',
-    '토익',
-    '공무원/행시',
-    '회계사',
-    'LEET',
-    '자격증',
-    '자기계발',
+  final List<Map<String, String>> categories = [
+    {"name": "수능", "image": "assets/category/suneung.png"},
+    {"name": "대학", "image": "assets/category/university.png"},
+
+    {"name": "토익", "image": "assets/category/toeic.png"},
+    {"name": "자격증", "image": "assets/category/certificate.png"},
+
+    {"name": "공무원/행시", "image": "assets/category/gongmuwon.png"},
+    {"name": "회계사", "image": "assets/category/account.png"},
+    {"name": "LEET", "image": "assets/category/leet.png"},
+    {"name": "생활/자기계발", "image": "assets/category/self.png"},
   ];
 
+  List<String> get searchCategories =>
+    ['전체', ...categories.map((c) => c["name"]!)];
+
   List<String> recentSearches = [];
-  String selectedTab = '인기'; // 인기 | 추천 | 전체
+  String selectedTab = '인기'; // 인기 | 최근 | 전체
   String selectedType = 'all'; // (미사용 보류)
 
   bool _isSearching = false;
@@ -80,15 +85,16 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 
   void _onSearchTap() {
-    if (!_isSearching) {
       setState(() {
-        _isSearching = true;
-        selectedTag = 'all';
+        if (!_isSearching) {
+          selectedTag = 'all';
+          selectedCategory = '전체';
+          
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) _searchFocusNode.requestFocus();
+          });
+        }
       });
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) _searchFocusNode.requestFocus();
-      });
-    }
   }
 
   List<Challenge> getSortedChallenges() {
@@ -96,12 +102,12 @@ class _ChallengePageState extends State<ChallengePage> {
 
     // 탭 기준
     if (selectedTab == '인기') {
-      baseList = List.from(betuChallenges)
+      baseList = List.from(allChallenges)
         ..sort((a, b) => b.participants.compareTo(a.participants));
-    } else if (selectedTab == '추천') {
+    } else if (selectedTab == '최근') {
       baseList = List.from(ch.ChallengeHistory.instance.recent.value);
     } else {
-      baseList = betuChallenges;
+      baseList = allChallenges;
     }
 
     // 태그 기준
@@ -113,19 +119,29 @@ class _ChallengePageState extends State<ChallengePage> {
     return baseList;
   }
 
+  List<Challenge> get _searchBaseList => allChallenges;
+
   List<Challenge> get filteredChallenges {
-    return getSortedChallenges().where((c) {
+    // ✅ 검색 중이면 '탭 영향 없음' → 전체 목록에서 필터
+    // ✅ 일반 모드이면 기존처럼 탭/태그 정렬 반영
+    final base = _isSearching ? _searchBaseList : getSortedChallenges();
+
+    return base.where((c) {
       final matchesCategory =
           selectedCategory == '전체' || c.category == selectedCategory;
-      final matchesSearch =
-          _searchController.text.isEmpty ||
-          c.title.contains(_searchController.text) ||
-          c.tags.contains(_searchController.text);
 
+      final query = _searchController.text.trim();
+      final matchesSearch =
+          query.isEmpty ||
+          c.title.contains(query) ||
+          c.tags.contains(query);
+
+      // 검색 모드에선 selectedTag를 강제로 'all'로 운용하지만
+      // 혹시 UI에서 태그를 쓰게 될 확장 대비해서 조건은 유지
       final matchesTag =
           selectedTag == 'all' ||
-              (selectedTag == 'goal' && c.type == 'goal') ||
-              (selectedTag == 'time' && c.type == 'time');
+          (selectedTag == 'goal' && c.type == 'goal') ||
+          (selectedTag == 'time' && c.type == 'time');
 
       return matchesCategory && matchesSearch && matchesTag;
     }).toList();
@@ -150,7 +166,7 @@ class _ChallengePageState extends State<ChallengePage> {
     if (!mounted) return;
     setState(() {
       if (fromSearch) {
-        selectedTab = '추천';
+        selectedTab = '최근';
         _addRecentSearch(challenge.title);
       }
     });
@@ -232,6 +248,7 @@ Widget build(BuildContext context) {
           focusNode: _searchFocusNode,
           isSearching: _isSearching,
           onSearchingChanged: (v) => setState(() => _isSearching = v),
+          onTapSearch: _onSearchTap,
           onPlusPressed: () {
             Navigator.push(
               context,
@@ -257,11 +274,13 @@ Widget build(BuildContext context) {
                   GestureDetector(
                     onTap: () {
                       setState(() {
+                        // _searchController.clear();
+                        // _isSearching = false;
+                        // selectedCategory = '전체';
+                        // _searchFocusNode.unfocus();
                         _searchController.clear();
-                        _isSearching = false;
-                        selectedCategory = '전체';
-                        _searchFocusNode.unfocus();
                       });
+                      _searchFocusNode.requestFocus();
                     },
                     child: const Icon(Icons.close, color: Color(0xFF9E9E9E)),
                   ),
@@ -281,11 +300,15 @@ Widget build(BuildContext context) {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,
+          clipBehavior: Clip.hardEdge,
           child: _isSearching
-              ? CategoryChipsBar(
-                  categories: categories,
-                  selected: selectedCategory,
-                  onSelect: (cat) => setState(() => selectedCategory = cat),
+              ? Container(
+                  color: Colors.white,
+                  child: CategoryChipsBar(
+                    categories: searchCategories,
+                    selected: selectedCategory,
+                    onSelect: (cat) => setState(() => selectedCategory = cat),
+                  )
                 )
               : const SizedBox(height: 0),
         ),
@@ -300,8 +323,8 @@ Widget build(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!_isSearching && recentSearches.isNotEmpty)
-            buildRecentSearchChips(),
+          // if (!_isSearching && recentSearches.isNotEmpty)
+          //  buildRecentSearchChips(),
 
           Expanded(
             child: _isSearching
@@ -324,7 +347,7 @@ Widget build(BuildContext context) {
                             background: Colors.white,
                             onTap: () => _goToProcessingPage(
                               challenge,
-                              fromSearch: true, // 검색에서 진입
+                              fromSearch: _isSearching,
                             ),
                           ),
                         );
@@ -333,80 +356,88 @@ Widget build(BuildContext context) {
                   )
                 // ===== 일반 모드 =====
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(child: buildCategoryGridWithBackground()),
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Center(child: buildCategoryGridWithBackground()),
+                        ),
                         const SizedBox(height: 24),
-
-                        // BETU 섹션
-                        BetuChallengeSectionWidget(
-                          allChallenges: betuChallenges,
-                          onTileTap: (challenge) => _goToProcessingPage(
-                            challenge,
-                            fromSearch: _isSearching,
+                        
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: BetuChallengeSectionWidget(
+                            challengeFrom: allChallenges,
+                            onTileTap: (challenge) => _goToProcessingPage(
+                              challenge,
+                              fromSearch: _isSearching,
+                            ),
                           ),
                         ),
 
-                        const SizedBox(height: 12),
-                        buildChallengeTabs(),
-                        const SizedBox(height: 12),
+                          const SizedBox(height: 24),
+                          buildChallengeTabs(),
+                      
+                          // 최근 탭 자동 갱신
+                          ValueListenableBuilder<List<Challenge>>(
+                            valueListenable:
+                                ch.ChallengeHistory.instance.recent,
+                            builder: (context, _, __) {
+                              final list = challengesToShow;
 
-                        // 추천 탭 자동 갱신
-                        ValueListenableBuilder<List<Challenge>>(
-                          valueListenable:
-                              ch.ChallengeHistory.instance.recent,
-                          builder: (context, _, __) {
-                            final list = challengesToShow;
-
-                            if (selectedTab == '추천' && list.isEmpty) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 100),
-                                child: Center(
-                                  child: Text(
-                                    '최근 방문한 챌린지가 없습니다.',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey.shade600,
+                              if (selectedTab == '최근' && list.isEmpty) {
+                                return Container(
+                                  color: AppColors.lightGray,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 100,
                                     ),
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return Column(
-                              children: list
-                                  .map(
-                                    (challenge) => Padding(
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 4),
-                                      child: ChallengeTileWidget(
-                                        c: challenge,
-                                        showTags: true,
-                                        onTap: () => _goToProcessingPage(
-                                          challenge,
-                                          fromSearch: _isSearching,
+                                    child: Center(
+                                      child: Text(
+                                        '최근 방문한 챌린지가 없습니다.',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+                                  ),
+                                );
+                              }
 
+                              return Container(
+                                constraints: BoxConstraints(minHeight: 160),
+                                color: AppColors.lightGray, 
+                                child: Column(
+                                  children: list
+                                    .map(
+                                      (challenge) => Padding(
+                                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                                        child: ChallengeTileWidget(
+                                          c: challenge,
+                                          showTags: true,
+                                          onTap: () => _goToProcessingPage(
+                                            challenge,
+                                            fromSearch: _isSearching,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   // ---------- overlays ----------
   OverlayEntry _createTagOverlayEntry() {
@@ -436,7 +467,9 @@ Widget build(BuildContext context) {
                     tag,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: isSelected ? Colors.green : Colors.black87,
                     ),
                   ),
@@ -464,21 +497,26 @@ Widget build(BuildContext context) {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: categories.map((cat) {
-              final isSelected = selectedCategory == cat;
+              final isSelected = selectedCategory == cat["name"];
               return GestureDetector(
-                onTap: () => setState(() => selectedCategory = cat),
+                onTap: () => setState(() => selectedCategory = cat["name"]!),
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.green : Colors.green.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    cat,
+                    cat["name"]!,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -500,9 +538,21 @@ Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
         children: [
-          TextSpan(text: text.substring(0, start), style: const TextStyle(color: Colors.black)),
-          TextSpan(text: text.substring(start, end), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          TextSpan(text: text.substring(end), style: const TextStyle(color: Colors.black)),
+          TextSpan(
+            text: text.substring(0, start),
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(
+            text: text.substring(start, end),
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          TextSpan(
+            text: text.substring(end),
+            style: const TextStyle(color: Colors.black),
+          ),
         ],
       ),
     );
@@ -545,7 +595,7 @@ Widget build(BuildContext context) {
 
   Widget buildCategoryGridWithBackground() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(11),
@@ -571,34 +621,49 @@ Widget build(BuildContext context) {
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final cat = categories[index];
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedCategory = cat;
-                    _isSearching = true;
-                  });
-                },
-                child: Column(
-                  children: [
-                    const CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Color(0xFF1BAB0F),
-                      child: Icon(Icons.school, color: Colors.white),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      cat,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
+              return StatefulBuilder(
+                builder: (context, setLocalState) {
+                  double scale = 1.0;
+
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedCategory = cat["name"]!;
+                        _isSearching = true;
+                      });
+                    },
+                    onTapDown: (_) => setLocalState(() => scale = 0.9),
+                    onTapUp: (_) => setLocalState(() => scale = 1.0),
+                    onTapCancel: () => setLocalState(() => scale = 1.0),
+                    child: AnimatedScale(
+                      scale: scale,
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.easeOut,
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            cat["image"]!,
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.none,
+                          ),
+                          Text(
+                            cat["name"]!,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               );
             },
-          ),
+          )
         ],
       ),
     );
@@ -612,13 +677,19 @@ Widget build(BuildContext context) {
           _buildTabItem(
             label: '인기',
             isSelected: selectedTab == '인기',
-            onTap: () => setState(() { selectedTab = '인기'; selectedTag = 'all'; }),
+            onTap: () => setState(() {
+              selectedTab = '인기';
+              selectedTag = 'all';
+            }),
           ),
           const SizedBox(width: 24),
           _buildTabItem(
             label: '최근',
-            isSelected: selectedTab == '추천',
-            onTap: () => setState(() { selectedTab = '추천'; selectedTag = 'all'; }),
+            isSelected: selectedTab == '최근',
+            onTap: () => setState(() {
+              selectedTab = '최근';
+              selectedTag = 'all';
+            }),
           ),
           const SizedBox(width: 24),
           Row(
@@ -626,14 +697,19 @@ Widget build(BuildContext context) {
               _buildTabItem(
                 label: '전체',
                 isSelected: selectedTab == '전체',
-                onTap: () => setState(() { selectedTab = '전체'; selectedTag = 'all'; }),
+                onTap: () => setState(() {
+                  selectedTab = '전체';
+                  selectedTag = 'all';
+                }),
               ),
               CompositedTransformTarget(
                 link: _tagLayerLink,
                 child: GestureDetector(
                   onTap: _toggleTagDropdown,
                   child: Icon(
-                    _isTagDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                    _isTagDropdownOpen
+                        ? Icons.arrow_drop_up
+                        : Icons.arrow_drop_down,
                     size: 28,
                     color: selectedTab == '전체' ? Colors.green : Colors.black,
                   ),
@@ -664,12 +740,7 @@ Widget build(BuildContext context) {
             ),
           ),
           const SizedBox(height: 5),
-          if (isSelected)
-            Container(
-              height: 3,
-              width: 30,
-              color: Colors.green,
-            ),
+          if (isSelected) Container(height: 3, width: 30, color: Colors.green),
         ],
       ),
     );

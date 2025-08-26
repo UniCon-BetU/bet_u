@@ -9,6 +9,7 @@ void main() {
   runApp(const MyApp());
 }
 
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -33,7 +34,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         fontFamily: 'Freesentation',
         colorScheme: ColorScheme.light(
-          surface: Colors.white,
+          surface: const Color.fromARGB(255, 255, 255, 255),
         ),
       ),
       home: const WelcomePage(),

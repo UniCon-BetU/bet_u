@@ -10,7 +10,7 @@ import '../pages/betu_challenges_page.dart';
 class BetuChallengeSectionWidget extends StatelessWidget {
   const BetuChallengeSectionWidget({
     super.key,
-    required this.allChallenges,
+    required this.challengeFrom,
     this.title = 'BETU Challenges',
     this.leadingIcon = const Icon(Icons.eco, color: AppColors.primaryGreen),
     this.cardBackground = AppColors.lighterGreen,
@@ -19,7 +19,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   });
 
   /// (보통 betuChallenges)
-  final List<Challenge> allChallenges;
+  final List<Challenge> challengeFrom;
 
   final String title;
   final Widget leadingIcon;
@@ -32,7 +32,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 원 코드: top9 (= itemsPerPage * 3)
-    final top = allChallenges.take(itemsPerPage * 3).toList();
+    final top = challengeFrom.take(itemsPerPage * 3).toList();
     final chunked = _chunk(top, itemsPerPage);
     final pageController = PageController();
 
@@ -40,29 +40,43 @@ class BetuChallengeSectionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 헤더
-          InkWell(
-            borderRadius: BorderRadius.circular(11),
-            onTap: () {
-              final betuOnly = allChallenges.where((c) => c.type == 'betu').toList();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BetuChallengesPage(betuChallenges: betuOnly),
-                ),
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 6),
-                    leadingIcon,
-                  ],
-                ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black),
-              ],
-            ),
+        InkWell(
+          borderRadius: BorderRadius.circular(11),
+          onTap: () {
+            final betuOnly = challengeFrom
+                .where((c) => c.type == 'betu')
+                .toList();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BetuChallengesPage(betuChallenges: betuOnly),
+              ),
+            );
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.eco, size:24, color: AppColors.primaryGreen),
+                ],
+              ),
+
+
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 24,
+                color: Colors.black,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 6),
 
@@ -112,7 +126,9 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   List<List<Challenge>> _chunk(List<Challenge> list, int size) {
     final chunks = <List<Challenge>>[];
     for (int i = 0; i < list.length; i += size) {
-      chunks.add(list.sublist(i, i + size > list.length ? list.length : i + size));
+      chunks.add(
+        list.sublist(i, i + size > list.length ? list.length : i + size),
+      );
     }
     return chunks;
   }

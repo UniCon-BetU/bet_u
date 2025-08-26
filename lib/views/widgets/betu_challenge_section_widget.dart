@@ -10,7 +10,7 @@ import '../pages/betu_challenges_page.dart';
 class BetuChallengeSectionWidget extends StatelessWidget {
   const BetuChallengeSectionWidget({
     super.key,
-    required this.allChallenges,
+    required this.challengeFrom,
     this.title = 'BETU Challenges',
     this.leadingIcon = const Icon(Icons.eco, color: AppColors.primaryGreen),
     this.cardBackground = AppColors.lighterGreen,
@@ -19,7 +19,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   });
 
   /// (보통 betuChallenges)
-  final List<Challenge> allChallenges;
+  final List<Challenge> challengeFrom;
 
   final String title;
   final Widget leadingIcon;
@@ -32,7 +32,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 원 코드: top9 (= itemsPerPage * 3)
-    final top = allChallenges.take(itemsPerPage * 3).toList();
+    final top = challengeFrom.take(itemsPerPage * 3).toList();
     final chunked = _chunk(top, itemsPerPage);
     final pageController = PageController();
 
@@ -43,7 +43,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
         InkWell(
           borderRadius: BorderRadius.circular(11),
           onTap: () {
-            final betuOnly = allChallenges
+            final betuOnly = challengeFrom
                 .where((c) => c.type == 'betu')
                 .toList();
             Navigator.of(context).push(
@@ -55,30 +55,26 @@ class BetuChallengeSectionWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 12), // 왼쪽 여백
-                child: Row(
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(width: 6),
-                    leadingIcon,
-                    const SizedBox(width: 260),
-
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.black,
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.eco, size:24, color: AppColors.primaryGreen),
+                ],
               ),
 
-              const SizedBox(width: 1),
+
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 24,
+                color: Colors.black,
+              ),
             ],
           ),
         ),

@@ -21,7 +21,7 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final int userPoints = 2050;
 
-    final List<Challenge> myChallenges = betuChallenges
+    final List<Challenge> myChallenges = allChallenges
         .where((c) => c.status == ChallengeStatus.inProgress)
         .toList();
 

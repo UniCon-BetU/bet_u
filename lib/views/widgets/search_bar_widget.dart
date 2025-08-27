@@ -84,7 +84,7 @@ class SearchBarOnly extends StatelessWidget {
                     height: 54,
                     child: IconButton(
                       iconSize: 24,
-                      icon: const Icon(Icons.add_rounded, color: Colors.black),
+                      icon: Icon(Icons.add_rounded, color: isSearching ? Colors.white : Colors.black),
                       onPressed: onPlusPressed,
                     ),
                   ),

@@ -90,119 +90,113 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
         elevation: 0,
         clipBehavior: Clip.antiAlias,
-        child: Listener(
-          onPointerDown: (_) => _setPressed(true),
-          onPointerUp: (_) => _setPressed(false),
-          onPointerCancel: (_) => _setPressed(false),
-          child: InkWell(
-            onTap: () async {
-              // 1) 어디서든 기록
-              ChallengeHistory.instance.record(widget.c);
+        child: InkWell(
+          onHighlightChanged: (isDown) => _setPressed(isDown),
+          onTap: () async {
+            // 1) 어디서든 기록
+            ChallengeHistory.instance.record(widget.c);
 
-              // 2) 라우팅: onTap 제공 시 우선, 아니면 기본 상세페이지 이동
-              if (widget.onTap != null) {
-                widget.onTap!();
-              } else {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ChallengeDetailPage(challenge: widget.c),
-                  ),
-                );
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 제목
-                        Text(
-                          widget.c.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            height: 1.1,
+            // 2) 라우팅: onTap 제공 시 우선, 아니면 기본 상세페이지 이동
+            if (widget.onTap != null) {
+              widget.onTap!();
+            } else {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ChallengeDetailPage(challenge: widget.c),
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 제목
+                      Text(
+                        widget.c.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                        ),
+                      ),
+
+                      // 참여자/기간(또는 목표형)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.people_alt_rounded,
+                            size: 12,
+                            color: AppColors.darkerGray,
                           ),
-                        ),
-
-                        // 참여자/기간(또는 목표형)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.people_alt_rounded,
-                              size: 12,
+                          const SizedBox(width: 2),
+                          Text(
+                            '${widget.c.participants}',
+                            style: const TextStyle(
+                              fontSize: 10,
                               color: AppColors.darkerGray,
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '${widget.c.participants}',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppColors.darkerGray,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(
-                              Icons.today_rounded,
-                              size: 12,
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.today_rounded,
+                            size: 12,
+                            color: AppColors.darkerGray,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            widget.c.type == 'time'
+                                ? '${widget.c.day} Days'
+                                : '목표 달성 챌린지',
+                            style: const TextStyle(
+                              fontSize: 10,
                               color: AppColors.darkerGray,
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              widget.c.type == 'time'
-                                  ? '${widget.c.day} Days'
-                                  : '목표 달성 챌린지',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppColors.darkerGray,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
 
-                        // 태그
-                        if (widget.showTags && widget.c.tags.isNotEmpty)
-                          const SizedBox(height: 4),
-                        if (widget.showTags && widget.c.tags.isNotEmpty)
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: -2,
-                            children: widget.c.tags
-                                .map(
-                                  (tag) => Text(
-                                    '#$tag',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.green,
-                                      height: 1.0,
-                                    ),
+                      // 태그
+                      if (widget.showTags && widget.c.tags.isNotEmpty)
+                        const SizedBox(height: 4),
+                      if (widget.showTags && widget.c.tags.isNotEmpty)
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: -2,
+                          children: widget.c.tags
+                              .map(
+                                (tag) => Text(
+                                  '#$tag',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.green,
+                                    height: 1.0,
                                   ),
-                                )
-                                .toList(),
-                          ),
-                      ],
-                    ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  rightWidget,
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                rightWidget,
+              ],
             ),
           ),
         ),
       ),
     );
   }
-
-  Color get _bgColor => const Color.fromARGB(255, 246, 255, 233);
 
   Widget _imageBox(String url) {
     return ClipRRect(

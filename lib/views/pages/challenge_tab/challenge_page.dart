@@ -1,15 +1,13 @@
 // lib/views/pages/challenge_page.dart
 import 'package:flutter/material.dart';
 import 'package:bet_u/data/global_challenges.dart';
-import '../../models/challenge.dart';
+import '../../../models/challenge.dart';
 import 'challenge_detail_page.dart';
-import 'package:bet_u/views/pages/create_challenge_page.dart';
+import 'package:bet_u/views/pages/challenge_tab/create_challenge_page.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
-import '../../theme/app_colors.dart';
-import '../../utils/challenge_history.dart' as ch;
-
-
+import '../../../theme/app_colors.dart';
+import '../../../utils/challenge_history.dart' as ch;
 
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
@@ -658,9 +656,9 @@ class _ChallengePageState extends State<ChallengePage> {
 
   Widget buildCategoryGridWithBackground() {
     return Container(
-      width: 460,
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      width: 400,
+      height: 220,
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 18),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 246, 255, 233),
         borderRadius: BorderRadius.circular(25),
@@ -693,8 +691,8 @@ class _ChallengePageState extends State<ChallengePage> {
                     // CircleAvatar 대신 이미지 그대로
                     Image.asset(
                       cat["image"]!,
-                      width: 60,
-                      height: 60,
+                      width: 55,
+                      height: 55,
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.none, // <- 픽셀 낮춤
                     ),

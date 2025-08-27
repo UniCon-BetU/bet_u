@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
-class MyPageProfileWidget extends StatelessWidget {
-  const MyPageProfileWidget({super.key});
+class ProfileWidget extends StatelessWidget {
+  const ProfileWidget({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.stats,
+  });
 
   static const primaryGreen = Color(0xFF1BAB0F);
+
+  final String title; // 닉네임
+  final String subtitle; // 코멘트/하위 텍스트
+  final List<StatItemData> stats; // 통계 리스트
 
   @override
   Widget build(BuildContext context) {
@@ -25,20 +34,19 @@ class MyPageProfileWidget extends StatelessWidget {
       child: Row(
         children: [
           // ✅ 타이틀 블록
-          const Expanded(
-            child: _TitleBlock(title: '닉네임', subtitle: 'BETU와 함께한 시간 D+16'),
+          Expanded(
+            child: _TitleBlock(title: title, subtitle: subtitle),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              _StatItem(label: '진행중', value: '12'),
-              SizedBox(width: 16),
-              _StatItem(label: '완료/중단', value: '5'),
-              SizedBox(width: 16),
-
-              _StatItem(label: '성공', value: '5'),
-            ],
-          ),
+          if (stats.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (int i = 0; i < stats.length; i++) ...[
+                  _StatItem(label: stats[i].label, value: stats[i].value),
+                  if (i != stats.length - 1) const SizedBox(width: 16),
+                ],
+              ],
+            ),
         ],
       ),
     );
@@ -104,4 +112,12 @@ class _StatItem extends StatelessWidget {
       ],
     );
   }
+}
+
+// ✅ 통계 아이템 데이터 클래스
+class StatItemData {
+  final String label;
+  final String value;
+
+  StatItemData({required this.label, required this.value});
 }

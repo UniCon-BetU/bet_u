@@ -1,4 +1,4 @@
-import 'package:bet_u/views/pages/point_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:flutter/material.dart';
 
 class PointbuttonWidget extends StatelessWidget {

@@ -67,6 +67,8 @@ flutter:
   assets:
     - assets/images/
     - assets/category/
+    - assets/images/point/
+    - assets/images/point/background/
 
 
     

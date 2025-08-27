@@ -1,7 +1,7 @@
 // lib/state/challenge_state.dart
 import 'package:flutter/material.dart';
 import '../models/challenge.dart';
-import '../views/pages/challenge_detail_page.dart';
+import '../views/pages/challenge_tab/challenge_detail_page.dart';
 
 class ChallengeState extends ChangeNotifier {
   final List<Challenge> recentVisited = [];

@@ -32,12 +32,12 @@ class LongButtonWidget extends StatefulWidget {
 
   @override
   State<LongButtonWidget> createState() => _LongButtonWidgetState();
-}  
+}
 
 class _LongButtonWidgetState extends State<LongButtonWidget> {
   bool _pressed = false;
 
-  void _setPressed(bool v) { 
+  void _setPressed(bool v) {
     if (_pressed == v) return;
     setState(() => _pressed = v);
   }
@@ -72,18 +72,21 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
                 if (states.contains(WidgetState.pressed)) {
                   return Colors.black.withValues(alpha: 0.06);
                 }
-                
+
                 if (states.contains(WidgetState.hovered)) {
                   return Colors.black.withValues(alpha: 0.04);
                 }
 
                 return null;
-              })
+              }),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (widget.leading != null) ...[widget.leading!, const SizedBox(width: 8)],
+                if (widget.leading != null) ...[
+                  widget.leading!,
+                  const SizedBox(width: 8),
+                ],
                 Text(
                   widget.text,
                   style: TextStyle(
@@ -92,7 +95,10 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
                     fontSize: 20,
                   ),
                 ),
-                if (widget.trailing != null) ...[const SizedBox(width: 8), widget.trailing!],
+                if (widget.trailing != null) ...[
+                  const SizedBox(width: 8),
+                  widget.trailing!,
+                ],
               ],
             ),
           ),

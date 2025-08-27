@@ -8,22 +8,6 @@ import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dar
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/data/global_challenges.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const PointPage(),
-    );
-  }
-}
-
 class PointPage extends StatefulWidget {
   const PointPage({super.key});
 
@@ -44,41 +28,41 @@ class _PointPageState extends State<PointPage> {
       "points": 3000,
       "amount": 3000,
       "bonus": 0,
-      "image": "images/point/point_1Lv.png",
+      "image": "assets/images/point/point_1Lv.png",
     },
     {
       "points": 5000,
       "amount": 5000,
       "bonus": 0,
-      "image": "images/point/point_2Lv.png",
+      "image": "assets/images/point/point_2Lv.png",
     },
     {
       "points": 10000,
       "amount": 9900,
       "bonus": 100,
-      "image": "images/point/point_3Lv.png",
-      "background": "images/point/background/bg1.png",
+      "image": "assets/images/point/point_3Lv.png",
+      "background": "assets/images/point/background/bg1.png",
     },
     {
       "points": 30000,
       "amount": 29800,
       "bonus": 200,
-      "image": "images/point/point_4Lv.png",
-      "background": "images/point/background/bg2.png",
+      "image": "assets/images/point/point_4Lv.png",
+      "background": "assets/images/point/background/bg2.png",
     },
     {
       "points": 50000,
       "amount": 49500,
       "bonus": 500,
-      "image": "images/point/point_4Lv.png",
-      "background": "images/point/background/bg3.png",
+      "image": "assets/images/point/point_4Lv.png",
+      "background": "assets/images/point/background/bg3.png",
     },
     {
       "points": 100000,
       "amount": 99900,
       "bonus": 1000,
-      "image": "images/point/point_4Lv.png",
-      "background": "images/point/background/bg4.png",
+      "image": "assets/images/point/point_4Lv.png",
+      "background": "assets/images/point/background/bg4.png",
     },
   ];
 
@@ -130,9 +114,10 @@ class _PointPageState extends State<PointPage> {
       setState(() {
         userPoints += amt + bonus;
       });
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('결제 성공!')));
+      ).showSnackBar(SnackBar(content: Text('결제 성공! 현재 포인트: $userPoints P')));
     } else {
       ScaffoldMessenger.of(
         context,
@@ -188,7 +173,7 @@ class _PointPageState extends State<PointPage> {
                           height: 112,
                           width: 112,
                           child: Image.asset(
-                            'images/point_icon_x3.png',
+                            'assets/images/point_icon_x3.png',
                             fit: BoxFit.cover,
                           ),
                         ),

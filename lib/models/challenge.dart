@@ -5,11 +5,17 @@ enum ChallengeStatus {
   notStarted, // 시작 전
 }
 
+enum TodayCheck {
+  waiting, // 인증 대기중
+  done, // 놓친 챌린지
+  notStarted, // 시작 전
+}
+
 class Challenge {
   final String title;
   int participants;
   final int day; // 총 챌린지 일수
-  final ChallengeStatus status;
+  ChallengeStatus status;
   final String category;
   final DateTime createdAt;
   final String? type;
@@ -18,8 +24,7 @@ class Challenge {
   final String? bannerPeriod;
   final String? bannerDescription;
   final String? WhoMadeIt;
-  bool todayCheck; // 오늘 인증했는지 여부
-
+  TodayCheck todayCheck;
   bool isFavorite;
 
   int progressDays; // ✅ 여기 추가 (사용자가 인증한 일수)
@@ -39,7 +44,7 @@ class Challenge {
     this.isFavorite = false,
     this.progressDays = 0, // 기본 0일
     this.WhoMadeIt, // 기본 0일
-    this.todayCheck = false, // 오늘 인증했는지 여부
+    this.todayCheck = TodayCheck.notStarted, // 오늘 인증했는지 여부
   }) : tags = tags ?? [];
 
   double get progressPercent => day > 0 ? progressDays / day : 0;

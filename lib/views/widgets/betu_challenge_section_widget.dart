@@ -68,7 +68,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     leadingIcon,
-                    const SizedBox(width: 260),
+                    const SizedBox(width: 170),
 
                     const Icon(
                       Icons.arrow_forward_ios_rounded,

@@ -1,18 +1,24 @@
-import 'package:bet_u/views/pages/point_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/group_management_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/security_page.dart';
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
-import '../../models/challenge.dart';
-import '../../models/category.dart';
-import '../widgets/challenge_section_widget.dart';
-import '../widgets/popular_section_widget.dart';
+import '../../../models/challenge.dart';
+import '../../../models/category.dart';
+import '../../widgets/challenge_section_widget.dart';
+import '../../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
-import '../../theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
+import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
+
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
-import 'package:bet_u/views/widgets/my_page_profile_widget.dart';
+import 'package:bet_u/views/widgets/profile_widget.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -26,7 +32,9 @@ class ProfilePage extends StatelessWidget {
         .toList();
 
     final int totalCount = myChallenges.length;
-    final int doneCount = myChallenges.where((c) => c.todayCheck).length;
+    final int doneCount = myChallenges
+        .where((c) => c.todayCheck == TodayCheck.done)
+        .length;
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
     return Scaffold(
@@ -57,6 +65,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ],
               ),
+              /*
               IconButton(
                 icon: const Icon(Icons.notifications_none_outlined),
                 onPressed: () {
@@ -66,6 +75,7 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
+              */
             ],
           ),
         ),
@@ -78,7 +88,16 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               child: Column(
                 children: [
-                  const MyPageProfileWidget(),
+                  ProfileWidget(
+                    title: '연오 고', // 닉네임
+                    subtitle: 'BETU와 함께한 시간 D+16', // 하위 코멘트
+                    stats: [
+                      StatItemData(label: '진행중', value: '12'),
+                      StatItemData(label: '완료/중단', value: '5'),
+                      StatItemData(label: '성공', value: '5'),
+                      // 필요한 만큼 더 추가 가능
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   ChallengeSectionWidget(items: myChallenges),
                   const SizedBox(height: 12),
@@ -159,7 +178,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 MyPageSettingWidget(
                   title: '포인트 결제',
-                  image: AssetImage('images/point_icon.png'),
+                  image: AssetImage('assets/images/point_icon.png'),
                   point: '$userPoints P', // userPoints 변수 사용
                   onTap: () {
                     Navigator.push(
@@ -173,28 +192,62 @@ class ProfilePage extends StatelessWidget {
                 MyPageSettingWidget(
                   title: '개인 및 보안',
                   icon: Icons.lock,
-                  //    onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SecurityPage()),
+                    );
+                  },
                 ),
+                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '진행 중인 챌린지',
                   icon: Icons.stars,
-                  //    onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MyChallengePage(myChallenges: []),
+                      ),
+                    );
+                  },
                 ),
-
+                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '챌린지 내역 확인',
                   icon: Icons.check_circle,
-                  //    onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ChallengeHistoryPage(),
+                      ),
+                    );
+                  },
                 ),
+                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '그룹 관리',
                   icon: Icons.groups,
-                  //    onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const GroupManagementPage(),
+                      ),
+                    );
+                  },
                 ),
+                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '스크랩',
                   icon: Icons.bookmark,
-                  //    onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ScrapPage()),
+                    );
+                  },
                 ),
               ],
             ),

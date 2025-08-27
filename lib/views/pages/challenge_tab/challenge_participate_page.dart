@@ -1,8 +1,9 @@
+import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
-import '../../data/global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
-import 'package:bet_u/views/pages/challenge_start_page.dart';
-import '../../models/challenge.dart';
-import 'point_page.dart';
+import '../../../data/global_challenges.dart'; // 글로벌 챌린지 리스트 임포트
+import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
+import '../../../models/challenge.dart';
+import '../mypage_tab/point_page.dart';
 
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge; // 챌린지 필드
@@ -131,7 +132,13 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('챌린지 참여하기'), leading: BackButton()),
+      appBar: AppBar(
+        title: const Text('챌린지 참여하기'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios), // iOS 스타일
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         child: Column(
@@ -149,10 +156,11 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
             ),
             const SizedBox(height: 16),
             Text(
-              widget.challenge.title, // <- 여기서 widget. 붙여야 함
+              widget.challenge.title,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              maxLines: 1, // 한 줄로 제한
+              overflow: TextOverflow.ellipsis, // 길면 ... 처리
             ),
-
             Text(
               '챌린지에',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
@@ -200,87 +208,79 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
             ),
             Spacer(),
 
-            SizedBox(
-              width: double.infinity,
+            LongButtonWidget(
+              text: '결제하고 참여하기',
+              backgroundColor: Colors.green[600]!,
               height: 56,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[600],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text('참여 확인'),
-                      content: Text('$formattedSelected 포인트를 걸고 도전하시겠습니까?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('취소'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            if (userPoints >= selectedAmount) {
+              radius: 8,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('참여 확인'),
+                    content: Text('$formattedSelected 포인트를 걸고 도전하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (userPoints >= selectedAmount) {
+                            setState(() {
                               userPoints -= selectedAmount; // 포인트 차감
-                              Navigator.pop(context); // 다이얼로그 닫기 먼저
+                            });
+                            Navigator.pop(context); // 다이얼로그 닫기
 
-                              // 도전 시작 페이지로 이동, 실제 챌린지 제목 전달
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChallengeStartPage(
-                                    deductedPoints: selectedAmount, // 여기서 전달
-                                    challengeTitle: widget.challenge.title,
-                                  ),
+                            // 도전 시작 페이지로 이동, 챌린지 제목 전달
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChallengeStartPage(
+                                  deductedPoints: selectedAmount,
+                                  challengeTitle: widget.challenge.title,
                                 ),
-                              );
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  title: Text('포인트 부족'),
-                                  content: Text(
-                                    '포인트가 부족합니다. 충전 페이지로 이동하시겠습니까?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context), // 취소
-                                      child: Text('취소'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // 다이얼로그 닫기
-                                        // 충전 페이지로 이동
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                PointPage(), // 충전 페이지 위젯
-                                          ),
-                                        );
-                                      },
-                                      child: Text('확인'),
-                                    ),
-                                  ],
+                              ),
+                            );
+                          } else {
+                            Navigator.pop(context); // 다이얼로그 닫기
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('포인트 부족'),
+                                content: const Text(
+                                  '포인트가 부족합니다. 충전 페이지로 이동하시겠습니까?',
                                 ),
-                              );
-                            }
-                          },
-                          child: Text('확인'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Text(
-                  '결제하고 참여하기',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context), // 취소
+                                    child: const Text('취소'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context); // 다이얼로그 닫기
+                                      // 충전 페이지로 이동
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const PointPage(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('확인'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('확인'),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),

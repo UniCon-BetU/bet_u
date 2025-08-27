@@ -2,7 +2,11 @@ import 'package:bet_u/data/constants.dart';
 import 'package:flutter/material.dart';
 
 class ContainerWidget extends StatelessWidget {
-  const ContainerWidget({super.key, required this.title, required this.description,});
+  const ContainerWidget({
+    super.key,
+    required this.title,
+    required this.description,
+  });
 
   final String title;
   final String description;

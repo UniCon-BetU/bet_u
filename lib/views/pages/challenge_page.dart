@@ -62,8 +62,10 @@ class _ChallengePageState extends State<ChallengePage> {
   String selectedType = 'all'; // (미사용 보류)
 
   bool _isSearching = false;
-
+  
   // ---------- utils ----------
+  
+
   void _addRecentSearch(String title) {
     if (title.isEmpty) return;
     recentSearches.remove(title);
@@ -282,10 +284,10 @@ Widget build(BuildContext context) {
                       });
                       _searchFocusNode.requestFocus();
                     },
-                    child: const Icon(Icons.close, color: Color(0xFF9E9E9E)),
+                    child: const Icon(Icons.close, color: AppColors.darkerGray),
                   ),
                 const SizedBox(width: 7),
-                const Icon(Icons.search, size: 30, color: Color(0xFF757575)),
+                const Icon(Icons.search, size: 30, color: Colors.black),
                 const SizedBox(width: 15),
               ],
             ),
@@ -332,26 +334,51 @@ Widget build(BuildContext context) {
                 ? Container(
                     color: AppColors.lightGray,
                     padding: const EdgeInsets.only(top: 12),
-                    child: ListView.builder(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: filteredChallenges.length,
-                      itemBuilder: (context, index) {
-                        final challenge = filteredChallenges[index];
-                        return Padding(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 4),
-                          child: ChallengeTileWidget(
-                            c: challenge,
-                            showTags: true,
-                            background: Colors.white,
-                            onTap: () => _goToProcessingPage(
-                              challenge,
-                              fromSearch: _isSearching,
-                            ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 3),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '검색 결과 필터링',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                )
+                              ),
+
+                              buildSearchTagDropdown(),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+
+                        Expanded(
+                          child: ListView.builder(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            itemCount: filteredChallenges.length,
+                            itemBuilder: (context, index) {
+                              final challenge = filteredChallenges[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: ChallengeTileWidget(
+                                  c: challenge,
+                                  showTags: true,
+                                  background: Colors.white,
+                                  onTap: () => _goToProcessingPage(
+                                    challenge,
+                                    fromSearch: _isSearching,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 // ===== 일반 모드 =====
@@ -484,6 +511,91 @@ Widget build(BuildContext context) {
   }
 
   // ---------- UI parts ----------
+  String _currentTagLabel() {
+    switch (selectedTag) {
+      case 'time':
+        return '기간 챌린지';
+      case 'goal':
+        return '목표 챌린지';
+      case 'all':
+      default:
+        return '전체';
+    }
+  }
+
+  /// 검색 모드용: 우측에 붙는 드롭다운 버튼
+  Widget buildSearchTagDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        offset: const Offset(0, 8),
+        position: PopupMenuPosition.under,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        onSelected: (value) {
+          setState(() {
+            selectedTag = value; // 'all' | 'time' | 'goal'
+          });
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            height: 30,
+            value: 'all',
+            child: Row(
+              children: const [
+                Icon(Icons.open_in_full_rounded, size: 18),
+                SizedBox(width: 8),
+                Text('전체'),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            height: 30,
+            value: 'time',
+            child: Row(
+              children: const [
+                Icon(Icons.schedule, size: 18),
+                SizedBox(width: 8),
+                Text('기간 챌린지'),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            height: 30,
+            value: 'goal',
+            child: Row(
+              children: const [
+                Icon(Icons.flag, size: 18),
+                SizedBox(width: 8),
+                Text('목표 챌린지'),
+              ],
+            ),
+          ),
+        ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.filter_list, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                _currentTagLabel(),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildCategoryRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -690,33 +802,7 @@ Widget build(BuildContext context) {
               selectedTab = '최근';
               selectedTag = 'all';
             }),
-          ),
-          const SizedBox(width: 24),
-          Row(
-            children: [
-              _buildTabItem(
-                label: '전체',
-                isSelected: selectedTab == '전체',
-                onTap: () => setState(() {
-                  selectedTab = '전체';
-                  selectedTag = 'all';
-                }),
-              ),
-              CompositedTransformTarget(
-                link: _tagLayerLink,
-                child: GestureDetector(
-                  onTap: _toggleTagDropdown,
-                  child: Icon(
-                    _isTagDropdownOpen
-                        ? Icons.arrow_drop_up
-                        : Icons.arrow_drop_down,
-                    size: 28,
-                    color: selectedTab == '전체' ? Colors.green : Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          ),  
         ],
       ),
     );

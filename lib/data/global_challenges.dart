@@ -2,7 +2,7 @@ import '../models/challenge.dart';
 
 int userPoints = 50000; // 더미 포인트
 
-final List<Challenge> betuChallenges = [
+final List<Challenge> allChallenges = [
   Challenge(
     title: '휴대폰 보기를 돌 같이 하라 | 스크린타임 인증 챌린지',
     participants: 2686,
@@ -11,12 +11,13 @@ final List<Challenge> betuChallenges = [
     category: '생활습관',
     createdAt: DateTime(2025, 8, 20),
     type: 'time',
-    tags: ['#수능', '#생활습관', '#기상'],
+    tags: ['수능', '생활습관', '기상'],
     bannerPeriod: '챌린지 제공 기간: 상시',
     bannerDescription:
         '이 챌린지는 하루 동안 휴대폰 사용을 줄이고, 스크린타임 인증을 통해 집중 습관을 만드는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.waiting,
+    progressDays: 13,
   ),
   Challenge(
     title: '수능 국어 1일 3지문',

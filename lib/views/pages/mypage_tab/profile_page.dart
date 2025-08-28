@@ -25,9 +25,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int userPoints = 2050;
-
-    final List<Challenge> myChallenges = betuChallenges
+    final List<Challenge> myChallenges = allChallenges
         .where((c) => c.status == ChallengeStatus.inProgress)
         .toList();
 
@@ -199,7 +197,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '진행 중인 챌린지',
                   icon: Icons.stars,
@@ -212,7 +209,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '챌린지 내역 확인',
                   icon: Icons.check_circle,
@@ -225,7 +221,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '그룹 관리',
                   icon: Icons.groups,
@@ -238,7 +233,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
                 MyPageSettingWidget(
                   title: '스크랩',
                   icon: Icons.bookmark,

@@ -258,7 +258,7 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 18),
 
               BetuChallengeSectionWidget(
-                allChallenges: betuChallenges, // ← betu 도메인만 보여주려면 이 리스트 그대로
+                challengeFrom: allChallenges, // ← betu 도메인만 보여주려면 이 리스트 그대로
                 // onTileTap: (c) {
                 //   // 필요시 커스텀 탭 동작(예: 추적/로그/analytics 등)
                 //   // 기본 동작(상세 페이지로 이동)은 ChallengeTileWidget이 이미 처리하므로 생략 가능

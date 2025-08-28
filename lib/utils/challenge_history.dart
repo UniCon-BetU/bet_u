@@ -7,7 +7,9 @@ class ChallengeHistory {
   static final instance = ChallengeHistory._();
 
   /// 최신이 맨 앞. 외부에서 구독 가능
-  final ValueNotifier<List<Challenge>> recent = ValueNotifier<List<Challenge>>([]);
+  final ValueNotifier<List<Challenge>> recent = ValueNotifier<List<Challenge>>(
+    [],
+  );
 
   void record(Challenge c) {
     final list = List<Challenge>.from(recent.value);

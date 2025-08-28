@@ -184,63 +184,79 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
       // ----------------------------
       // 하단 즐겨찾기 + 참여/인증 버튼
-      bottomSheet: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                blurRadius: 4,
-                offset: const Offset(0, -2),
+      bottomNavigationBar: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // bottomSheet 높이 최소화
+          children: [
+            // 진행중일 때만 ProgressStatusBar 표시
+            if (challenge.status == ChallengeStatus.inProgress)
+              ProgressStatusBar(
+                day: challenge.progressDays,
+                totalDay: challenge.day,
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.bookmark : Icons.bookmark_border,
-                  color: statusColor,
-                  size: 40,
-                ),
-                onPressed: () {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
-                },
+
+            // 인증하기 버튼
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: LongButtonWidget(
-                  text: challenge.status == ChallengeStatus.inProgress
-                      ? "인증하기"
-                      : "배팅하고 참여하기",
-                  backgroundColor: statusColor,
-                  onPressed: () {
-                    if (challenge.status == ChallengeStatus.inProgress) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ChallengeCertificationPage(challenge: challenge),
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ChallengeParticipatePage(challenge: challenge),
-                        ),
-                      );
-                    }
-                  },
-                ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                      color: statusColor,
+                      size: 40,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: LongButtonWidget(
+                      text: challenge.status == ChallengeStatus.inProgress
+                          ? "인증하기"
+                          : "배팅하고 참여하기",
+                      backgroundColor: statusColor,
+                      onPressed: () {
+                        // ...
+                        if (challenge.status == ChallengeStatus.inProgress) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChallengeCertificationPage(
+                                challenge: challenge,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChallengeParticipatePage(
+                                challenge: challenge,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -260,80 +276,66 @@ class ProgressStatusBar extends StatelessWidget {
     required this.totalDay,
   }) : percent = day / totalDay,
        remainDay = totalDay - day;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 10,
-      ), // 기존 12 -> 8 등으로 줄임
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
-        color: Colors.white, // 1. 하얀 배경
+        color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey, width: 0.3)),
       ),
       child: Column(
         children: [
-          // 상단 퍼센트 + 말풍선
           const SizedBox(height: 1),
-
-          // 2. 이미지 뒤, 3. 진행 바 앞으로
           SizedBox(
-            height: 130, // Stack 높이를 이미지 높이에 맞춤
+            height: 130,
             child: Stack(
               children: [
-                // 이미지 (뒤쪽)
                 Align(
                   alignment: Alignment.center,
                   child: Image.asset(
-                    // percent * 100로 0~100 기준 계산
                     percent * 100 <= 30
-                        ? 'images/normal_lettuce.png'
+                        ? 'assets/images/normal_lettuce.png'
                         : percent * 100 <= 70
-                        ? 'images/happy_lettuce.png'
-                        : 'images/red_lettuce.png',
+                        ? 'assets/images/happy_lettuce.png'
+                        : 'assets/images/red_lettuce.png',
                     width: 200,
                     height: 200,
                   ),
                 ),
-                // 퍼센트 + 챌린지 진행도 텍스트
-                Stack(
-                  children: [
-                    // 퍼센트 텍스트 (위쪽 고정)
-                    Positioned(
-                      top: 38,
-                      left: 16,
-                      child: Text(
-                        "${(percent * 100).toInt()}%",
+                // 텍스트들
+                Positioned(
+                  top: 38,
+                  left: 16,
+                  child: Text(
+                    "${(percent * 100).toInt()}%",
+                    style: const TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 60,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text(
+                        "챌린지 진행도",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      Text(
+                        "Day $day/$totalDay",
                         style: const TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
                       ),
-                    ),
-
-                    // 챌린지 진행도 컬럼 (퍼센트보다 아래)
-                    Positioned(
-                      top: 60, // 퍼센트보다 아래로
-                      right: 16,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            "챌린지 진행도",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                          Text(
-                            "Day $day/$totalDay",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Positioned(
                   top: 10,
@@ -346,7 +348,7 @@ class ProgressStatusBar extends StatelessWidget {
                     borderRadius: 100,
                   ),
                 ),
-                // 진행 바 (아래쪽)
+                // ✅ 애니메이션 들어가는 진행 바
                 Positioned(
                   bottom: 6,
                   left: 16,
@@ -355,13 +357,18 @@ class ProgressStatusBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
                       height: 17,
-                      width: double.infinity, // 화면 폭 전체
-                      child: LinearProgressIndicator(
-                        value: percent,
-                        backgroundColor: Colors.grey.shade300,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.red,
-                        ),
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: percent),
+                        duration: const Duration(seconds: 1),
+                        builder: (context, value, child) {
+                          return LinearProgressIndicator(
+                            value: value,
+                            backgroundColor: Colors.grey.shade300,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),

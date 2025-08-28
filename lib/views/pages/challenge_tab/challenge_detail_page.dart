@@ -30,9 +30,13 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     // 👉 ChallengeStatus에 따른 색상 분기
     double percent = challenge.progressDays / challenge.day * 100;
     Color progressColor;
-      if (percent <= 30) { progressColor = AppColors.primaryGreen; }
-      else if (percent > 30 && percent <= 70) { progressColor = AppColors.darkYellowGreen; }
-      else { progressColor = AppColors.primaryRed; }
+    if (percent <= 30) {
+      progressColor = AppColors.primaryGreen;
+    } else if (percent > 30 && percent <= 70) {
+      progressColor = AppColors.darkYellowGreen;
+    } else {
+      progressColor = AppColors.primaryRed;
+    }
 
     Color statusColor;
     switch (challenge.status) {
@@ -74,7 +78,10 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                         child: CircleAvatar(
                           backgroundColor: Colors.white.withAlpha(0),
                           child: IconButton(
-                            icon: Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                            icon: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.black,
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ),
@@ -143,7 +150,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      height: 1.1
+                      height: 1.1,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -235,7 +242,10 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                       text: challenge.status == ChallengeStatus.inProgress
                           ? "인증하기"
                           : "배팅하고 참여하기",
-                      backgroundColor: (challenge.status == ChallengeStatus.inProgress) ? progressColor : statusColor,
+                      backgroundColor:
+                          (challenge.status == ChallengeStatus.inProgress)
+                          ? progressColor
+                          : statusColor,
                       onPressed: () {
                         // ...
                         if (challenge.status == ChallengeStatus.inProgress) {
@@ -276,20 +286,24 @@ class ProgressStatusBar extends StatelessWidget {
   final int day;
   final int totalDay;
   final int remainDay;
-  
+
   const ProgressStatusBar({
     super.key,
     required this.day,
     required this.totalDay,
   }) : percent = day / totalDay * 100,
        remainDay = totalDay - day;
-  
+
   @override
   Widget build(BuildContext context) {
     Color progressColor;
-      if (percent <= 30) { progressColor = AppColors.primaryGreen; }
-      else if (percent > 30 && percent <= 70) { progressColor = AppColors.darkYellowGreen; }
-      else { progressColor = AppColors.primaryRed; }
+    if (percent <= 30) {
+      progressColor = AppColors.primaryGreen;
+    } else if (percent > 30 && percent <= 70) {
+      progressColor = AppColors.darkYellowGreen;
+    } else {
+      progressColor = AppColors.primaryRed;
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -310,8 +324,8 @@ class ProgressStatusBar extends StatelessWidget {
                     percent <= 30
                         ? 'assets/images/normal_lettuce.png'
                         : percent <= 70
-                          ? 'assets/images/happy_lettuce.png'
-                          : 'assets/images/red_lettuce.png',
+                        ? 'assets/images/happy_lettuce.png'
+                        : 'assets/images/red_lettuce.png',
                     width: 84,
                     height: 84,
                     fit: BoxFit.contain,
@@ -338,12 +352,20 @@ class ProgressStatusBar extends StatelessWidget {
                     children: [
                       const Text(
                         "챌린지 진행도",
-                        style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w400),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                       Row(
-                        children:[
-                          Icon(Icons.schedule, size: 12, color: AppColors.darkerGray),
-                          SizedBox(width: 2,),
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 12,
+                            color: AppColors.darkerGray,
+                          ),
+                          SizedBox(width: 2),
                           Text(
                             "Day $day ",
                             style: const TextStyle(
@@ -362,7 +384,7 @@ class ProgressStatusBar extends StatelessWidget {
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -372,7 +394,9 @@ class ProgressStatusBar extends StatelessWidget {
                   child: GoalBubbleWidget(
                     text: '성공까지 D-$remainDay',
                     color: progressColor,
-                    textColor: (progressColor == AppColors.darkYellowGreen ? Colors.black : Colors.white),
+                    textColor: (progressColor == AppColors.darkYellowGreen
+                        ? Colors.black
+                        : Colors.white),
                     pointerHeight: 10,
                     pointerWidth: 15,
                     borderRadius: 6,

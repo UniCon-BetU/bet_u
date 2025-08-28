@@ -63,7 +63,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
           ),
 
           SizedBox(
-            height: 190,
+            height: 240,
             child: PageView.builder(
               controller: _pc,
               itemCount: _pages.length,

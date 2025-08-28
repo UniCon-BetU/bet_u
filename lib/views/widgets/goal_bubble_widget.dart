@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
 class GoalBubbleWidget extends StatelessWidget {
   final String text;
   final Color color;
+  final Color textColor;
   final double pointerHeight;
   final double pointerWidth;
   final double borderRadius;
@@ -33,6 +34,7 @@ class GoalBubbleWidget extends StatelessWidget {
   const GoalBubbleWidget({
     super.key,
     required this.text,
+    this.textColor = Colors.white,
     this.color = Colors.red,
     this.pointerHeight = 6,
     this.pointerWidth = 9,
@@ -47,16 +49,17 @@ class GoalBubbleWidget extends StatelessWidget {
       children: [
         // 말풍선 본체
         Container(
-          padding: EdgeInsets.symmetric(horizontal: pointerWidth, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: pointerWidth, vertical: 4),
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(40), // 모서리 거의 없는 직사각형
+            borderRadius: BorderRadius.circular(borderRadius), // 모서리 거의 없는 직사각형
           ),
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+            style: TextStyle(
+              fontSize: 12,
+              color: textColor,
+              fontWeight: FontWeight.w700,
             ),
             textAlign: TextAlign.center,
           ),

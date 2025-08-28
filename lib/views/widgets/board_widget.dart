@@ -27,7 +27,6 @@ class BoardSectionCard extends StatelessWidget {
     final visibleCount = posts.length > 5 ? 5 : posts.length;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,

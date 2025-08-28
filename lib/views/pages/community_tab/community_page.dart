@@ -104,12 +104,61 @@ class _CommunityPageState extends State<CommunityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9E8),
+      appBar: AppBar(
+        toolbarHeight: 64,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/images/normal_lettuce.png',
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                  ),
+
+                  SizedBox(width: 12,),
+                  Text(
+                    '소셜',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    )
+                  )
+                ],
+              ),
+
+              // IconButton(
+              //   icon: const Icon(Icons.notifications_none_outlined),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) {
+              //           return SettingsPage();
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),  알림 버튼의 흔적
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           children: [
-            const SizedBox(height: 20.0),
-
             // 게시판 섹션 (그대로)
             BoardSectionCard(
               title: '일반 게시판',

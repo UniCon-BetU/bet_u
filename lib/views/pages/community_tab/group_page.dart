@@ -109,6 +109,7 @@ class GroupPage extends StatelessWidget {
                 final cards = _dummyPosts
                     .map(
                       (b) => PostCard(
+                        postId: 1,
                         title: b.title,
                         excerpt: '내용 미리보기 예시입니다.',
                         author: group.name,

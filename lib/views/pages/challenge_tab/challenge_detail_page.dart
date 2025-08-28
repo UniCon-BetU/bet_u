@@ -28,13 +28,19 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     final challenge = widget.challenge;
 
     // 👉 ChallengeStatus에 따른 색상 분기
+    double percent = challenge.progressDays / challenge.day * 100;
+    Color progressColor;
+      if (percent <= 30) { progressColor = AppColors.primaryGreen; }
+      else if (percent > 30 && percent <= 70) { progressColor = AppColors.darkYellowGreen; }
+      else { progressColor = AppColors.primaryRed; }
+
     Color statusColor;
     switch (challenge.status) {
       case ChallengeStatus.notStarted:
-        statusColor = Colors.green;
+        statusColor = AppColors.primaryGreen;
         break;
       case ChallengeStatus.inProgress:
-        statusColor = Colors.red;
+        statusColor = AppColors.primaryRed;
         break;
       case ChallengeStatus.missed:
         statusColor = Colors.grey; // 임시
@@ -68,7 +74,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                         child: CircleAvatar(
                           backgroundColor: Colors.white.withAlpha(0),
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new),
+                            icon: Icon(Icons.arrow_back_ios_new, color: Colors.black),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ),
@@ -137,12 +143,13 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
+                      height: 1.1
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "인원 ${challenge.participants}명",
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: AppColors.darkerGray),
                   ),
                   const SizedBox(height: 6),
                   Wrap(
@@ -202,7 +209,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     blurRadius: 4,
                     offset: const Offset(0, -2),
                   ),
@@ -213,7 +220,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                   IconButton(
                     icon: Icon(
                       isFavorite ? Icons.bookmark : Icons.bookmark_border,
-                      color: statusColor,
+                      color: progressColor,
                       size: 40,
                     ),
                     onPressed: () {
@@ -228,7 +235,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                       text: challenge.status == ChallengeStatus.inProgress
                           ? "인증하기"
                           : "배팅하고 참여하기",
-                      backgroundColor: statusColor,
+                      backgroundColor: (challenge.status == ChallengeStatus.inProgress) ? progressColor : statusColor,
                       onPressed: () {
                         // ...
                         if (challenge.status == ChallengeStatus.inProgress) {
@@ -269,83 +276,106 @@ class ProgressStatusBar extends StatelessWidget {
   final int day;
   final int totalDay;
   final int remainDay;
-
+  
   const ProgressStatusBar({
     super.key,
     required this.day,
     required this.totalDay,
-  }) : percent = day / totalDay,
+  }) : percent = day / totalDay * 100,
        remainDay = totalDay - day;
-
+  
   @override
   Widget build(BuildContext context) {
+    Color progressColor;
+      if (percent <= 30) { progressColor = AppColors.primaryGreen; }
+      else if (percent > 30 && percent <= 70) { progressColor = AppColors.darkYellowGreen; }
+      else { progressColor = AppColors.primaryRed; }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey, width: 0.3)),
+        // border: Border(top: BorderSide(color: Colors.grey, width: 0.3)),
       ),
       child: Column(
         children: [
           const SizedBox(height: 1),
           SizedBox(
-            height: 130,
+            height: 105,
             child: Stack(
               children: [
                 Align(
                   alignment: Alignment.center,
                   child: Image.asset(
-                    percent * 100 <= 30
+                    percent <= 30
                         ? 'assets/images/normal_lettuce.png'
-                        : percent * 100 <= 70
-                        ? 'assets/images/happy_lettuce.png'
-                        : 'assets/images/red_lettuce.png',
-                    width: 200,
-                    height: 200,
+                        : percent <= 70
+                          ? 'assets/images/happy_lettuce.png'
+                          : 'assets/images/red_lettuce.png',
+                    width: 84,
+                    height: 84,
+                    fit: BoxFit.contain,
                   ),
                 ),
                 // 텍스트들
                 Positioned(
-                  top: 38,
+                  bottom: 28,
                   left: 16,
                   child: Text(
-                    "${(percent * 100).toInt()}%",
-                    style: const TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
+                    "${percent.round()}%",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: progressColor,
                     ),
                   ),
                 ),
                 Positioned(
-                  top: 60,
+                  bottom: 32,
                   right: 16,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       const Text(
                         "챌린지 진행도",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w400),
                       ),
-                      Text(
-                        "Day $day/$totalDay",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      Row(
+                        children:[
+                          Icon(Icons.schedule, size: 12, color: AppColors.darkerGray),
+                          SizedBox(width: 2,),
+                          Text(
+                            "Day $day ",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.darkerGray,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+
+                          Text(
+                            "/ $totalDay",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.darkerGray,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
                 Positioned(
-                  top: 10,
-                  right: 16,
+                  bottom: 80,
+                  right: 6,
                   child: GoalBubbleWidget(
                     text: '성공까지 D-$remainDay',
-                    color: Colors.red,
+                    color: progressColor,
+                    textColor: (progressColor == AppColors.darkYellowGreen ? Colors.black : Colors.white),
                     pointerHeight: 10,
                     pointerWidth: 15,
-                    borderRadius: 100,
+                    borderRadius: 6,
                   ),
                 ),
                 // ✅ 애니메이션 들어가는 진행 바
@@ -358,14 +388,15 @@ class ProgressStatusBar extends StatelessWidget {
                     child: SizedBox(
                       height: 17,
                       child: TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: percent),
+                        tween: Tween(begin: 0.0, end: percent / 100),
                         duration: const Duration(seconds: 1),
+                        curve: Curves.easeOut,
                         builder: (context, value, child) {
                           return LinearProgressIndicator(
                             value: value,
-                            backgroundColor: Colors.grey.shade300,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.red,
+                            backgroundColor: AppColors.darkestGray,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              progressColor,
                             ),
                           );
                         },

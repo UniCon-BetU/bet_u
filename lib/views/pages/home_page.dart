@@ -131,19 +131,19 @@ class HomePage extends StatelessWidget {
                 ],
               ),
 
-              IconButton(
-                icon: const Icon(Icons.notifications_none_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return SettingsPage();
-                      },
-                    ),
-                  );
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.notifications_none_outlined),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) {
+              //           return SettingsPage();
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),  알림 버튼의 흔적
             ],
           ),
         ),

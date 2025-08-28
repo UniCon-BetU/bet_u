@@ -19,6 +19,41 @@ class _BetuChallengesPageState extends State<BetuChallengesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.white,   // 흰색 배경
+        elevation: 2,                    // 그림자 없애고 싶으면 0
+        scrolledUnderElevation: 0,
+        titleSpacing: 0,
+        shadowColor: Colors.black.withValues(alpha: 0.25),
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false, // 기본 back 버튼 제거
+
+        title: Stack(
+          children: [
+            Opacity(
+              opacity: 0.9,
+              child: Image.asset(
+                'assets/images/betu_upperbar.png',
+                width: double.infinity,
+                height: kToolbarHeight, // AppBar 기본 높이
+                fit: BoxFit.cover,
+              ),
+            ),
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           // 1. 화면 전체를 덮는 배경 이미지 (스크롤되지 않음)
@@ -33,35 +68,6 @@ class _BetuChallengesPageState extends State<BetuChallengesPage> {
           SafeArea(
             child: CustomScrollView(
               slivers: [
-                // 커스텀 앱바 (스크롤과 함께 움직임)
-                SliverToBoxAdapter(
-                  child: Stack(
-                    children: [
-                      Opacity(
-                        opacity: 0.9,
-                        child: Image.asset(
-                          'assets/images/betu_upperbar.png',
-                          width: double.infinity,
-                          height: 60,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        left: 8,
-                        top: 0,
-                        bottom: 0,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.black,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
                 // 이미지 배너 (스크롤과 함께 움직임)
                 SliverToBoxAdapter(
                   child: Image.asset(

@@ -8,73 +8,82 @@ import 'package:bet_u/theme/app_colors.dart';
 // ✅ StatelessWidget으로 변경
 class BetuChallengeCard extends StatelessWidget {
   final Challenge challenge;
-  final VoidCallback? afterPop; // DetailPage에서 돌아왔을 때 실행할 콜백
+  final VoidCallback? afterPop;
 
   const BetuChallengeCard({super.key, required this.challenge, this.afterPop});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // 1. 하단 초록색 배경
-        Positioned(
-          left: 12,
-          right: 12,
-          bottom: -20,
-          height: 80,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-            ).copyWith(bottom: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primaryGreen,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (challenge.bannerPeriod != null)
-                  Text(
-                    challenge.bannerPeriod!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+    return SizedBox(
+      height: 140, // Stack 전체 높이 지정
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 1. 하단 초록색 배경
+          Positioned(
+            left: 12,
+            right: 12,
+            bottom: 25,
+            height: 80,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+              ).copyWith(bottom: 3),
+              decoration: BoxDecoration(
+                color: AppColors.primaryGreen,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (challenge.bannerPeriod != null)
+                    Text(
+                      challenge.bannerPeriod!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 2),
-                if (challenge.bannerDescription != null)
-                  Text(
-                    challenge.bannerDescription!,
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
+                  const SizedBox(height: 0),
+                  if (challenge.bannerDescription != null)
+                    Text(
+                      challenge.bannerDescription!,
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  SizedBox(height: 2),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // 2. ChallengeTileWidget
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: ChallengeTileWidget(
-            c: challenge,
-            onTap: () {
-              addRecentVisitedChallenge(challenge);
+          // 2. ChallengeTileWidget
+          Positioned(
+            left: 0,
+            right: 0,
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ChallengeDetailPage(challenge: challenge),
-                ),
-              );
-            },
+            // bottom: 15, // 기존 bottom 속성 제거
+            top: 0, // 타일을 Stack의 맨 위로 올림
+            child: ChallengeTileWidget(
+              c: challenge,
+              onTap: () {
+                addRecentVisitedChallenge(challenge);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChallengeDetailPage(challenge: challenge),
+                  ),
+                ).then((_) {
+                  if (afterPop != null) afterPop!();
+                });
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

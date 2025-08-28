@@ -44,7 +44,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(11),
           onTap: () {
             final betuOnly = challengeFrom
-                .where((c) => c.type == 'betu')
+                .where((c) => c.WhoMadeIt == 'BETU')
                 .toList();
             Navigator.of(context).push(
               MaterialPageRoute(

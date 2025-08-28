@@ -21,8 +21,8 @@ class BetuChallengeCard extends StatelessWidget {
         children: [
           // 1. 하단 초록색 배경
           Positioned(
-            left: 12,
-            right: 12,
+            left: 6,
+            right: 6,
             bottom: 25,
             height: 80,
             child: Container(

@@ -555,7 +555,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                             ),
                             child: Center(
                               child: Image.asset(
-                                'images/image_add.png', // 여기 경로에 올린 이미지 넣기
+                                'assets/images/image_add.png', // 여기 경로에 올린 이미지 넣기
                                 width: 120,
                                 height: 120,
                               ),

@@ -1,5 +1,5 @@
 import 'package:bet_u/models/challenge.dart';
-import 'package:bet_u/views/pages/other_certification_page.dart';
+import 'package:bet_u/views/pages/challenge_tab/other_certification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';

@@ -1,16 +1,15 @@
 // lib/views/pages/challenge_page.dart
 import 'package:flutter/material.dart';
 import 'package:bet_u/data/global_challenges.dart';
-import '../../models/challenge.dart';
+import '../../../models/challenge.dart';
 import 'challenge_detail_page.dart';
-import 'package:bet_u/views/pages/create_challenge_page.dart';
+import 'package:bet_u/views/pages/challenge_tab/create_challenge_page.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
-import '../../theme/app_colors.dart';
-import '../../utils/challenge_history.dart' as ch;
+import 'package:bet_u/theme/app_colors.dart';
+import 'package:bet_u/utils/challenge_history.dart' as ch;
 import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:bet_u/views/widgets/search_tag_chip_widget.dart';
-
 
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
@@ -54,17 +53,18 @@ class _ChallengePageState extends State<ChallengePage> {
     {"name": "생활/자기계발", "image": "assets/category/self.png"},
   ];
 
-  List<String> get searchCategories =>
-    ['전체', ...categories.map((c) => c["name"]!)];
+  List<String> get searchCategories => [
+    '전체',
+    ...categories.map((c) => c["name"]!),
+  ];
 
   List<String> recentSearches = [];
   String selectedTab = '인기'; // 인기 | 최근 | 전체
   String selectedType = 'all'; // (미사용 보류)
 
   bool _isSearching = false;
-  
+
   // ---------- utils ----------
-  
 
   void _addRecentSearch(String title) {
     if (title.isEmpty) return;
@@ -87,16 +87,16 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 
   void _onSearchTap() {
-      setState(() {
-        if (!_isSearching) {
-          selectedTag = 'all';
-          selectedCategory = '전체';
-          
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (mounted) _searchFocusNode.requestFocus();
-          });
-        }
-      });
+    setState(() {
+      if (!_isSearching) {
+        selectedTag = 'all';
+        selectedCategory = '전체';
+
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) _searchFocusNode.requestFocus();
+        });
+      }
+    });
   }
 
   List<Challenge> getSortedChallenges() {
@@ -134,9 +134,7 @@ class _ChallengePageState extends State<ChallengePage> {
 
       final query = _searchController.text.trim();
       final matchesSearch =
-          query.isEmpty ||
-          c.title.contains(query) ||
-          c.tags.contains(query);
+          query.isEmpty || c.title.contains(query) || c.tags.contains(query);
 
       // 검색 모드에선 selectedTag를 강제로 'all'로 운용하지만
       // 혹시 UI에서 태그를 쓰게 될 확장 대비해서 조건은 유지
@@ -228,184 +226,200 @@ class _ChallengePageState extends State<ChallengePage> {
 
   // ---------- build ----------
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    // 3) ChallengePage의 AppBar에 적용
-    appBar: AppBar(
-      backgroundColor: Colors.white,
-      scrolledUnderElevation: 0,
-      surfaceTintColor: Colors.transparent,
-      elevation: _isSearching ? 2 : 0,
-      shadowColor: Colors.black.withValues(alpha: 0.25),
-      centerTitle: false,
-      titleSpacing: 0,
-      // 검색바 높이 + 살짝 여유
-      toolbarHeight: 64,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // 3) ChallengePage의 AppBar에 적용
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        elevation: _isSearching ? 2 : 0,
+        shadowColor: Colors.black.withValues(alpha: 0.25),
+        centerTitle: false,
+        titleSpacing: 0,
+        // 검색바 높이 + 살짝 여유
+        toolbarHeight: 64,
 
-      title: Padding(
-        // toolbarHeight 64에서 세로 패딩 12면 살짝 넘칠 수 있어요 → 6 정도로 줄이거나, toolbarHeight를 늘리세요
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: SearchBarOnly(
-          controller: _searchController,
-          focusNode: _searchFocusNode,
-          isSearching: _isSearching,
-          onSearchingChanged: (v) => setState(() => _isSearching = v),
-          onTapSearch: _onSearchTap,
-          onPlusPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CreateChallengePage()),
-            );
-          },
-          decoration: InputDecoration(
-            hintText: '문제풀이, #수능 ...',
-            hintStyle: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.darkerGray,
+        title: Padding(
+          // toolbarHeight 64에서 세로 패딩 12면 살짝 넘칠 수 있어요 → 6 정도로 줄이거나, toolbarHeight를 늘리세요
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SearchBarOnly(
+            controller: _searchController,
+            focusNode: _searchFocusNode,
+            isSearching: _isSearching,
+            onSearchingChanged: (v) => setState(() => _isSearching = v),
+            onTapSearch: _onSearchTap,
+            onPlusPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateChallengePage()),
+              );
+            },
+            decoration: InputDecoration(
+              hintText: '문제풀이, #수능 ...',
+              hintStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkerGray,
+              ),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 11,
+                horizontal: 12,
+              ),
+              prefixIcon: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Image.asset(
+                  'assets/images/normal_lettuce.png',
+                  width: 48,
+                  height: 48,
+                ),
+              ),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isSearching)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          // _searchController.clear();
+                          // _isSearching = false;
+                          // selectedCategory = '전체';
+                          // _searchFocusNode.unfocus();
+                          _searchController.clear();
+                        });
+                        _searchFocusNode.requestFocus();
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        color: AppColors.darkerGray,
+                      ),
+                    ),
+                  const SizedBox(width: 7),
+                  const Icon(Icons.search, size: 30, color: Colors.black),
+                  const SizedBox(width: 15),
+                ],
+              ),
             ),
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Image.asset('assets/images/normal_lettuce.png', width: 48, height: 48),
-            ),
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_isSearching)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        // _searchController.clear();
-                        // _isSearching = false;
-                        // selectedCategory = '전체';
-                        // _searchFocusNode.unfocus();
-                        _searchController.clear();
-                      });
-                      _searchFocusNode.requestFocus();
-                    },
-                    child: const Icon(Icons.close, color: AppColors.darkerGray),
-                  ),
-                const SizedBox(width: 7),
-                const Icon(Icons.search, size: 30, color: Colors.black),
-                const SizedBox(width: 15),
-              ],
-            ),
+          ),
+        ),
+
+        // ✅ bottom은 항상 유지하고, 높이만 0↔44로 애니메이션
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(_isSearching ? 44 : 0),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            clipBehavior: Clip.hardEdge,
+            child: _isSearching
+                ? Container(
+                    color: Colors.white,
+                    child: CategoryChipsBar(
+                      categories: searchCategories,
+                      selected: selectedCategory,
+                      onSelect: (cat) => setState(() => selectedCategory = cat),
+                    ),
+                  )
+                : const SizedBox(height: 0),
           ),
         ),
       ),
 
-      // ✅ bottom은 항상 유지하고, 높이만 0↔44로 애니메이션
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(_isSearching ? 44 : 0),
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-          alignment: Alignment.topCenter,
-          clipBehavior: Clip.hardEdge,
-          child: _isSearching
-              ? Container(
-                  color: Colors.white,
-                  child: CategoryChipsBar(
-                    categories: searchCategories,
-                    selected: selectedCategory,
-                    onSelect: (cat) => setState(() => selectedCategory = cat),
-                  )
-                )
-              : const SizedBox(height: 0),
-        ),
-      ),
-    ),
-
-
-
-    body: GestureDetector(
-      behavior: HitTestBehavior.deferToChild,
-      onTap: _onTapOutside,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // if (!_isSearching && recentSearches.isNotEmpty)
-          //  buildRecentSearchChips(),
-
-          Expanded(
-            child: _isSearching
-                // ===== 검색 모드 =====
-                ? Container(
-                    color: AppColors.lightGray,
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 3),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '검색 결과 필터링',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                )
-                              ),
-
-                              buildSearchTagDropdown(),
-                            ],
-                          ),
-                        ),
-
-                        Expanded(
-                          child: ListView.builder(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                            itemCount: filteredChallenges.length,
-                            itemBuilder: (context, index) {
-                              final challenge = filteredChallenges[index];
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
-                                child: ChallengeTileWidget(
-                                  c: challenge,
-                                  showTags: true,
-                                  background: Colors.white,
-                                  onTap: () => _goToProcessingPage(
-                                    challenge,
-                                    fromSearch: _isSearching,
+      body: GestureDetector(
+        behavior: HitTestBehavior.deferToChild,
+        onTap: _onTapOutside,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // if (!_isSearching && recentSearches.isNotEmpty)
+            //  buildRecentSearchChips(),
+            Expanded(
+              child: _isSearching
+                  // ===== 검색 모드 =====
+                  ? Container(
+                      color: AppColors.lightGray,
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 3,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '검색 결과 필터링',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                // ===== 일반 모드 =====
-                : SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Center(child: buildCategoryGridWithBackground()),
-                        ),
-                        const SizedBox(height: 24),
-                        
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: BetuChallengeSectionWidget(
-                            challengeFrom: allChallenges,
-                            onTileTap: (challenge) => _goToProcessingPage(
-                              challenge,
-                              fromSearch: _isSearching,
+
+                                buildSearchTagDropdown(),
+                              ],
                             ),
                           ),
-                        ),
+
+                          Expanded(
+                            child: ListView.builder(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              itemCount: filteredChallenges.length,
+                              itemBuilder: (context, index) {
+                                final challenge = filteredChallenges[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: ChallengeTileWidget(
+                                    c: challenge,
+                                    showTags: true,
+                                    background: Colors.white,
+                                    onTap: () => _goToProcessingPage(
+                                      challenge,
+                                      fromSearch: _isSearching,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  // ===== 일반 모드 =====
+                  : SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(12),
+                            child: Center(
+                              child: buildCategoryGridWithBackground(),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: BetuChallengeSectionWidget(
+                              challengeFrom: allChallenges,
+                              onTileTap: (challenge) => _goToProcessingPage(
+                                challenge,
+                                fromSearch: _isSearching,
+                              ),
+                            ),
+                          ),
 
                           const SizedBox(height: 24),
                           buildChallengeTabs(),
-                      
+
                           // 최근 탭 자동 갱신
                           ValueListenableBuilder<List<Challenge>>(
                             valueListenable:
@@ -435,23 +449,28 @@ Widget build(BuildContext context) {
 
                               return Container(
                                 constraints: BoxConstraints(minHeight: 160),
-                                color: AppColors.lightGray, 
+                                color: AppColors.lightGray,
                                 child: Column(
                                   children: list
-                                    .map(
-                                      (challenge) => Padding(
-                                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                                        child: ChallengeTileWidget(
-                                          c: challenge,
-                                          showTags: true,
-                                          onTap: () => _goToProcessingPage(
-                                            challenge,
-                                            fromSearch: _isSearching,
+                                      .map(
+                                        (challenge) => Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            24,
+                                            8,
+                                            24,
+                                            0,
+                                          ),
+                                          child: ChallengeTileWidget(
+                                            c: challenge,
+                                            showTags: true,
+                                            onTap: () => _goToProcessingPage(
+                                              challenge,
+                                              fromSearch: _isSearching,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                    .toList(),
+                                      )
+                                      .toList(),
                                 ),
                               );
                             },
@@ -670,7 +689,6 @@ Widget build(BuildContext context) {
     );
   }
 
-  
   Widget buildRecentSearchChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -716,8 +734,8 @@ Widget build(BuildContext context) {
             color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 4,
             offset: const Offset(0, 4),
-          )
-        ]
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -775,7 +793,7 @@ Widget build(BuildContext context) {
                 },
               );
             },
-          )
+          ),
         ],
       ),
     );
@@ -802,7 +820,7 @@ Widget build(BuildContext context) {
               selectedTab = '최근';
               selectedTag = 'all';
             }),
-          ),  
+          ),
         ],
       ),
     );

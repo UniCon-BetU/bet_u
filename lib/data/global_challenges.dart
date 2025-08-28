@@ -4,7 +4,7 @@ int userPoints = 50000; // 더미 포인트
 
 final List<Challenge> allChallenges = [
   Challenge(
-    title: '휴대폰 보기를 돌 같이 하라  |  스크린타임 인증 챌린지',
+    title: '휴대폰 보기를 돌 같이 하라 | 스크린타임 인증 챌린지',
     participants: 2686,
     day: 14,
     status: ChallengeStatus.inProgress,
@@ -15,7 +15,9 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 상시',
     bannerDescription:
         '이 챌린지는 하루 동안 휴대폰 사용을 줄이고, 스크린타임 인증을 통해 집중 습관을 만드는 챌린지입니다.',
-    WhoMadeIt: 'BETU', // 💡 WhoMadeIt 속성 추가
+    WhoMadeIt: 'BETU',
+    todayCheck: TodayCheck.waiting,
+    progressDays: 13,
   ),
   Challenge(
     title: '수능 국어 1일 3지문',
@@ -29,7 +31,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.7.1~2025.7.12',
     bannerDescription: '하루 3지문씩 꾸준히 읽으며 수능 국어 독해력을 향상시키는 챌린지입니다.',
     WhoMadeIt: 'BETU',
-    todayCheck: true,
+    todayCheck: TodayCheck.done,
   ),
   Challenge(
     title: '영어 단어 30개 암기',
@@ -43,7 +45,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.6.15~2025.7.14',
     bannerDescription: '매일 30개의 영어 단어를 암기하며 토익/수능 영어 실력을 높이는 챌린지입니다.',
     WhoMadeIt: 'BETU',
-    todayCheck: true,
+    todayCheck: TodayCheck.done,
   ),
   Challenge(
     title: '수학 문제집 하루 20문제',
@@ -57,6 +59,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.6.20~2025.7.9',
     bannerDescription: '하루 20문제를 꾸준히 풀며 수능 수학 실력을 단계적으로 높이는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: TodayCheck.waiting,
   ),
   Challenge(
     title: '25-1학기 4.5 달성',
@@ -70,6 +73,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 상시',
     bannerDescription: '학기 목표 GPA 4.5 달성을 위해 하루 단위 계획과 자기계발 습관을 관리하는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: TodayCheck.notStarted,
   ),
   Challenge(
     title: '토익 단어 50개 외우기',
@@ -83,6 +87,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.6.25~2025.7.9',
     bannerDescription: '하루 50개 단어 암기를 통해 토익 점수 향상 및 어휘력 강화를 목표로 하는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: TodayCheck.notStarted,
   ),
   Challenge(
     title: '회계사 기출 문제 하루 10문제',
@@ -96,5 +101,6 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '챌린지 제공 기간: 2025.5.20~2025.6.8',
     bannerDescription: '매일 10문제를 풀며 회계사 시험 대비 기출 문제풀이 능력을 키우는 챌린지입니다.',
     WhoMadeIt: 'BETU',
+    todayCheck: TodayCheck.notStarted,
   ),
 ];

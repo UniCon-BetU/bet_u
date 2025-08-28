@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '/models/challenge.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/challenge_history.dart';
-import '../../views/pages/challenge_detail_page.dart';
+import '../pages/challenge_tab/challenge_detail_page.dart';
 
 /// 챌린지 타일 위젯
 /// - 탭 시: 어디서든 ChallengeHistory 기록 → onTap 있으면 실행, 없으면 상세 페이지로 이동

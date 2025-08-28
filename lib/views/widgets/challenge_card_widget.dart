@@ -1,4 +1,4 @@
-import 'package:bet_u/views/pages/challenge_detail_page.dart';
+import 'package:bet_u/views/pages/challenge_tab/challenge_detail_page.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 
@@ -6,7 +6,11 @@ class ChallengeCard extends StatelessWidget {
   final Challenge challenge;
   final bool showTags;
 
-  const ChallengeCard({super.key, required this.challenge, this.showTags = true});
+  const ChallengeCard({
+    super.key,
+    required this.challenge,
+    this.showTags = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +18,7 @@ class ChallengeCard extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) =>
-                ChallengeDetailPage(challenge: challenge),
+            builder: (context) => ChallengeDetailPage(challenge: challenge),
           ),
         );
       },

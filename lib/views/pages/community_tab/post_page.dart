@@ -276,8 +276,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   /// ------------------------------
-  /// 댓글 작성
-  /// POST /api/community/comments  (body: { postId, content })
+  /// 루트 댓글 작성  ✅ 변경됨
+  /// POST /api/community/root
+  /// body: { "postId": number, "content": string }
+  /// 응답: 200 OK (예: 신규 commentId 정수)
   /// ------------------------------
   Future<void> _submitComment() async {
     if (_commenting || _loading) return;
@@ -294,12 +296,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
     try {
       final token = await TokenStorage.getToken();
-      final uri = Uri.parse('$baseUrl/api/community/comments');
+      final uri = Uri.parse('$baseUrl/api/community/root'); // ★ 엔드포인트 변경
 
       final res = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           if (token != null && token.isNotEmpty)
             'Authorization': 'Bearer $token',
         },
@@ -307,12 +310,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
       );
 
       // ignore: avoid_print
-      print('COMMENT CREATE BODY: ${res.body}');
+      print('COMMENT CREATE STATUS=${res.statusCode} BODY=${res.body}');
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         _commentCtl.clear();
         FocusScope.of(context).unfocus();
-        await _fetchPost(); // 최신 상태 갱신
+        await _fetchPost(); // 최신 댓글 목록 갱신
         if (!mounted) return;
         ScaffoldMessenger.of(
           context,

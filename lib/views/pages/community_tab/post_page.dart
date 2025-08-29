@@ -398,6 +398,79 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  Future<void> _reportPost() async {
+    final controller = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('게시물 신고'),
+        content: TextField(
+          controller: controller,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            hintText: '신고 사유를 입력하세요',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('신고'),
+          ),
+        ],
+      ),
+    );
+
+    if (reason == null || reason.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('신고 사유를 입력해 주세요')));
+      return;
+    }
+
+    try {
+      final token = await TokenStorage.getToken();
+      final postId = _post?.postId ?? widget.args.postId;
+      final uri = Uri.parse('$baseUrl/api/community/posts/$postId');
+
+      final res = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'reason': reason}),
+      );
+
+      if (!mounted) return;
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('신고가 접수되었습니다')));
+      } else {
+        final body = res.bodyBytes.isNotEmpty
+            ? utf8.decode(res.bodyBytes)
+            : 'status ${res.statusCode}';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('신고 실패: $body')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    }
+  }
+
   /// 간단한 날짜 문자열 (ISO → yyyy-MM-dd HH:mm)
   String? _formatCreatedAt(String? iso) {
     if (iso == null || iso.isEmpty) return null;
@@ -442,9 +515,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
               } else if (value == 'delete') {
                 await _deletePost();
               } else if (value == 'report') {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('신고하기 준비 중입니다')));
+                _reportPost();
               }
             },
             itemBuilder: (context) {

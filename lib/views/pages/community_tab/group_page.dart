@@ -79,9 +79,9 @@ class GroupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9E8),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9E8),
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         title: Text(
@@ -109,6 +109,7 @@ class GroupPage extends StatelessWidget {
                 final cards = _dummyPosts
                     .map(
                       (b) => PostCard(
+                        postId: 1,
                         title: b.title,
                         excerpt: '내용 미리보기 예시입니다.',
                         author: group.name,

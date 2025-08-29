@@ -29,6 +29,11 @@ class _CommunityPageState extends State<CommunityPage> {
   List<GroupInfo> _myGroups = [];
   bool _loading = false;
   String? _error;
+  String? _fmtDate(DateTime? dt) {
+    if (dt == null) return null;
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
+  }
 
   // 게시글
   List<Post> _posts = [];
@@ -159,8 +164,6 @@ class _CommunityPageState extends State<CommunityPage> {
       ),
     );
     // 같은 순서의 postId 배열
-    final boardIds = _posts.map((p) => p.postId).toList();
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 64,
@@ -209,12 +212,21 @@ class _CommunityPageState extends State<CommunityPage> {
               onTap: (bp) {
                 final idx = boardList.indexOf(bp);
                 if (idx < 0) return;
-                final postId = boardIds[idx];
+
+                final p = _posts[idx];
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        PostDetailPage(args: PostDetailArgs(postId: postId)),
+                    builder: (_) => PostDetailPage(
+                      args: PostDetailArgs(
+                        postId: p.postId,
+                        title: p.title, // ← 제목 fallback
+                        author: p.authorName, // ← 작성자 fallback
+                        content: p.preview, // ← 내용(미리보기) fallback
+                        likeCountInitial: p.likeCount, // ← 좋아요 초기값
+                        dateString: _fmtDate(p.createdAt), // ← 날짜 표시용
+                      ),
+                    ),
                   ),
                 );
               },

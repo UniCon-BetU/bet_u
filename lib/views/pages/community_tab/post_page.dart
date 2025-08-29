@@ -38,7 +38,7 @@ class PostDetailDto {
   final String authorName;
   final String title;
   final String content;
-  final int likeCount;
+  final int likeCount; // 서버 키: postLikeCnt(우선) or likeCount(백업)
   final bool? liked;
   final List<String> imageUrls;
   final List<PostComment> comments;
@@ -62,18 +62,17 @@ class PostDetailDto {
     postId: j['postId'] ?? 0,
     crewId: j['crewId'],
     authorId: j['authorId'],
-    authorName: j['authorName'] ?? '',
-    title: j['title'] ?? '',
-    content: j['content'] ?? '',
-    likeCount: j['likeCount'] ?? 0,
-    liked: j['liked'],
+    authorName: (j['authorName'] ?? j['author'] ?? j['userName'] ?? '')
+        .toString(),
+    title: (j['title'] ?? j['postTitle'] ?? '').toString(),
+    content: (j['content'] ?? j['postContent'] ?? j['body'] ?? '').toString(),
+    likeCount: (j['postLikeCnt'] ?? j['likeCount'] ?? 0) as int, // ★ 핵심
+    liked: j['liked'] == true,
     imageUrls:
         (j['imageUrls'] as List?)?.map((e) => '$e').toList() ?? <String>[],
-    comments:
-        (j['comments'] as List?)
-            ?.map((e) => PostComment.fromJson(e))
-            .toList() ??
-        <PostComment>[],
+    comments: ((j['comments'] as List?) ?? (j['commentTree'] as List?) ?? [])
+        .map((e) => PostComment.fromJson(e as Map<String, dynamic>))
+        .toList(),
     createdAt: j['createdAt']?.toString(),
   );
 }
@@ -147,7 +146,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
     final uid = await TokenStorage.getUserId();
     if (!mounted) return;
     setState(() => _currentUserId = uid);
-    // 디버그
     // ignore: avoid_print
     print('현재 로그인 유저 ID: $_currentUserId');
   }
@@ -177,7 +175,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       );
 
       if (res.statusCode == 200) {
-        final data = json.decode(res.body) as Map<String, dynamic>;
+        final data =
+            json.decode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
         // ignore: avoid_print
         print('POST DETAIL MAP: $data');
 
@@ -185,7 +184,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         if (!mounted) return;
         setState(() {
           _post = dto;
-          _likes = dto.likeCount;
+          _likes = dto.likeCount; // ★ postLikeCnt에서 온 값
           _liked = dto.liked ?? false;
           _loading = false;
         });
@@ -208,7 +207,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   /// ------------------------------
   /// 좋아요 토글
   /// POST /api/community/posts/{postId}/like
-  /// 서버에서 최종 liked/likeCount 내려준다고 가정
+  /// 응답: liked, postLikeCnt(우선) / likeCount(백업)
   /// ------------------------------
   Future<void> _toggleLike() async {
     if (_liking || _loading) return;
@@ -242,9 +241,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
       print('LIKE TOGGLE BODY: ${res.body}');
 
       if (res.statusCode == 200) {
-        final body = json.decode(res.body) as Map<String, dynamic>;
+        final body =
+            json.decode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
         final bool liked = body['liked'] == true;
-        final int likeCount = (body['likeCount'] ?? _likes) as int;
+        final int likeCount =
+            (body['postLikeCnt'] ?? body['likeCount'] ?? _likes) as int; // ★
         if (!mounted) return;
         setState(() {
           _liked = liked;
@@ -400,7 +401,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     try {
       final dt = DateTime.tryParse(iso);
       if (dt == null) return iso;
-      final two = (int v) => v.toString().padLeft(2, '0');
+      String two(int v) => v.toString().padLeft(2, '0');
       return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
     } catch (_) {
       return iso;

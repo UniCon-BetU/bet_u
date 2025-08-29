@@ -3,7 +3,6 @@ import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
-import 'theme/app_colors.dart';
 
 void main() {
   runApp(const MyApp());

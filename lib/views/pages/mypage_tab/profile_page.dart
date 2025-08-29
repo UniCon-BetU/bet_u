@@ -1,5 +1,4 @@
 import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
-import 'package:bet_u/views/pages/mypage_tab/group_management_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/security_page.dart';
@@ -204,7 +203,8 @@ class ProfilePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const MyChallengePage(myChallenges: []),
+                        builder: (_) =>
+                            MyChallengePage(myChallenges: allChallenges),
                       ),
                     );
                   },
@@ -221,18 +221,7 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-                MyPageSettingWidget(
-                  title: '그룹 관리',
-                  icon: Icons.groups,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const GroupManagementPage(),
-                      ),
-                    );
-                  },
-                ),
+
                 MyPageSettingWidget(
                   title: '스크랩',
                   icon: Icons.bookmark,

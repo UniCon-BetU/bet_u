@@ -1,39 +1,43 @@
+import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
+import '../../../data/global_challenges.dart';
+
 import '../challenge_tab/challenge_detail_page.dart';
 
 class MyChallengePage extends StatelessWidget {
-  final List<Challenge> myChallenges;
+  final List<Challenge> myChallenges; // 👈 필드 선언
 
-  const MyChallengePage({super.key, required this.myChallenges});
+  const MyChallengePage({
+    super.key,
+    required this.myChallenges, // 👈 생성자에서 필드에 저장
+  });
 
   @override
   Widget build(BuildContext context) {
-    // 진행중 챌린지만 필터링
+    // 이제 외부에서 넘겨준 myChallenges를 활용
     final inProgress = myChallenges
         .where((c) => c.status == ChallengeStatus.inProgress)
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('내 진행 중 챌린지')),
+      appBar: AppBar(title: const Text('진행 중 챌린지')),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: inProgress.isEmpty
-            ? Center(child: Text('진행 중인 챌린지가 없습니다.'))
+            ? const Center(
+                child: Text(
+                  '진행 중인 글로벌 챌린지가 없습니다.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              )
             : ListView.separated(
                 itemCount: inProgress.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final challenge = inProgress[index];
-                  return ListTile(
-                    title: Text(challenge.title),
-                    subtitle: Text(
-                      '${challenge.participants}명 참가 · ${challenge.day}일',
-                    ),
-                    trailing: Text(
-                      '진행 중',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
+                  return ChallengeTileWidget(
+                    c: challenge,
                     onTap: () {
                       Navigator.push(
                         context,

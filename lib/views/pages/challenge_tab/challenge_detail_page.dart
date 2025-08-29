@@ -226,13 +226,16 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                      widget.challenge.isFavorite
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
                       color: progressColor,
                       size: 40,
                     ),
                     onPressed: () {
                       setState(() {
-                        isFavorite = !isFavorite;
+                        widget.challenge.isFavorite =
+                            !widget.challenge.isFavorite;
                       });
                     },
                   ),

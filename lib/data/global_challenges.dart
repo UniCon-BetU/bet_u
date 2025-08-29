@@ -17,6 +17,7 @@ final List<Challenge> allChallenges = [
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.waiting,
     progressDays: 13,
+    isFavorite: false,
   ),
   Challenge(
     title: '수능 국어 하루 3지문',
@@ -32,6 +33,7 @@ final List<Challenge> allChallenges = [
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.done,
     progressDays: 6,
+    isFavorite: false,
   ),
   Challenge(
     title: '영어 단어 30개 암기',
@@ -47,6 +49,7 @@ final List<Challenge> allChallenges = [
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.done,
     progressDays: 10,
+    isFavorite: false,
   ),
   Challenge(
     title: '수학 문제집 하루 20문제',
@@ -62,6 +65,7 @@ final List<Challenge> allChallenges = [
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.waiting,
     progressDays: 9,
+    isFavorite: false,
   ),
   Challenge(
     title: '학기 GPA 4.5 달성',
@@ -76,6 +80,7 @@ final List<Challenge> allChallenges = [
     bannerDescription: '학기 목표 GPA 4.5 달성을 위해 계획과 습관을 관리하는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     progressDays: 0,
+    isFavorite: false,
   ),
   Challenge(
     title: '토익 단어 50개 외우기',
@@ -90,6 +95,7 @@ final List<Challenge> allChallenges = [
     bannerDescription: '하루 50개 단어 암기를 목표로 하는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.notStarted,
+    isFavorite: false,
   ),
   Challenge(
     title: '회계사 기출 문제 하루 10문제',
@@ -104,6 +110,7 @@ final List<Challenge> allChallenges = [
     bannerDescription: '매일 10문제를 풀며 회계사 시험 대비 능력을 키우는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.notStarted,
+    isFavorite: false,
   ),
   Challenge(
     title: '주간 운동 루틴',
@@ -118,5 +125,6 @@ final List<Challenge> allChallenges = [
     bannerDescription: '주간 운동 루틴을 꾸준히 실천하는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     progressDays: 0,
+    isFavorite: false,
   ),
 ];

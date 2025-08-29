@@ -471,6 +471,131 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  Future<void> _replyToComment(PostComment parent) async {
+    final controller = TextEditingController();
+
+    final text = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('답글 달기'),
+        content: TextField(
+          controller: controller,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            hintText: '답글 내용을 입력하세요',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('등록'),
+          ),
+        ],
+      ),
+    );
+
+    if (text == null || text.isEmpty) return;
+
+    try {
+      final token = await TokenStorage.getToken();
+      final uri = Uri.parse('$baseUrl/api/community/reply'); // ← 백엔드 규약에 맞게
+      final res = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'postId': _post?.postId ?? widget.args.postId,
+          'parentCommentId': parent.commentId,
+          'content': text,
+        }),
+      );
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        await _fetchPost();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('답글이 등록되었습니다')));
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('답글 실패: ${res.statusCode}')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    }
+  }
+
+  Future<void> _deleteComment(int commentId) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('댓글 삭제'),
+        content: const Text('이 댓글을 삭제할까요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    try {
+      final token = await TokenStorage.getToken();
+      final uri = Uri.parse(
+        '$baseUrl/api/community/comments/$commentId',
+      ); // ← DELETE 엔드포인트 가정
+      final res = await http.delete(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        await _fetchPost();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글이 삭제되었습니다')));
+      } else {
+        if (!mounted) return;
+        final body = res.body.isNotEmpty
+            ? res.body
+            : 'status ${res.statusCode}';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('삭제 실패: $body')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    }
+  }
+
   /// 간단한 날짜 문자열 (ISO → yyyy-MM-dd HH:mm)
   String? _formatCreatedAt(String? iso) {
     if (iso == null || iso.isEmpty) return null;
@@ -801,6 +926,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                     const Divider(height: 16, thickness: 1),
                                 itemBuilder: (context, i) {
                                   final c = dto.comments[i];
+                                  final isMine =
+                                      _currentUserId != null &&
+                                      c.userId == _currentUserId;
+
                                   return Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -811,9 +940,80 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
-                                        child: Text(
-                                          '${c.userName}: ${c.content}',
-                                          style: const TextStyle(fontSize: 14),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // 상단: 닉네임 + 메뉴
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    c.userName,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                PopupMenuButton<String>(
+                                                  padding: EdgeInsets.zero,
+                                                  onSelected: (v) {
+                                                    if (v == 'reply') {
+                                                      _replyToComment(c);
+                                                    } else if (v == 'delete') {
+                                                      _deleteComment(
+                                                        c.commentId,
+                                                      );
+                                                    }
+                                                  },
+                                                  itemBuilder: (ctx) => [
+                                                    const PopupMenuItem(
+                                                      value: 'reply',
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.reply,
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text('답글'),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    if (isMine)
+                                                      const PopupMenuItem(
+                                                        value: 'delete',
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons.delete,
+                                                              size: 18,
+                                                            ),
+                                                            SizedBox(width: 8),
+                                                            Text('삭제'),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            // 본문: 내용
+                                            Text(
+                                              c.content,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

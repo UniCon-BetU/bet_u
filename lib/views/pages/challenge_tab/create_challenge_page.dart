@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/widgets/field_card_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
@@ -209,47 +211,91 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   Future<void> _createChallenge() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final title = _nameCtrl.text.trim();
-    final periodDays = int.parse(_periodCtrl.text);
-    final tagsString = _selectedTags.join(',');
-    final description = _descCtrl.text.trim();
     final token = await TokenStorage.getToken();
 
-    try {
-      final client = await _devClient();
-      final uri = Uri.parse('$baseUrl/api/challenges');
-      final res = await client.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'title': title,
-          'isPublic': _isPublic,
-          'tags': tagsString,
-          'description': description,
-          'periodDays': periodDays,
-        }),
-      );
+    // UI에서 받은 값들을 백엔드 필드로 매핑
+    final challengeName        = _nameCtrl.text.trim();
+    final challengeDescription = _descCtrl.text.trim();
+    final periodDays           = int.parse(_periodCtrl.text);
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('챌린지가 성공적으로 생성되었습니다.')));
-        Navigator.pop(context);
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('생성 실패: ${res.statusCode} ${res.body}')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('에러: $e')));
+    // ⚠️ 스웨거 기준으로 임시 기본값/매핑 (필요시 UI에 맞춰 교체)
+    final challengeScope       = 'PUBLIC';        // or 'PRIVATE'
+    final challengeType        = 'DURATION';      // 기간형
+    final challengeBetAmount   = '0';             // 문자열로 넣자 (fields는 String)
+    final crewId               = '33';            // 있으면 실제 값으로
+    final creatorId            = '33';            // 있으면 실제 값으로
+
+    // 시작/종료일 자동 유추 (yyyy-MM-dd)
+    String fmt(DateTime d) =>
+        '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}';
+    final start = DateTime.now();
+    final end   = start.add(Duration(days: periodDays));
+    final challengeStartDate = fmt(start);
+    final challengeEndDate   = fmt(end);
+
+    final uri = Uri.parse('$baseUrl/api/challenges');
+    final req = http.MultipartRequest('POST', uri)
+      ..headers['Authorization'] = 'Bearer $token';
+
+    // ---- 폼 필드 (ModelAttribute에 바인딩될 단일값들) ----
+    req.fields['challengeScope']       = challengeScope;
+    req.fields['crewId']               = crewId;
+    req.fields['creatorId']            = creatorId;
+    req.fields['challengeType']        = challengeType;
+    req.fields['challengeName']        = challengeName;
+    req.fields['challengeDescription'] = challengeDescription;
+    req.fields['challengeStartDate']   = challengeStartDate;
+    req.fields['challengeEndDate']     = challengeEndDate;
+    req.fields['challengeBetAmount']   = challengeBetAmount;
+
+    // ---- 배열 필드: 같은 이름으로 여러 파트를 추가해야 함 ----
+    // challengeTags (예: EXERCISE, STUDY ...)
+    for (final tag in _selectedTags) {
+      req.files.add(http.MultipartFile.fromString(
+        'challengeTags',
+        tag,
+        contentType: MediaType('text', 'plain'),
+      ));
+    }
+
+    // customTags가 따로 있다면 여기에 동일하게
+    // for (final t in _customTags) {
+    //   req.files.add(http.MultipartFile.fromString(
+    //     'customTags',
+    //     t,
+    //     contentType: MediaType('text', 'plain'),
+    //   ));
+    // }
+
+    // ---- 이미지 파일들: @RequestPart("images") ----
+    for (final x in _images) {
+      final path = x.path;
+      final mime = lookupMimeType(path) ?? 'image/jpeg';
+      final parts = mime.split('/');
+      req.files.add(await http.MultipartFile.fromPath(
+        'images',
+        path,
+        contentType: MediaType(parts[0], parts[1]),
+      ));
+    }
+
+    // 전송 & 응답
+    final client   = await _devClient();
+    final streamed = await client.send(req);
+    final res      = await http.Response.fromStream(streamed);
+
+    if (!mounted) return;
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('챌린지가 성공적으로 생성되었습니다.')),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('생성 실패: ${res.statusCode} ${res.body}')),
+      );
     }
   }
 

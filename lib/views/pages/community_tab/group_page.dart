@@ -1,10 +1,13 @@
 // lib/views/pages/community_tab/group_page.dart
 import 'dart:convert';
+import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/models/group.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/board_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
+import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
+import 'package:bet_u/views/widgets/profile_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/board_widget.dart';
@@ -101,6 +104,55 @@ class _GroupPageState extends State<GroupPage> {
   bool _loadingRank = false;
   String? _rankError;
   List<RankingEntry> _ranking = []; // RankingWidget에 맞춘 리스트
+
+  final demoChallenges = [
+    Challenge(
+      title: '물 하루 2L 마시기',
+      participants: 12,
+      day: 7,
+      status: ChallengeStatus.inProgress,
+      category: '건강',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      type: 'goal',
+      tags: ['물', '습관'],
+      progressDays: 2,
+      todayCheck: TodayCheck.done,
+    ),
+    Challenge(
+      title: '매일 만보 걷기',
+      participants: 8,
+      day: 14,
+      status: ChallengeStatus.inProgress,
+      category: '운동',
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      type: 'time',
+      tags: ['운동', '만보'],
+      progressDays: 5,
+      todayCheck: TodayCheck.waiting,
+    ),
+    Challenge(
+      title: '일기 쓰기',
+      participants: 5,
+      day: 10,
+      status: ChallengeStatus.notStarted,
+      category: '자기계발',
+      createdAt: DateTime.now().add(const Duration(days: 1)), // 내일부터 시작
+      type: 'goal',
+      tags: ['글쓰기'],
+      progressDays: 0,
+    ),
+    Challenge(
+      title: '하루 30분 책 읽기',
+      participants: 15,
+      day: 5,
+      status: ChallengeStatus.done,
+      category: '자기계발',
+      createdAt: DateTime.now().subtract(const Duration(days: 7)),
+      type: 'time',
+      tags: ['독서'],
+      progressDays: 5,
+    ),
+  ];
 
   @override
   void initState() {
@@ -210,6 +262,19 @@ class _GroupPageState extends State<GroupPage> {
       .map((p) => BoardPost(title: p.title, createdAt: p.createdAt))
       .toList();
 
+  String get profileTitle => widget.group.name;
+
+  String get profileSubtitle {
+    final leaderName = ('알 수 없음').toString();
+    final dPlus = 1;
+    return '그룹장 $leaderName, 개설 D+$dPlus';
+  }
+
+  List<StatItemData> get profileStats => [
+    StatItemData(label: '인원', value: (widget.group.memberCount).toString()),
+    StatItemData(label: '챌린지', value: '0'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,8 +329,18 @@ class _GroupPageState extends State<GroupPage> {
                   ),
                 ),
 
+              ProfileWidget(
+                title: profileTitle,
+                subtitle: profileSubtitle,
+                stats: profileStats,
+              ),
+
               const SizedBox(height: 20),
-              // ▼ 서버 데이터 연결된 섹션
+
+              ChallengeSectionWidget(title: '그룹 챌린지 🧩', items: demoChallenges),
+
+              const SizedBox(height: 20),
+
               BoardSectionCard(
                 title: '그룹 게시판',
                 posts: boardPosts,
@@ -314,11 +389,7 @@ class _GroupPageState extends State<GroupPage> {
               ),
 
               const SizedBox(height: 20),
-              // ▼ 이하 기존 섹션 유지
-              // ChallengeSectionWidget(
-              //   title: '그룹 챌린지 🧩',
-              //   items: 'groupChallenges',
-              // ),
+
               const SizedBox(height: 10),
               // 랭킹 섹션
               if (_loadingRank)

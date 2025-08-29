@@ -1,8 +1,6 @@
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
-import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import '../../models/category.dart';
 import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
@@ -16,81 +14,17 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final myChallenges = [
-      Challenge(
-        title: '비문학 1일 3지문',
-        participants: 153,
-        day: 12,
-        status: ChallengeStatus.done,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-      Challenge(
-        title: '모의고사 주요과목 4합 5달성',
-        participants: 524,
-        day: 12,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'goal',
-      ),
-      Challenge(
-        title: '매일 물리 사설 모의고사 1회 풀이',
-        participants: 38,
-        day: 9,
-        status: ChallengeStatus.missed,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-      Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
-        day: 12,
-        status: ChallengeStatus.done,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-      ),
-      Challenge(
-        title: '수능 국어 1일 3지문',
-        participants: 1723,
-        day: 12,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-      ),
-    ];
+    final List<Challenge> myChallenges = allChallenges
+        .where((c) => c.status == ChallengeStatus.inProgress)
+        .toList();
 
-    // 1) 개수 계산
     final int totalCount = myChallenges.length;
     final int doneCount = myChallenges
-        .where((c) => c.status == ChallengeStatus.done)
+        .where((c) => c.todayCheck == TodayCheck.done)
         .length;
 
-    // 2) 진행률 (0.0 ~ 1.0)
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
-    final rankingChallenges = [
-      Challenge(
-        title: '하루 영단어 50개 암기',
-        participants: 1263,
-        day: 0,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-      Challenge(
-        title: '매일 수학 N제 20개 풀이',
-        participants: 818,
-        day: 0,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -113,7 +47,6 @@ class HomePage extends StatelessWidget {
                     alignment: Alignment.center,
                     fit: BoxFit.contain,
                   ),
-
                   Image.asset(
                     'assets/images/BETU_letters.png',
                     width: 96,
@@ -123,43 +56,24 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-
-              // IconButton(
-              //   icon: const Icon(Icons.notifications_none_outlined),
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) {
-              //           return SettingsPage();
-              //         },
-              //       ),
-              //     );
-              //   },
-              // ),  알림 버튼의 흔적
+              // 알림 버튼 제거
             ],
           ),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
         child: SingleChildScrollView(
           child: Column(
             children: [
               ChallengeSectionWidget(items: myChallenges),
-
-              // AdBannerWidget(imageUrl: 'assets/images/bet_u_bot.jpg'),
-              SizedBox(height: 12),
-
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: TweenAnimationBuilder<double>(
-                      tween: Tween(
-                        begin: 0,
-                        end: progress,
-                      ), // progress = doneCount / totalCount
+                      tween: Tween(begin: 0, end: progress),
                       duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeOut,
                       builder: (context, value, _) {
@@ -183,8 +97,7 @@ class HomePage extends StatelessWidget {
                       },
                     ),
                   ),
-
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -196,7 +109,6 @@ class HomePage extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-
                       Row(
                         children: [
                           Text(
@@ -207,7 +119,6 @@ class HomePage extends StatelessWidget {
                               color: AppColors.primaryGreen,
                             ),
                           ),
-
                           Text(
                             '/ 전체 $totalCount',
                             style: const TextStyle(
@@ -220,43 +131,10 @@ class HomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-
-                  SizedBox(width: 12),
-
-                  Card(
-                    color: AppColors.primaryGreen,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 4,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$userPoints P',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
-
-              SizedBox(height: 18),
-
-              BetuChallengeSectionWidget(
-                challengeFrom: allChallenges, // ← betu 도메인만 보여주려면 이 리스트 그대로
-                // onTileTap: (c) {
-                //   // 필요시 커스텀 탭 동작(예: 추적/로그/analytics 등)
-                //   // 기본 동작(상세 페이지로 이동)은 ChallengeTileWidget이 이미 처리하므로 생략 가능
-                // },
-              ),
+              const SizedBox(height: 18),
+              BetuChallengeSectionWidget(challengeFrom: allChallenges),
             ],
           ),
         ),

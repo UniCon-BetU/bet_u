@@ -25,6 +25,7 @@ class Challenge {
   final String? bannerDescription;
   final String? WhoMadeIt;
   TodayCheck todayCheck;
+
   bool isFavorite;
 
   int progressDays; // ✅ 여기 추가 (사용자가 인증한 일수)

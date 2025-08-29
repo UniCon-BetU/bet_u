@@ -148,7 +148,7 @@ class CreateChallengePage extends StatefulWidget {
 
 class _CreateChallengePageState extends State<CreateChallengePage> {
   final _formKey = GlobalKey<FormState>();
-  List<XFile> _images = [];
+  final List<XFile> _images = [];
   final ImagePicker _picker = ImagePicker();
 
   final _nameCtrl = TextEditingController();
@@ -157,8 +157,8 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   final _detailCtrl = TextEditingController();
   final _periodCtrl = TextEditingController();
 
-  List<String> _selectedTags = [];
-  bool _isPublic = true;
+  final List<String> _selectedTags = [];
+  final bool _isPublic = true;
 
   // Overlay용 드롭다운
   OverlayEntry? _tagOverlayEntry;
@@ -422,8 +422,9 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                           contentPadding: EdgeInsets.symmetric(vertical: 4),
                         ),
                         validator: (v) {
-                          if (v == null || v.trim().isEmpty)
+                          if (v == null || v.trim().isEmpty) {
                             return '기간 입력은 필수입니다';
+                          }
                           final n = int.tryParse(v);
                           if (n == null) return '숫자만 입력하세요';
                           if (n < 1) return '1일 이상이어야 합니다';

@@ -1,58 +1,80 @@
-import 'package:bet_u/models/challenge.dart';
+// lib/views/pages/community_tab/group_page.dart
+import 'dart:convert';
 import 'package:bet_u/models/group.dart';
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/board_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
-import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/board_widget.dart'; // BoardPost, BoardSectionCard
-// (상세 게시글 페이지 연결하려면) import '../pages/post_page.dart';
+import '../../widgets/board_widget.dart';
+import 'package:http/http.dart' as http;
 
-final List<Challenge> groupChallenges = [
-  Challenge(
-    title: 'EBS 모의고사 5회차 풀기',
-    participants: 42,
-    day: 5,
-    status: ChallengeStatus.notStarted,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-  ),
-  Challenge(
-    title: '매일 수학 N제 20개 풀이',
-    participants: 31,
-    day: 14,
-    status: ChallengeStatus.inProgress,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-    type: 'time',
-  ),
-  Challenge(
-    title: '매일 영단어 30개',
-    participants: 58,
-    day: 7,
-    status: ChallengeStatus.notStarted,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-    type: 'time',
-  ),
-  Challenge(
-    title: '하루 물 2L 마시기',
-    participants: 26,
-    day: 3,
-    status: ChallengeStatus.missed,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-  ),
-  Challenge(
-    title: '하루 영어 단어 30개 암기',
-    participants: 44,
-    day: 10,
-    status: ChallengeStatus.inProgress,
-    category: '수능',
-    createdAt: DateTime(2025, 7, 1),
-  ),
-];
+const String baseUrl = 'https://54.180.150.39.nip.io';
+
+class CrewRankingItem {
+  final int userId;
+  final String userName;
+  final int challengeCount;
+  final int rank;
+
+  CrewRankingItem({
+    required this.userId,
+    required this.userName,
+    required this.challengeCount,
+    required this.rank,
+  });
+
+  factory CrewRankingItem.fromJson(Map<String, dynamic> j) => CrewRankingItem(
+    userId: j['userId'] ?? 0,
+    userName: (j['userName'] ?? '').toString(),
+    challengeCount: j['challengeCount'] ?? 0,
+    rank: j['rank'] ?? 0,
+  );
+}
+
+/// API 응답용 요약 모델
+class CrewPostSummary {
+  final int postId;
+  final int crewId;
+  final int? authorId;
+  final String authorName;
+  final String title;
+  final String preview;
+  final int likeCount;
+  final int commentCount;
+  final String? thumbnailUrl;
+  final DateTime createdAt; // 응답에 없으면 now로 대체
+
+  CrewPostSummary({
+    required this.postId,
+    required this.crewId,
+    required this.authorName,
+    required this.title,
+    required this.preview,
+    required this.likeCount,
+    required this.commentCount,
+    required this.createdAt,
+    this.authorId,
+    this.thumbnailUrl,
+  });
+
+  factory CrewPostSummary.fromJson(Map<String, dynamic> j) => CrewPostSummary(
+    postId: j['postId'] ?? 0,
+    crewId: j['crewId'] ?? 0,
+    authorId: j['authorId'],
+    authorName: (j['authorName'] ?? '').toString(),
+    title: (j['title'] ?? '').toString(),
+    preview: (j['preview'] ?? '').toString(),
+    likeCount: j['likeCount'] ?? 0,
+    commentCount: j['commentCount'] ?? 0,
+    thumbnailUrl: (j['thumbnailUrl'] as String?)?.toString(),
+    // createdAt 필드가 없을 수 있어 안전 처리
+    createdAt: j['createdAt'] != null
+        ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
+        : DateTime.now(),
+  );
+}
 
 final demoRanking = const [
   RankingEntry(username: '김철수', completed: 27),
@@ -62,19 +84,131 @@ final demoRanking = const [
   RankingEntry(username: '고연오', completed: 17),
 ];
 
-class GroupPage extends StatelessWidget {
-  final GroupInfo group; // 그룹 카드에서 넘겨받는 정보
+class GroupPage extends StatefulWidget {
+  final GroupInfo group;
 
   const GroupPage({super.key, required this.group});
 
-  // TODO: 실제 데이터 연결 전 임시 더미
-  List<BoardPost> get _dummyPosts => [
-    BoardPost(title: '그룹 공지: 인증 규칙 안내', createdAt: DateTime(2025, 8, 9)),
-    BoardPost(title: '신규 멤버 환영합니다 👋', createdAt: DateTime(2025, 8, 8)),
-    BoardPost(title: '이번 회차 모의고사 잘 보셨나요', createdAt: DateTime(2025, 8, 7)),
-    BoardPost(title: '수학 N제 추천', createdAt: DateTime(2025, 8, 6)),
-    BoardPost(title: '챌린지 인증하고 돈 버는 꿀팁', createdAt: DateTime(2025, 8, 5)),
-  ];
+  @override
+  State<GroupPage> createState() => _GroupPageState();
+}
+
+class _GroupPageState extends State<GroupPage> {
+  bool _loading = false;
+  String? _error;
+  List<CrewPostSummary> _posts = [];
+
+  bool _loadingRank = false;
+  String? _rankError;
+  List<RankingEntry> _ranking = []; // RankingWidget에 맞춘 리스트
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCrewPosts();
+    _fetchCrewRanking();
+  }
+
+  Future<void> _fetchCrewPosts() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    final token = await TokenStorage.getToken();
+
+    try {
+      final uri = Uri.parse(
+        '$baseUrl/api/community/crews/posts?crewId=${widget.group.crewId}',
+      );
+      final res = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final body = res.body.trim();
+        final decoded = body.isNotEmpty ? jsonDecode(body) : [];
+        final items = (decoded as List<dynamic>)
+            .map((e) => CrewPostSummary.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        setState(() => _posts = items);
+      } else {
+        setState(() => _error = '불러오기 실패: ${res.statusCode}');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = '네트워크 오류: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _fetchCrewRanking() async {
+    setState(() {
+      _loadingRank = true;
+      _rankError = null;
+    });
+
+    final token = await TokenStorage.getToken();
+
+    try {
+      final uri = Uri.parse(
+        '$baseUrl/api/crews/${widget.group.crewId}/ranking',
+      );
+      final res = await http.get(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final body = res.body.trim();
+        final decoded = body.isNotEmpty
+            ? (jsonDecode(body) as List)
+            : <dynamic>[];
+
+        // API 스키마 → UI 모델 매핑
+        final items = decoded
+            .map((e) => CrewRankingItem.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        // RankingWidget이 쓰는 모델로 변환
+        final list = items
+            .map(
+              (r) => RankingEntry(
+                username: r.userName,
+                completed: r.challengeCount,
+              ),
+            )
+            .toList();
+
+        setState(() => _ranking = list);
+      } else {
+        setState(() => _rankError = '랭킹 불러오기 실패: ${res.statusCode}');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _rankError = '네트워크 오류: $e');
+    } finally {
+      if (mounted) setState(() => _loadingRank = false);
+    }
+  }
+
+  /// BoardSectionCard가 기대하는 BoardPost로 매핑
+  List<BoardPost> get boardPosts => _posts
+      .map((p) => BoardPost(title: p.title, createdAt: p.createdAt))
+      .toList();
 
   @override
   Widget build(BuildContext context) {
@@ -85,64 +219,149 @@ class GroupPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          group.name,
+          widget.group.name,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
+        actions: [
+          IconButton(
+            tooltip: '새로고침',
+            onPressed: _fetchCrewPosts,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 20.0),
-            BoardSectionCard(
-              title: '그룹 게시판',
-              posts: _dummyPosts,
-              onTap: (post) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        PostDetailPage(args: PostDetailArgs(postId: 5)),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (_loading) const LinearProgressIndicator(minHeight: 2),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 10,
                   ),
-                );
-              },
-              onMore: () {
-                final cards = _dummyPosts
-                    .map(
-                      (b) => PostCard(
-                        postId: 1,
-                        title: b.title,
-                        excerpt: '내용 미리보기 예시입니다.',
-                        author: group.name,
-                        likes: 0,
-                        createdAt: b.createdAt,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 18,
+                        color: Colors.red,
                       ),
-                    )
-                    .toList();
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        BoardPage(title: '${group.name} 게시판', posts: cards),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _fetchCrewPosts,
+                        child: const Text('다시 시도'),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
 
-            const SizedBox(height: 20.0),
-            ChallengeSectionWidget(
-              title: '그룹 챌린지 🧩',
-              items: groupChallenges, // 그룹에 속한 Challenge 리스트
-            ),
-            SizedBox(height: 10.0),
-            RankingWidget(
-              entries: demoRanking,
-              title: '랭킹',
-              onTap: (e) {
-                // TODO: 사용자 프로필/상세로 이동
-              },
-            ),
-          ],
+              const SizedBox(height: 20),
+              // ▼ 서버 데이터 연결된 섹션
+              BoardSectionCard(
+                title: '그룹 게시판',
+                posts: boardPosts,
+                onTap: (post) {
+                  // 실제 postId로 상세 진입
+                  final tapped = _posts.firstWhere(
+                    (p) =>
+                        p.title == post.title && p.createdAt == post.createdAt,
+                    orElse: () => _posts.first,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PostDetailPage(
+                        args: PostDetailArgs(postId: tapped.postId),
+                      ),
+                    ),
+                  );
+                },
+                onMore: () {
+                  final cards = _posts
+                      .map(
+                        (p) => PostCard(
+                          postId: p.postId,
+                          title: p.title,
+                          excerpt: p.preview,
+                          author: p.authorName,
+                          likes: p.likeCount,
+                          createdAt: p.createdAt,
+                          // thumbnailUrl: p.thumbnailUrl,
+                        ),
+                      )
+                      .toList();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BoardPage(
+                        title: '${widget.group.name} 게시판',
+                        posts: cards,
+                        crewId: widget.group.crewId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+              // ▼ 이하 기존 섹션 유지
+              // ChallengeSectionWidget(
+              //   title: '그룹 챌린지 🧩',
+              //   items: 'groupChallenges',
+              // ),
+              const SizedBox(height: 10),
+              // 랭킹 섹션
+              if (_loadingRank)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: LinearProgressIndicator(minHeight: 2),
+                ),
+              if (_rankError != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 18,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _rankError!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _fetchCrewRanking,
+                        child: const Text('다시 시도'),
+                      ),
+                    ],
+                  ),
+                ),
+              RankingWidget(
+                title: '랭킹',
+                entries: _ranking, // ← 서버 데이터
+                onTap: (entry) {
+                  // TODO: 유저 프로필로 이동 등
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -8,8 +8,14 @@ import '../../widgets/postcard_widget.dart';
 class BoardPage extends StatefulWidget {
   final String title;
   final List<PostCard> posts;
+  final int? crewId;
 
-  const BoardPage({super.key, required this.title, required this.posts});
+  const BoardPage({
+    super.key,
+    required this.title,
+    required this.posts,
+    this.crewId,
+  });
 
   @override
   State<BoardPage> createState() => _BoardPageState();
@@ -125,7 +131,9 @@ class _BoardPageState extends State<BoardPage> {
         onPressed: () async {
           final res = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PostCreatePage()),
+            MaterialPageRoute(
+              builder: (_) => PostCreatePage(crewId: widget.crewId!),
+            ),
           );
 
           // 글 작성 후 돌아오면 간단 피드백 (목록 재조회는 부모 페이지에서 해주세요)

@@ -110,7 +110,7 @@ class _CommunityPageState extends State<CommunityPage> {
       _postError = null;
     });
 
-    final token = await TokenStorage.getToken(); // 인증 필요 없으면 생략됨
+    final token = await TokenStorage.getToken();
     try {
       final uri = Uri.parse('$baseUrl/api/community/posts');
       final res = await http.get(
@@ -127,16 +127,23 @@ class _CommunityPageState extends State<CommunityPage> {
             ? jsonDecode(body) as List<dynamic>
             : <dynamic>[];
 
-        final list = decoded
+        // 1) 전체 파싱
+        final all = decoded
             .map((e) => Post.fromJson(e as Map<String, dynamic>))
             .toList();
 
+        // 2) crewId가 "없는" 게시물만 필터 (null 또는 0 방어)
+        final onlyGeneral = all.where((p) {
+          final cid = p.crewId; // Post 모델에 int? crewId 가 있다고 가정
+          return cid == null || cid == 0;
+        }).toList();
+
         if (!mounted) return;
-        setState(() => _posts = list);
+        setState(() => _posts = onlyGeneral);
 
         // 디버그
-        for (final p in list) {
-          print('[POST] id=${p.postId} title=${p.title} likes=${p.likeCount}');
+        for (final p in onlyGeneral) {
+          print('[GENERAL] id=${p.postId} title=${p.title} crewId=${p.crewId}');
         }
       } else {
         if (!mounted) return;

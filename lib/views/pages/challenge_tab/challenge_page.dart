@@ -11,24 +11,6 @@ import 'package:bet_u/utils/challenge_history.dart' as ch;
 import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:bet_u/views/widgets/search_tag_chip_widget.dart';
 
-/*
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Challenge Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const ChallengePage(), // 여기서 ChallengePage 보여줌
-    );
-  }
-}
-*/
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 

@@ -1,4 +1,5 @@
 import '../models/challenge.dart';
+const String baseUrl = 'https://54.180.150.39.nip.io';
 
 int userPoints = 50000; // 더미 포인트
 

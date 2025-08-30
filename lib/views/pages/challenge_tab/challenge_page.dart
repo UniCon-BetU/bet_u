@@ -11,6 +11,24 @@ import 'package:bet_u/utils/challenge_history.dart' as ch;
 import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:bet_u/views/widgets/search_tag_chip_widget.dart';
 
+/*
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Challenge Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ChallengePage(), // 여기서 ChallengePage 보여줌
+    );
+  }
+}
+*/
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key});
 
@@ -104,14 +122,13 @@ class _ChallengePageState extends State<ChallengePage> {
 
     // 탭 기준
     if (selectedTab == '인기') {
-      baseList = List.from(allChallenges)
+      baseList = List.from(allChallengesNotifier.value)
         ..sort((a, b) => b.participants.compareTo(a.participants));
     } else if (selectedTab == '최근') {
       baseList = List.from(ch.ChallengeHistory.instance.recent.value);
     } else {
       baseList = allChallenges;
     }
-
     // 태그 기준
     if (selectedTag == 'goal') {
       baseList = baseList.where((c) => c.type == 'goal').toList();
@@ -135,6 +152,7 @@ class _ChallengePageState extends State<ChallengePage> {
       final query = _searchController.text.trim();
       final matchesSearch =
           query.isEmpty || c.title.contains(query) || c.tags.contains(query);
+      print('🔥 allChallengesNotifier: ${allChallengesNotifier.value}');
 
       // 검색 모드에선 selectedTag를 강제로 'all'로 운용하지만
       // 혹시 UI에서 태그를 쓰게 될 확장 대비해서 조건은 유지
@@ -409,8 +427,7 @@ class _ChallengePageState extends State<ChallengePage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: BetuChallengeSectionWidget(
-                              challengeFrom: allChallenges,
-                              cardBackground: Color(0xFFE4FF9A),
+                              challengeFrom: allChallengesNotifier.value,
                               onTileTap: (challenge) => _goToProcessingPage(
                                 challenge,
                                 fromSearch: _isSearching,
@@ -427,7 +444,6 @@ class _ChallengePageState extends State<ChallengePage> {
                                 ch.ChallengeHistory.instance.recent,
                             builder: (context, _, __) {
                               final list = challengesToShow;
-
                               if (selectedTab == '최근' && list.isEmpty) {
                                 return Container(
                                   color: AppColors.lightGray,

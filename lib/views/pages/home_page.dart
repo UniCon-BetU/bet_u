@@ -14,143 +14,164 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Challenge> myChallenges = allChallenges
-        .where((c) => c.status == ChallengeStatus.inProgress)
-        .toList();
+    return ValueListenableBuilder<List<Challenge>>(
+      valueListenable: allChallengesNotifier,
+      builder: (context, allChallengesValue, _) {
+        final List<Challenge> myChallenges = allChallengesValue
+            .where((c) => c.status == ChallengeStatus.inProgress)
+            .toList();
 
-    final int totalCount = myChallenges.length;
-    final int doneCount = myChallenges
-        .where((c) => c.todayCheck == TodayCheck.done)
-        .length;
+        final int totalCount = myChallenges.length;
+        final int doneCount = myChallenges
+            .where((c) => c.todayCheck == TodayCheck.done)
+            .length;
 
-    final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
+        final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 64,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/images/normal_lettuce.png',
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    fit: BoxFit.contain,
-                  ),
-                  Image.asset(
-                    'assets/images/BETU_letters.png',
-                    width: 96,
-                    height: 48,
-                    alignment: Alignment.center,
-                    fit: BoxFit.contain,
-                  ),
-                ],
-              ),
-              // 알림 버튼 제거
-            ],
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-        child: SingleChildScrollView(
-          clipBehavior: Clip.none,
-          child: Column(
-            children: [
-              SectionWidget(
-                items: myChallenges,
-                onSectionTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          MyChallengePage(myChallenges: allChallenges),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 12),
-              Row(
+        return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 64,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: progress),
-                      duration: const Duration(milliseconds: 1000),
-                      curve: Curves.easeOut,
-                      builder: (context, value, _) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(64),
-                              child: LinearProgressIndicator(
-                                value: value,
-                                minHeight: 18,
-                                backgroundColor: AppColors.darkestGray,
-                                valueColor: const AlwaysStoppedAnimation(
-                                  AppColors.primaryGreen,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  Row(
                     children: [
-                      const Text(
-                        '오늘의 인증 완료',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Image.asset(
+                        'assets/images/normal_lettuce.png',
+                        width: 48,
+                        height: 48,
+                        alignment: Alignment.center,
+                        fit: BoxFit.contain,
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            '$doneCount',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primaryGreen,
-                            ),
-                          ),
-                          Text(
-                            '/ 전체 $totalCount',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w300,
-                              color: AppColors.darkestGray,
-                            ),
-                          ),
-                        ],
+                      Image.asset(
+                        'assets/images/BETU_letters.png',
+                        width: 96,
+                        height: 48,
+                        alignment: Alignment.center,
+                        fit: BoxFit.contain,
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
-              BetuChallengeSectionWidget(challengeFrom: allChallenges),
-            ],
+            ),
           ),
-        ),
-      ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+            child: SingleChildScrollView(
+              clipBehavior: Clip.none,
+              child: Column(
+                children: [
+                  // myChallenges 리스트가 비어있을 때 메시지 표시
+                  if (myChallenges.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: Text(
+                          '진행 중인 챌린지가 없습니다.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    // myChallenges가 있을 때만 SectionWidget 표시
+                    SectionWidget(
+                      items: myChallenges,
+                      onSectionTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MyChallengePage(
+                              myChallenges: allChallengesValue,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: progress),
+                          duration: const Duration(milliseconds: 1000),
+                          curve: Curves.easeOut,
+                          builder: (context, value, _) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(64),
+                                  child: LinearProgressIndicator(
+                                    value: value,
+                                    minHeight: 18,
+                                    backgroundColor: AppColors.darkestGray,
+                                    valueColor: const AlwaysStoppedAnimation(
+                                      AppColors.primaryGreen,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text(
+                            '오늘의 인증 완료',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '$doneCount',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primaryGreen,
+                                ),
+                              ),
+                              Text(
+                                '/ 전체 $totalCount',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w300,
+                                  color: AppColors.darkestGray,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  BetuChallengeSectionWidget(challengeFrom: allChallengesValue),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

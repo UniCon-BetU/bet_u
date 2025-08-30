@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show HttpClient, X509Certificate, SocketException;
+import 'package:bet_u/views/pages/challenge_list_page.dart';
+import 'package:bet_u/views/pages/home_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -104,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const WidgetTree()),
+          MaterialPageRoute(builder: (_) => const HomePage()), //원래는 위젯트리
           (route) => false,
         );
       } else {

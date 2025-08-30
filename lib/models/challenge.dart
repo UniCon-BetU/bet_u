@@ -10,7 +10,7 @@ class Challenge {
   ChallengeStatus status;
   final String category; // (GLOBAL/CREW 등)
   final DateTime createdAt; // 시작일
-  final String? type; // "DURATION"/"GOAL" 등
+  final String? type; // "time"/"goal" 등
   final List<String> tags;
   final String? imageUrl;
   final String? bannerPeriod;
@@ -42,65 +42,75 @@ class Challenge {
     this.participating = false, // ✅ 기본 false
   }) : tags = tags ?? [];
 
-  double get progressPercent => day > 0 ? progressDays / day : 0;
+  static const Map<String, String> tagKoMap = {
+    'EXAM': '수능',
+    'UNIVERSITY': '대학',
+    'TOEIC': '토익',
+    'CERTIFICATE': '자격증',
+    'CIVIL_SERVICE': '공무원/행시',
+    'LEET': 'LEET',
+    'CPA': '회계사',
+    'SELF_DEVELOPMENT': '생활/자기계발',
+  };
 
+  double get progressPercent => day > 0 ? progressDays / day : 0;
   factory Challenge.fromJson(Map<String, dynamic> json) {
     final start = DateTime.tryParse(json['challengeStartDate'] ?? '');
     final end = DateTime.tryParse(json['challengeEndDate'] ?? '');
-
     final progress = json['progress'] as int?;
+
+    // type 결정
+    final type = json['challengeType'] == 'DURATION' ? 'time' : 'goal';
+
+    final day = type == 'time'
+        ? (json['challengeDuration'] ?? 0) // DURATION이면 백엔드 값 그대로
+        : 0; // TARGET 타입은 필요하면 다른 계산
+
+    // progressDays 계산
+    final progressDays =
+        (progress != null && start != null && end != null && day > 0)
+        ? ((progress.clamp(0, 100) / 100.0) * day).round()
+        : 0;
+
+    // ✅ 백엔드 대표 태그 (영어 → 한국어 매핑)
+    final backendTags =
+        (json['challengeTags'] as List?)
+            ?.map((e) => e.toString())
+            .map((e) => tagKoMap[e.toUpperCase()] ?? e) // 한글 매핑
+            .toList() ??
+        [];
+
+    // ✅ 커스텀 태그
+    final customTags =
+        (json['customTags'] as List?)?.map((e) => e.toString()).toList() ?? [];
+
+    // ✅ 최종 태그 합치기
+    final allTags = [...backendTags, ...customTags];
 
     return Challenge(
       title: json['challengeName'] ?? '',
       participants: json['participantCount'] ?? 0,
-      day: (start != null && end != null) ? end.difference(start).inDays : 0,
+      day: day,
       status: (start != null && end != null)
-          ? mapStatus(progress, start, end)
+          ? ChallengeStatus
+                .inProgress // mapStatus(progress, start, end) // ✅ 진행 중으로 기본 설정
           : ChallengeStatus.notStarted,
-      category: (json['challengeScope'] ?? 'GLOBAL').toString(),
+      category:
+          (json['challengeScope'] ==
+              'BETU') //사용? : category: mapWhomadeit(json['challengeScope'], json['whomadeit']),
+          ? 'BETU' // 화면에서 보여줄 whomadeit 값
+          : json['whomadeit'] ?? 'USER', // 그 외에는 서버가 보내는 값 사용
       createdAt: start ?? DateTime.now(),
-      type: json['challengeType'],
-      tags:
-          (json['challengeTags'] as List?)?.map((e) => e.toString()).toList() ??
-          [],
-      imageUrl: null,
-      bannerPeriod: null,
+      type: type,
+      tags: allTags, // ✅ 한국어 매핑 + 커스텀 태그 반영
+      imageUrl: json['imageUrl'],
+      bannerPeriod: (start != null && end != null)
+          ? "${start.toIso8601String()}~${end.toIso8601String()}"
+          : null,
       bannerDescription: json['challengeDescription'],
-      isFavorite: false,
-      progressDays: (progress != null && start != null && end != null)
-          ? ((progress.clamp(0, 100) / 100.0) * (end.difference(start).inDays))
-                .round()
-          : 0,
+      isFavorite: json['isFavorite'] ?? false,
+      progressDays: progressDays,
       participating: json['participating'] ?? false, // ✅ 서버 participating 반영
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "challengeName": title,
-      "participantCount": participants,
-      "challengeStartDate": createdAt.toIso8601String(),
-      "challengeEndDate": createdAt.add(Duration(days: day)).toIso8601String(),
-      "challengeType": type,
-      "challengeTags": tags,
-      "challengeDescription": bannerDescription,
-      "challengeScope": category,
-      "participating": participating, // 로컬 유지용
-    };
-  }
-
-  static ChallengeStatus mapStatus(
-    int? progress,
-    DateTime start,
-    DateTime end,
-  ) {
-    final now = DateTime.now();
-    if (now.isBefore(start)) return ChallengeStatus.notStarted;
-    if (now.isAfter(end) && (progress == null || progress == 0)) {
-      return ChallengeStatus.missed;
-    }
-    if (progress != null && progress < 100) return ChallengeStatus.inProgress;
-    if (progress != null && progress >= 100) return ChallengeStatus.done;
-    return ChallengeStatus.notStarted;
   }
 }

@@ -1,30 +1,39 @@
+import 'package:flutter/material.dart';
+
 import '../models/challenge.dart';
+
 const String baseUrl = 'https://54.180.150.39.nip.io';
+final ValueNotifier<List<Challenge>> allChallengesNotifier =
+    ValueNotifier<List<Challenge>>([]);
 
 /// 백엔드에서 온 챌린지 데이터를 Flutter Challenge로 변환
 Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {
-  // day 계산 (DURATION → 기간, COUNT → 목표 횟수)
   int day = 0;
+  String type;
+
+  // 타입과 day 계산
   if (backendChallenge['challengeType'] == "DURATION") {
-    DateTime start = DateTime.parse(backendChallenge['challengeStartDate']);
-    DateTime end = DateTime.parse(backendChallenge['challengeEndDate']);
-    day = end.difference(start).inDays + 1; // 기간 포함
-  } else if (backendChallenge['challengeType'] == "COUNT") {
-    day = backendChallenge['targetCount'] ?? 0; // COUNT형이면 목표 횟수
+    day = backendChallenge['challengeDuration'] ?? 0; // 기간 챌린지일 경우 period
+    type = "time"; // Flutter에서 DURATION은 time으로
+  } else if (backendChallenge['challengeType'] == "TARGET") {
+    day = backendChallenge['targetCount'] ?? 0; // 목표 달성일 경우 count
+    type = "goal"; // Flutter에서 TARGET은 goal로
+  } else {
+    type = "time"; // 기본값
   }
 
   return Challenge(
-    title: backendChallenge['challengeName'],
+    title: backendChallenge['challengeName'] ?? '',
     participants: backendChallenge['participantCount'] ?? 0,
     day: day,
-    status: ChallengeStatus.inProgress, // 기본값
+    status: ChallengeStatus.notStarted, // 참여 전
     category:
-        backendChallenge['challengeTags'] != null &&
-            backendChallenge['challengeTags'].isNotEmpty
+        (backendChallenge['challengeTags'] != null &&
+            backendChallenge['challengeTags'].isNotEmpty)
         ? backendChallenge['challengeTags'][0]
         : '기타',
     createdAt: DateTime.parse(backendChallenge['challengeStartDate']),
-    type: backendChallenge['challengeType'] == "DURATION" ? "time" : "goal",
+    type: type,
     tags: backendChallenge['challengeTags'] != null
         ? List<String>.from(backendChallenge['challengeTags'])
         : [],
@@ -32,7 +41,7 @@ Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {
         "${backendChallenge['challengeStartDate']}~${backendChallenge['challengeEndDate']}",
     bannerDescription: backendChallenge['challengeDescription'] ?? '',
     WhoMadeIt: "BETU",
-    todayCheck: TodayCheck.waiting, // 기본값
+    todayCheck: TodayCheck.waiting,
     progressDays: backendChallenge['progress'] ?? 0,
     isFavorite: backendChallenge['isFavorite'] ?? false,
   );

@@ -2,7 +2,7 @@ import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import '../widgets/section_widget.dart';
+import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import '../../theme/app_colors.dart';
@@ -68,7 +68,7 @@ class HomePage extends StatelessWidget {
           clipBehavior: Clip.none,
           child: Column(
             children: [
-              SectionWidget(
+              ChallengeSectionWidget(
                 items: myChallenges,
                 onSectionTap: () {
                   Navigator.push(

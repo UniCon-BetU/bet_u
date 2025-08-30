@@ -3,7 +3,7 @@ import '/models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import '../../theme/app_colors.dart';
 
-class SectionWidget extends StatefulWidget {
+class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;
   final String title;
 
@@ -16,7 +16,7 @@ class SectionWidget extends StatefulWidget {
   /// 프레스 애니메이션 시간
   final Duration pressedAnimDuration;
 
-  const SectionWidget({
+  const ChallengeSectionWidget({
     super.key,
     required this.items,
     this.title = 'MY CHALLENGE 🥇',
@@ -26,10 +26,10 @@ class SectionWidget extends StatefulWidget {
   });
 
   @override
-  State<SectionWidget> createState() => _SectionWidgetState();
+  State<ChallengeSectionWidget> createState() => _ChallengeSectionWidgetState();
 }
 
-class _SectionWidgetState extends State<SectionWidget> {
+class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   final _pc = PageController(viewportFraction: 1.0);
   int _page = 0;
   bool _pressed = false;

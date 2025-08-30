@@ -5,7 +5,7 @@ import 'package:bet_u/models/group.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/board_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
-import 'package:bet_u/views/widgets/section_widget.dart';
+import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/profile_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
@@ -337,7 +337,7 @@ class _GroupPageState extends State<GroupPage> {
 
               const SizedBox(height: 20),
 
-              SectionWidget(title: '그룹 챌린지 🧩', items: demoChallenges),
+              ChallengeSectionWidget(title: '그룹 챌린지 🧩', items: demoChallenges),
 
               const SizedBox(height: 20),
 

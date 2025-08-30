@@ -3,7 +3,6 @@ import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
-import 'theme/app_colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,10 +30,11 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        fontFamily: 'Freesentation',
         colorScheme: ColorScheme.light(
           surface: const Color.fromARGB(255, 255, 255, 255),
         ),
+        // 아래 코드를 추가하여 폰트 적용
+        fontFamily: 'Freesentation',
       ),
       home: const WelcomePage(),
       routes: {

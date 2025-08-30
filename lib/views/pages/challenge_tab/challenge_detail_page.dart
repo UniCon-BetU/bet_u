@@ -1,9 +1,7 @@
 import 'package:bet_u/views/pages/challenge_tab/challenge_certification_page.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_participate_page.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 
 import 'package:bet_u/views/widgets/chip_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';

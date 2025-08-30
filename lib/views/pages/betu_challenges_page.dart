@@ -1,4 +1,3 @@
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import 'package:bet_u/views/widgets/betu_challenge_card_widget.dart';
@@ -20,8 +19,8 @@ class _BetuChallengesPageState extends State<BetuChallengesPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white,   // 흰색 배경
-        elevation: 2,                    // 그림자 없애고 싶으면 0
+        backgroundColor: Colors.white, // 흰색 배경
+        elevation: 2, // 그림자 없애고 싶으면 0
         scrolledUnderElevation: 0,
         titleSpacing: 0,
         shadowColor: Colors.black.withValues(alpha: 0.25),
@@ -44,10 +43,7 @@ class _BetuChallengesPageState extends State<BetuChallengesPage> {
               top: 0,
               bottom: 0,
               child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.black,
-                ),
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
                 onPressed: () => Navigator.pop(context),
               ),
             ),

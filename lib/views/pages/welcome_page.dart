@@ -1,6 +1,6 @@
 import 'package:bet_u/views/pages/login_page.dart';
 import 'package:bet_u/views/pages/signup_page.dart';
-import 'package:bet_u/views/widgets/long_button_widget.dart';
+import '../widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 
@@ -25,14 +25,14 @@ class WelcomePage extends StatelessWidget {
                     child: Image.asset(
                       'assets/images/BETU_mainlogo.png',
                       fit: BoxFit.contain,
-                      ),
+                    ),
                   ),
                 ),
                 SizedBox(height: 48.0),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: LongButtonWidget(
-                    text: '시작하기', 
+                    text: '시작하기',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -40,11 +40,12 @@ class WelcomePage extends StatelessWidget {
                           builder: (context) {
                             return SignupPage();
                           },
-                        )
+                        ),
                       );
                     },
                     backgroundColor: AppColors.primaryGreen,
-                  )
+                  ),
+
                   // FilledButton(
                   //   onPressed: () {
                   //     Navigator.push(
@@ -90,7 +91,7 @@ class WelcomePage extends StatelessWidget {
                       minimumSize: Size(double.infinity, 40.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
-                      )
+                      ),
                     ),
                     child: Text(
                       '로그인',
@@ -98,7 +99,7 @@ class WelcomePage extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                         color: AppColors.primaryGreen,
-                      )
+                      ),
                     ),
                   ),
                 ),

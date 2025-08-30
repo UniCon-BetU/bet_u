@@ -1,6 +1,48 @@
 import '../models/challenge.dart';
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
+/// 백엔드에서 온 챌린지 데이터를 Flutter Challenge로 변환
+Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {
+  // day 계산 (DURATION → 기간, COUNT → 목표 횟수)
+  int day = 0;
+  if (backendChallenge['challengeType'] == "DURATION") {
+    DateTime start = DateTime.parse(backendChallenge['challengeStartDate']);
+    DateTime end = DateTime.parse(backendChallenge['challengeEndDate']);
+    day = end.difference(start).inDays + 1; // 기간 포함
+  } else if (backendChallenge['challengeType'] == "COUNT") {
+    day = backendChallenge['targetCount'] ?? 0; // COUNT형이면 목표 횟수
+  }
+
+  return Challenge(
+    title: backendChallenge['challengeName'],
+    participants: backendChallenge['participantCount'] ?? 0,
+    day: day,
+    status: ChallengeStatus.inProgress, // 기본값
+    category:
+        backendChallenge['challengeTags'] != null &&
+            backendChallenge['challengeTags'].isNotEmpty
+        ? backendChallenge['challengeTags'][0]
+        : '기타',
+    createdAt: DateTime.parse(backendChallenge['challengeStartDate']),
+    type: backendChallenge['challengeType'] == "DURATION" ? "time" : "goal",
+    tags: backendChallenge['challengeTags'] != null
+        ? List<String>.from(backendChallenge['challengeTags'])
+        : [],
+    bannerPeriod:
+        "${backendChallenge['challengeStartDate']}~${backendChallenge['challengeEndDate']}",
+    bannerDescription: backendChallenge['challengeDescription'] ?? '',
+    WhoMadeIt: "BETU",
+    todayCheck: TodayCheck.waiting, // 기본값
+    progressDays: backendChallenge['progress'] ?? 0,
+    isFavorite: backendChallenge['isFavorite'] ?? false,
+  );
+}
+
+/// 백엔드 챌린지 리스트 변환
+List<Challenge> mapBackendChallenges(List<Map<String, dynamic>> backendList) {
+  return backendList.map((e) => mapBackendToFlutterChallenge(e)).toList();
+}
+
 int userPoints = 50000; // 더미 포인트
 
 final List<Challenge> allChallenges = [

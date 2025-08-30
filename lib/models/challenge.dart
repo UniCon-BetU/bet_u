@@ -1,24 +1,16 @@
-enum ChallengeStatus {
-  inProgress, // 진행 중
-  done, // 완료
-  missed, // 놓친 챌린지
-  notStarted, // 시작 전
-}
+// models/challenge.dart
+enum ChallengeStatus { inProgress, done, missed, notStarted }
 
-enum TodayCheck {
-  waiting, // 인증 대기중
-  done, // 놓친 챌린지
-  notStarted, // 시작 전
-}
+enum TodayCheck { waiting, done, notStarted }
 
 class Challenge {
   final String title;
   int participants;
-  final int day; // 총 챌린지 일수
+  final int day; // 총 일수
   ChallengeStatus status;
-  final String category;
-  final DateTime createdAt;
-  final String? type;
+  final String category; // (GLOBAL/CREW 등)
+  final DateTime createdAt; // 시작일
+  final String? type; // "DURATION"/"GOAL" 등
   final List<String> tags;
   final String? imageUrl;
   final String? bannerPeriod;
@@ -27,8 +19,9 @@ class Challenge {
   TodayCheck todayCheck;
 
   bool isFavorite;
+  bool participating; // ✅ 내가 참여 중인지 (서버 participating 매핑)
 
-  int progressDays; // ✅ 여기 추가 (사용자가 인증한 일수)
+  int progressDays;
 
   Challenge({
     required this.title,
@@ -43,17 +36,18 @@ class Challenge {
     this.bannerPeriod,
     this.bannerDescription,
     this.isFavorite = false,
-    this.progressDays = 0, // 기본 0일
-    this.WhoMadeIt, // 기본 0일
-    this.todayCheck = TodayCheck.notStarted, // 오늘 인증했는지 여부
+    this.progressDays = 0,
+    this.WhoMadeIt,
+    this.todayCheck = TodayCheck.notStarted,
+    this.participating = false, // ✅ 기본 false
   }) : tags = tags ?? [];
 
   double get progressPercent => day > 0 ? progressDays / day : 0;
 
-  /// JSON → Challenge 변환
   factory Challenge.fromJson(Map<String, dynamic> json) {
     final start = DateTime.tryParse(json['challengeStartDate'] ?? '');
     final end = DateTime.tryParse(json['challengeEndDate'] ?? '');
+
     final progress = json['progress'] as int?;
 
     return Challenge(
@@ -67,17 +61,20 @@ class Challenge {
       createdAt: start ?? DateTime.now(),
       type: json['challengeType'],
       tags:
-          (json['challengeTags'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
+          (json['challengeTags'] as List?)?.map((e) => e.toString()).toList() ??
           [],
       imageUrl: null,
       bannerPeriod: null,
       bannerDescription: json['challengeDescription'],
+      isFavorite: false,
+      progressDays: (progress != null && start != null && end != null)
+          ? ((progress.clamp(0, 100) / 100.0) * (end.difference(start).inDays))
+                .round()
+          : 0,
+      participating: json['participating'] ?? false, // ✅ 서버 participating 반영
     );
   }
 
-  /// Challenge → JSON 변환
   Map<String, dynamic> toJson() {
     return {
       "challengeName": title,
@@ -88,24 +85,22 @@ class Challenge {
       "challengeTags": tags,
       "challengeDescription": bannerDescription,
       "challengeScope": category,
+      "participating": participating, // 로컬 유지용
     };
   }
 
-  /// 상태 매핑 (진짜 날짜 기준)
   static ChallengeStatus mapStatus(
     int? progress,
     DateTime start,
     DateTime end,
   ) {
     final now = DateTime.now();
-
-    if (now.isBefore(start)) return ChallengeStatus.notStarted; // 시작 전
+    if (now.isBefore(start)) return ChallengeStatus.notStarted;
     if (now.isAfter(end) && (progress == null || progress == 0)) {
-      return ChallengeStatus.missed; // 놓친 챌린지
+      return ChallengeStatus.missed;
     }
     if (progress != null && progress < 100) return ChallengeStatus.inProgress;
     if (progress != null && progress >= 100) return ChallengeStatus.done;
-
-    return ChallengeStatus.notStarted; // 안전망
+    return ChallengeStatus.notStarted;
   }
 }

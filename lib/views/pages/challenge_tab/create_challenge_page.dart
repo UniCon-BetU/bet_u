@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -209,34 +210,35 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
     _tagsInputCtrl.clear();
   }
 
-  Uri _buildUriWithParams({
-    required Map<String, String> qp,
-    required List<String> challengeTags,
-    required List<String> customTags,
-  }) {
-    final b = StringBuffer('$baseUrl/api/challenges?');
-    var first = true;
-    qp.forEach((k, v) {
-      if (!first) b.write('&');
-      first = false;
-      b
-        ..write(Uri.encodeQueryComponent(k))
-        ..write('=')
-        ..write(Uri.encodeQueryComponent(v));
-    });
-    for (final t in challengeTags) {
-      b
-        ..write('&challengeTags=')
-        ..write(Uri.encodeQueryComponent(t));
-    }
-    for (final t in customTags) {
-      b
-        ..write('&customTags=')
-        ..write(Uri.encodeQueryComponent(t));
-    }
-    return Uri.parse(b.toString());
-  }
-
+  // 이 함수는 더 이상 사용하지 않으므로 제거합니다.
+  // Uri _buildUriWithParams({
+  //   required Map<String, String> qp,
+  //   required List<String> challengeTags,
+  //   required List<String> customTags,
+  // }) {
+  //   final b = StringBuffer('$baseUrl/api/challenges?');
+  //   var first = true;
+  //   qp.forEach((k, v) {
+  //     if (!first) b.write('&');
+  //     first = false;
+  //     b
+  //       ..write(Uri.encodeQueryComponent(k))
+  //       ..write('=')
+  //       ..write(Uri.encodeQueryComponent(v));
+  //   });
+  //   for (final t in challengeTags) {
+  //     b
+  //       ..write('&challengeTags=')
+  //       ..write(Uri.encodeQueryComponent(t));
+  //   }
+  //   for (final t in customTags) {
+  //     b
+  //       ..write('&customTags=')
+  //       ..write(Uri.encodeQueryComponent(t));
+  //   }
+  //   return Uri.parse(b.toString());
+  // }
+  // _createChallenge 함수 내부
   Future<void> _createChallenge() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -249,12 +251,18 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
       return;
     }
 
-    // 입력
     final challengeName = _nameCtrl.text.trim();
     final challengeDescription = _descCtrl.text.trim();
     final periodDays = _periodCtrl.text.trim();
+    final challengeDuration = int.tryParse(periodDays);
+    if (challengeDuration == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('기간을 정확히 입력해주세요.')));
+      return;
+    }
 
-    // 태그 (백엔드 enum 태그는 _selectedTags, 자유 태그는 _customTags)
     if (_selectedTags.isEmpty && _customTags.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -263,51 +271,58 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
       return;
     }
 
-    // 쿼리스트링으로만 스칼라 전달
-    final qp = <String, String>{
-      'challengeScope': 'PUBLIC',
-      'crewId': '33',
-      'creatorId': '33',
-      'challengeType': 'DURATION',
-      'challengeName': challengeName,
-      'challengeDescription': challengeDescription,
-      'challengeDuration': periodDays,
-      'challengeBetAmount': '0',
-    };
-
-    final uri = _buildUriWithParams(
-      qp: qp,
-      challengeTags: _selectedTags,
-      customTags: _customTags,
-    );
-
     final client = await _devClient();
     try {
+      // 1. URL 쿼리 파라미터를 사용하여 URI를 직접 구성합니다.
+      final uri = Uri.parse('$baseUrl/api/challenges').replace(
+        queryParameters: {
+          'challengeScope': 'PUBLIC',
+          'challengeType': 'DURATION',
+          'challengeName': challengeName,
+          'challengeDescription': challengeDescription,
+          'challengeDuration': challengeDuration.toString(),
+          'challengeTags': _selectedTags.isNotEmpty
+              ? _selectedTags.join(',')
+              : '', // 콤마로 구분된 문자열로 전송
+          'customTags': _customTags.isNotEmpty
+              ? _customTags.join(',')
+              : '', // 콤마로 구분된 문자열로 전송
+        },
+      );
+
       final req = http.MultipartRequest('POST', uri)
         ..headers['Authorization'] = 'Bearer $token'
         ..headers['accept'] = '*/*';
+
+      // 2. 이미지 파일만 files에 추가합니다.
+      for (final x in _images) {
+        if (x.path.isNotEmpty) {
+          final mime = lookupMimeType(x.path) ?? 'image/jpeg';
+          final parts = mime.split('/');
+          req.files.add(
+            await http.MultipartFile.fromPath(
+              'images',
+              x.path,
+              contentType: MediaType(parts[0], parts[1]),
+            ),
+          );
+        }
+      }
+
+      // 이 방식에서는 텍스트 데이터를 fields에 추가할 필요가 없습니다.
+      // debugPrint에서 fields는 비어있을 것입니다.
+
       debugPrint('사용자 토큰: $token');
       debugPrint('요청 URI: $uri');
-      debugPrint('POST URL: $uri');
       debugPrint('Headers: ${req.headers}');
       debugPrint('Images: ${_images.map((e) => e.path).toList()}');
-
-      // 이미지가 있을 때만 추가
-      for (final x in _images) {
-        final mime = lookupMimeType(x.path) ?? 'image/jpeg';
-        final parts = mime.split('/');
-        req.files.add(
-          await http.MultipartFile.fromPath(
-            'images',
-            x.path,
-            contentType: MediaType(parts[0], parts[1]),
-          ),
-        );
-      }
 
       final res = await client.send(req).then(http.Response.fromStream);
 
       if (!mounted) return;
+      debugPrint('응답 상태 코드: ${res.statusCode}');
+      debugPrint('응답 본문: ${res.body}');
+
       if (res.statusCode == 200 || res.statusCode == 201) {
         ScaffoldMessenger.of(
           context,

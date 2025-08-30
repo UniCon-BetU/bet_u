@@ -1,11 +1,7 @@
-import 'package:bet_u/views/widgets/ad_banner_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
 import '../widgets/challenge_section_widget.dart';
-import '../widgets/popular_section_widget.dart';
-import 'package:bet_u/views/pages/settings_page.dart';
 import '../../theme/app_colors.dart';
-import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 

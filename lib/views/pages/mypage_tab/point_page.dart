@@ -5,7 +5,6 @@ import 'package:tosspayments_widget_sdk_flutter/widgets/payment_method.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/agreement.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';
-import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/data/global_challenges.dart';
 
 class PointPage extends StatefulWidget {

@@ -286,6 +286,11 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
       final req = http.MultipartRequest('POST', uri)
         ..headers['Authorization'] = 'Bearer $token'
         ..headers['accept'] = '*/*';
+      debugPrint('사용자 토큰: $token');
+      debugPrint('요청 URI: $uri');
+      debugPrint('POST URL: $uri');
+      debugPrint('Headers: ${req.headers}');
+      debugPrint('Images: ${_images.map((e) => e.path).toList()}');
 
       // 이미지가 있을 때만 추가
       for (final x in _images) {

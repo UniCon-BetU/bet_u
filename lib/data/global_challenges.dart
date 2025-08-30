@@ -1,4 +1,5 @@
 import '../models/challenge.dart';
+const String baseUrl = 'https://54.180.150.39.nip.io';
 
 /// 백엔드에서 온 챌린지 데이터를 Flutter Challenge로 변환
 Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {

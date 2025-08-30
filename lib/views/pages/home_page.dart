@@ -1,7 +1,8 @@
+import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import '../widgets/challenge_section_widget.dart';
+import '../widgets/section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import '../../theme/app_colors.dart';
@@ -64,9 +65,22 @@ class HomePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
         child: SingleChildScrollView(
+          clipBehavior: Clip.none,
           child: Column(
             children: [
-              ChallengeSectionWidget(items: myChallenges),
+              SectionWidget(
+                items: myChallenges,
+                onSectionTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          MyChallengePage(myChallenges: allChallenges),
+                    )
+                  );
+                },
+              ),
+
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

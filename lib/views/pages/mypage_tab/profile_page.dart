@@ -2,10 +2,14 @@ import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/security_page.dart';
+import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
-import '../../widgets/challenge_section_widget.dart';
+import '../../../models/category.dart';
+import '../../widgets/section_widget.dart';
+import '../../widgets/popular_section_widget.dart';
+import 'package:bet_u/views/pages/settings_page.dart';
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 
@@ -89,7 +93,18 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ChallengeSectionWidget(items: myChallenges),
+                  SectionWidget(
+                    items: myChallenges,
+                    onSectionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MyChallengePage(myChallenges: allChallenges),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -214,7 +229,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-
                 MyPageSettingWidget(
                   title: '스크랩',
                   icon: Icons.bookmark,

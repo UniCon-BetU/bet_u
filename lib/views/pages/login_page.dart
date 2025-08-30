@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     if (userEmail.isEmpty || userPassword.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('아이디와 비밀번호를 입력해주세요')));
+      ).showSnackBar(const SnackBar(content: Text('이메일과 비밀번호를 입력해주세요')));
       return;
     }
 
@@ -222,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 32),
                         TextField(
                           controller: userEmailController,
-                          decoration: customInputDecoration('아이디'),
+                          decoration: customInputDecoration('이메일'),
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 17,

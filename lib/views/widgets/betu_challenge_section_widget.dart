@@ -13,7 +13,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
     required this.challengeFrom,
     this.title = 'BETU Challenges',
     this.leadingIcon = const Icon(Icons.eco, color: AppColors.primaryGreen),
-    this.cardBackground = AppColors.lighterGreen,
+    this.cardBackground = const Color(0xFFE4FF9A),
     this.itemsPerPage = 3,
     this.onTileTap,
   });
@@ -81,7 +81,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
 
         // 3개 세로 PageView
         SizedBox(
-          height: 260,
+          height: 224,
           child: PageView.builder(
             controller: pageController,
             itemCount: chunked.length,
@@ -90,8 +90,9 @@ class BetuChallengeSectionWidget extends StatelessWidget {
               return Column(
                 children: pageItems.map((c) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 3),
                     child: ChallengeTileWidget(
+                      background: cardBackground,
                       c: c,
                       showTags: false,
                       onTap: onTileTap == null ? null : () => onTileTap!(c),
@@ -103,7 +104,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 8),
+        SizedBox(height: 12),
 
         Center(
           child: SmoothPageIndicator(

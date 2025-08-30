@@ -41,31 +41,42 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
 
   /// 카드 배경색
   Color get _bg {
-    if (widget.c.type == 'goal') {
-      return switch (widget.c.status) {
-        ChallengeStatus.notStarted => AppColors.lighterGreen,
-        ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-        ChallengeStatus.done => AppColors.lighterGreen, //지워
-        ChallengeStatus.missed => AppColors.lightRed, //지워
-      };
+    if (widget.c.status != ChallengeStatus.inProgress) { return Colors.white; }
+    else {
+      if (widget.c.type == 'time') {
+        return switch (widget.c.todayCheck) {
+          TodayCheck.notStarted => AppColors.lightRed,
+          TodayCheck.waiting => AppColors.lightYellow,
+          TodayCheck.done => AppColors.lighterGreen,
+        };
+      } else { return AppColors.lighterGreen; }
     }
+  
+    // if (widget.c.type == 'goal') {
+    //   return switch (widget.c.status) {
+    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
+    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
+    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
+    //     ChallengeStatus.missed => AppColors.lightRed, //지워
+    //   };
+    // }
 
-    if (widget.c.type == 'time') {
-      return switch (widget.c.status) {
-        ChallengeStatus.notStarted => AppColors.lighterGreen,
-        ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-        ChallengeStatus.done => AppColors.lighterGreen, //지워
-        ChallengeStatus.missed => AppColors.lightRed, //지워
-      };
-    }
-    if (widget.c.type == 'time') {
-      return switch (widget.c.todayCheck) {
-        TodayCheck.notStarted => AppColors.lightRed,
-        TodayCheck.waiting => AppColors.yellowGreen,
-        TodayCheck.done => const Color(0xFFEAFFB9), //지워
-      };
-    }
-    return const Color.fromRGBO(234, 255, 185, 1);
+    // if (widget.c.type == 'time') {
+    //   return switch (widget.c.status) {
+    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
+    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
+    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
+    //     ChallengeStatus.missed => AppColors.lightRed, //지워
+    //   };
+    // }
+    // if (widget.c.type == 'time') {
+    //   return switch (widget.c.todayCheck) {
+    //     TodayCheck.notStarted => AppColors.lightRed,
+    //     TodayCheck.waiting => AppColors.yellowGreen,
+    //     TodayCheck.done => const Color(0xFFEAFFB9), //지워
+    //   };
+    // }
+    // return const Color.fromRGBO(234, 255, 185, 1);
   }
 
   /// 참여자/기간 칸 색상
@@ -88,21 +99,10 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                 : percent * 100 <= 70
                 ? 'assets/images/happy_lettuce.png'
                 : 'assets/images/red_lettuce.png',
-            width: 80,
-            height: 80,
+            width: 72,
+            height: 72,
             fit: BoxFit.cover,
           );
-
-    final Widget? trophyImage =
-        (widget.c.status != ChallengeStatus.notStarted &&
-            widget.c.type == 'goal')
-        ? Image.asset(
-            'assets/images/trophy.png',
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-          )
-        : null;
 
     final Widget rightWidget =
         widget.trailingOverride ??
@@ -153,7 +153,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
             }
           },
           child: SizedBox(
-            height: 70,
+            height: widget.showTags ? 70 : 60,
             child: Row(
               children: [
                 Expanded(

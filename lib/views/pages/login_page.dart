@@ -20,7 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController userNameController = TextEditingController();
+  final TextEditingController userEmailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;           // ← 추가
@@ -33,10 +33,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> login() async {
-    final userName = userNameController.text.trim();
+    final userEmail = userEmailController.text.trim();
     final userPassword = passwordController.text.trim();
 
-    if (userName.isEmpty || userPassword.isEmpty) {
+    if (userEmail.isEmpty || userPassword.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('아이디와 비밀번호를 입력해주세요')));
       return;
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'userName': userName, 'userPassword': userPassword}),
+            body: jsonEncode({'userEmail': userEmail, 'userPassword': userPassword}),
           )
           .timeout(const Duration(seconds: 15)); // ← 추가
 
@@ -177,12 +177,12 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 32),
 
                         TextField(
-                          controller: userNameController,
-                          decoration: customInputDecoration('아이디'),
+                          controller: userEmailController,
+                          decoration: customInputDecoration('이메일'),
                           style: const TextStyle(
                             color: Colors.black, fontSize: 17, fontWeight: FontWeight.w500),
                           textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.username],
+                          autofillHints: const [AutofillHints.email],
                           enabled: !isLoading, // ← 추가
                         ),
                         const SizedBox(height: 10),

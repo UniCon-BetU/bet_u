@@ -28,7 +28,7 @@ class _ChallengeCertificationPageState
     });
   }
 
-  // ------------------- 사진 찍기 -------------------
+  // ------------------- 사진 찍기 ------------------- // 카메라 권한 거부당하면 앱이 뻗어버림!!!
   Future<void> _openCamera() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {

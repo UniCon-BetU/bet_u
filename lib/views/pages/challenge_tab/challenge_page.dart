@@ -410,6 +410,7 @@ class _ChallengePageState extends State<ChallengePage> {
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: BetuChallengeSectionWidget(
                               challengeFrom: allChallenges,
+                              cardBackground: Color(0xFFE4FF9A),
                               onTileTap: (challenge) => _goToProcessingPage(
                                 challenge,
                                 fromSearch: _isSearching,

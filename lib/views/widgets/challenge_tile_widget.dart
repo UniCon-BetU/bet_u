@@ -104,17 +104,6 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
             fit: BoxFit.cover,
           );
 
-    final Widget? trophyImage =
-        (widget.c.status != ChallengeStatus.notStarted &&
-            widget.c.type == 'goal')
-        ? Image.asset(
-            'assets/images/trophy.png',
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-          )
-        : null;
-
     final Widget rightWidget =
         widget.trailingOverride ??
         (() {
@@ -164,7 +153,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
             }
           },
           child: SizedBox(
-            height: 70,
+            height: widget.showTags ? 70 : 60,
             child: Row(
               children: [
                 Expanded(

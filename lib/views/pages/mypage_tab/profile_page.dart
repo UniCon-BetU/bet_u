@@ -8,7 +8,7 @@ import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
 import '../../../models/category.dart';
-import '../../widgets/challenge_section_widget.dart';
+import '../../widgets/section_widget.dart';
 import '../../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import '../../../theme/app_colors.dart';
@@ -96,7 +96,19 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ChallengeSectionWidget(items: myChallenges),
+                  SectionWidget(
+                    items: myChallenges,
+                    onSectionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MyChallengePage(myChallenges: allChallenges),
+                        )
+                      );
+                    }
+                  ),
+                  
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

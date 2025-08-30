@@ -47,6 +47,7 @@ class Challenge {
   factory Challenge.fromJson(Map<String, dynamic> json) {
     final start = DateTime.tryParse(json['challengeStartDate'] ?? '');
     final end = DateTime.tryParse(json['challengeEndDate'] ?? '');
+
     final progress = json['progress'] as int?;
 
     return Challenge(

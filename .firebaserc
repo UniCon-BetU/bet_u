@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "betu-522bb",
+    "staging": "betu-522bb"
+  },
+  "targets": {},
+  "etags": {}
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class PostCard {
+  final int postId;
   final String title;
   final String excerpt; // 내용 1줄
   final String author; // 게시자
@@ -9,6 +10,7 @@ class PostCard {
   final DateTime createdAt; // 작성 시각
 
   const PostCard({
+    required this.postId,
     required this.title,
     required this.excerpt,
     required this.author,

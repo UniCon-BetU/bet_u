@@ -5,7 +5,7 @@ class LongButtonWidget extends StatefulWidget {
   const LongButtonWidget({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     required this.backgroundColor,
     this.textColor = Colors.white,
     this.height = 44,
@@ -18,7 +18,6 @@ class LongButtonWidget extends StatefulWidget {
   });
 
   final String text;
-  final VoidCallback onPressed;
   final Color backgroundColor;
   final Color textColor;
   final double height;
@@ -26,6 +25,7 @@ class LongButtonWidget extends StatefulWidget {
   final Widget? leading;
   final Widget? trailing;
   final bool isEnabled;
+  final VoidCallback? onPressed; // ← 여기
 
   final double pressedScale;
   final Duration pressedAnimDuration;
@@ -38,16 +38,17 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
   bool _pressed = false;
 
   void _setPressed(bool v) {
+    if (!widget.isEnabled || widget.onPressed == null) return; // ← 비활성일 땐 무시
     if (_pressed == v) return;
     setState(() => _pressed = v);
   }
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = widget.isEnabled
+    final effectiveColor = widget.isEnabled && widget.onPressed != null
         ? widget.backgroundColor
         : widget.backgroundColor.withValues(alpha: 0.4);
-
+    
     return Listener(
       onPointerDown: (_) => _setPressed(true),
       onPointerUp: (_) => _setPressed(false),
@@ -60,7 +61,8 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
           height: widget.height,
           width: double.infinity,
           child: FilledButton(
-            onPressed: widget.isEnabled ? widget.onPressed : null,
+            // isEnabled && onPressed != null 일 때만 활성화
+            onPressed: (widget.isEnabled ? widget.onPressed : null),
             style: ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(effectiveColor),
               shape: WidgetStatePropertyAll(
@@ -69,6 +71,8 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
                 ),
               ),
               overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (!widget.isEnabled || widget.onPressed == null) return null;
+
                 if (states.contains(WidgetState.pressed)) {
                   return Colors.black.withValues(alpha: 0.06);
                 }

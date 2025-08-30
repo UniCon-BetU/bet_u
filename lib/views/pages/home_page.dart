@@ -1,8 +1,6 @@
 import 'package:bet_u/views/widgets/ad_banner_widget.dart';
-import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import '../../models/challenge.dart';
-import '../../models/category.dart';
 import '../widgets/challenge_section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
@@ -21,40 +19,12 @@ class HomePage extends StatelessWidget {
         .toList();
 
     final int totalCount = myChallenges.length;
-
-    final categories = const [
-      Category(label: '수능', count: 1723),
-      Category(label: '토익', count: 1723),
-      Category(label: '인강', count: 1723),
-      Category(label: '매일자습', count: 1723),
-    ];
-
     final int doneCount = myChallenges
         .where((c) => c.todayCheck == TodayCheck.done)
         .length;
 
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
-    final rankingChallenges = [
-      Challenge(
-        title: '하루 영단어 50개 암기',
-        participants: 1263,
-        day: 0,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-      Challenge(
-        title: '매일 수학 N제 20개 풀이',
-        participants: 818,
-        day: 0,
-        status: ChallengeStatus.inProgress,
-        category: '수능',
-        createdAt: DateTime(2025, 7, 1),
-        type: 'time',
-      ),
-    ];
 
     return Scaffold(
       appBar: AppBar(

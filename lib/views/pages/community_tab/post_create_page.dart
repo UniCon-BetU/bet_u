@@ -9,7 +9,9 @@ import '../../widgets/field_card_widget.dart';
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
 class PostCreatePage extends StatefulWidget {
-  const PostCreatePage({super.key});
+  const PostCreatePage({super.key, required this.crewId,});
+
+  final int crewId;
 
   @override
   State<PostCreatePage> createState() => _PostCreatePageState();
@@ -74,7 +76,7 @@ class _PostCreatePageState extends State<PostCreatePage> {
     try {
       final uri = Uri.parse(
         '$baseUrl/api/community/posts',
-      ).replace(queryParameters: {'title': title, 'content': content});
+      ).replace(queryParameters: {'crewId': widget.crewId.toString(), 'title': title, 'content': content});
 
       final req = http.MultipartRequest('POST', uri);
 

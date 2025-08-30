@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 
 class SecurityPage extends StatelessWidget {
   const SecurityPage({super.key});

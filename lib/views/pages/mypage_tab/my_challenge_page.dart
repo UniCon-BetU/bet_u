@@ -1,7 +1,6 @@
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
-import '../../../data/global_challenges.dart';
 
 import '../challenge_tab/challenge_detail_page.dart';
 

@@ -6,7 +6,6 @@ import '../widgets/section_widget.dart';
 import '../widgets/popular_section_widget.dart';
 import 'package:bet_u/views/pages/settings_page.dart';
 import '../../theme/app_colors.dart';
-import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 
@@ -25,7 +24,6 @@ class HomePage extends StatelessWidget {
         .length;
 
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
-
 
     return Scaffold(
       appBar: AppBar(
@@ -76,7 +74,7 @@ class HomePage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) =>
                           MyChallengePage(myChallenges: allChallenges),
-                    )
+                    ),
                   );
                 },
               ),

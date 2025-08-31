@@ -3,22 +3,20 @@ import '/models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import '../../theme/app_colors.dart';
 
-class ChallengeSectionWidget extends StatefulWidget {
-  final List<Challenge> items;
-  final String title;
+import 'package:bet_u/services/my_challenge_loader.dart';
+import 'package:bet_u/data/my_challenges.dart';
 
-  /// 섹션 전체 탭 동작
+class ChallengeSectionWidget extends StatefulWidget {
+  final String title;
   final VoidCallback? onSectionTap;
 
   /// 눌렀을 때 축소 비율 (예: 0.97)
   final double pressedScale;
-
   /// 프레스 애니메이션 시간
   final Duration pressedAnimDuration;
 
   const ChallengeSectionWidget({
     super.key,
-    required this.items,
     this.title = 'MY CHALLENGE 🥇',
     this.onSectionTap,
     this.pressedScale = 0.97,
@@ -34,12 +32,10 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   int _page = 0;
   bool _pressed = false;
 
-  List<List<Challenge>> get _pages {
-    final chunk = <List<Challenge>>[];
-    for (var i = 0; i < widget.items.length; i += 3) {
-      chunk.add(widget.items.sublist(i, (i + 3).clamp(0, widget.items.length)));
-    }
-    return chunk.isEmpty ? [[]] : chunk;
+  @override
+  void initState() {
+    super.initState();
+    MyChallengeLoader.loadAndPublish(context: context); // 위젯 생성 시 API 호출
   }
 
   @override
@@ -48,103 +44,129 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
     super.dispose();
   }
 
+  List<List<Challenge>> _chunk(List<Challenge> src) {
+    final chunk = <List<Challenge>>[];
+    for (var i = 0; i < src.length; i += 3) {
+      chunk.add(src.sublist(i, (i + 3).clamp(0, src.length)));
+    }
+    return chunk.isEmpty ? [[]] : chunk;
+  }
+
+  Widget _buildBody(List<Challenge> items) {
+    if (MyChallengeLoader.isLoading && items.isEmpty) {
+      return const SizedBox(
+        height: 210,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final pages = _chunk(items);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (items.isEmpty)
+          SizedBox(
+            height: 210,
+            child: Center(
+              child: Text(
+                '진행 중인 챌린지가 없습니다.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 210,
+            child: PageView.builder(
+              controller: _pc,
+              itemCount: pages.length,
+              onPageChanged: (i) => setState(() => _page = i),
+              itemBuilder: (_, idx) => Column(
+                children: pages[idx]
+                    .map((c) => ChallengeTileWidget(c: c, showTags: false))
+                    .toList(),
+              ),
+            ),
+          ),
+
+        const SizedBox(height: 4),
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(pages.length, (i) {
+              final active = i == _page;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+                width: active ? 12 : 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: active ? AppColors.primaryGreen : AppColors.Gray,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(11);
 
     return Padding(
-      // 그림자가 잘리지 않도록 살짝 여백(필요 시 조절)
       padding: const EdgeInsets.all(0),
       child: DecoratedBox(
-        // ← 그림자/배경은 "고정" 레이어
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: radius,
           boxShadow: const [
             BoxShadow(
-              color: Color(0x40000000), // == Colors.black.withOpacity(0.25)
+              color: Color(0x40000000),
               blurRadius: 4,
               offset: Offset(0, 4),
             ),
           ],
         ),
         child: ClipRRect(
-          // 리플 클리핑
           borderRadius: radius,
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: widget.onSectionTap,
-              // 눌림 상태로 스케일 토글
               onHighlightChanged: (v) => setState(() => _pressed = v),
-
-              // ✅ 내용만 스케일 (카드/그림자는 고정)
               child: AnimatedScale(
                 scale: _pressed ? widget.pressedScale : 1.0,
                 duration: widget.pressedAnimDuration,
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 2),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: Text(
-                          widget.title, // widget.title 써도 됨
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                          widget.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      if (widget.items.isEmpty)
-                        SizedBox(
-                          height:210,
-                          child: Center(
-                            child: Text(
-                              '진행 중인 챌린지가 없습니다.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        SizedBox(
-                          height: 210,
-                          child: PageView.builder(
-                            controller: _pc,
-                            itemCount: _pages.length,
-                            onPageChanged: (i) => setState(() => _page = i),
-                            itemBuilder: (_, idx) => Column(
-                              children: _pages[idx]
-                                  .map((c) => ChallengeTileWidget(c: c, showTags: false))
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-
-                      const SizedBox(height: 4),
-                      Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(_pages.length, (i) {
-                            final active = i == _page;
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
-                              width: active ? 12 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: active ? AppColors.primaryGreen : AppColors.Gray,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            );
-                          }),
-                        ),
+                      ValueListenableBuilder<List<Challenge>>(
+                        valueListenable: myChallengesNotifier,
+                        builder: (_, items, __) => _buildBody(items),
                       ),
                     ],
                   ),

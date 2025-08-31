@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:bet_u/theme/app_colors.dart';
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/services/betu_challenge_loader.dart';
+import 'package:bet_u/data/global_challenges.dart';
+
+// ✅ 내 챌린지 전역 상태 & 로더
+import 'package:bet_u/data/my_challenges.dart';
+import 'package:bet_u/services/my_challenge_loader.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,24 +24,25 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // 앱 첫 진입 시 챌린지 로드
-    BetuChallengeLoader.loadAndPublish(context: context);
+    BetuChallengeLoader.loadAndPublish(context: context); // BETU 챌린지
+    MyChallengeLoader.loadAndPublish(context: context);   // 내 챌린지
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<List<Challenge>>(
-      valueListenable: allChallengesNotifier,
-      builder: (context, allChallengesValue, _) {
-        // 진행중인 챌린지 (UI 용)
-        final List<Challenge> myChallenges = allChallengesValue
-            .where((c) => c.status == ChallengeStatus.inProgress)
-            .toList();
-
+      valueListenable: myChallengesNotifier, // ✅ 내 챌린지 기준으로 UI 구성
+      builder: (context, myChallenges, _) {
         final int totalCount = myChallenges.length;
+<<<<<<< HEAD
         final int doneCount = myChallenges
             .where((c) => c.todayCheck == TodayCheck.done)
             .length;
 
+=======
+        final int doneCount =
+            myChallenges.where((c) => c.todayCheck == TodayCheck.done).length;
+>>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
         final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
         return Scaffold(
@@ -80,22 +85,25 @@ class _HomePageState extends State<HomePage> {
               clipBehavior: Clip.none,
               child: Column(
                 children: [
-                  // 내 챌린지 섹션
+                  // ✅ 내 챌린지 섹션 (ChallengeSectionWidget 내부에서 자동 API 호출)
                   ChallengeSectionWidget(
-                    items: myChallenges,
                     onSectionTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
+<<<<<<< HEAD
                           builder: (_) =>
                               MyChallengePage(myChallenges: allChallengesValue),
+=======
+                          builder: (_) => MyChallengePage(),
+>>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
                         ),
                       );
                     },
                   ),
                   const SizedBox(height: 12),
 
-                  // 오늘 인증 진행바
+                  // ✅ 오늘 인증 진행바 (myChallenges 기준)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -127,7 +135,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(width: 12),
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           const Text(
@@ -172,24 +179,8 @@ class _HomePageState extends State<HomePage> {
                           .where((c) => c.WhoMadeIt == 'BETU')
                           .toList();
 
-                      // 로딩 중 & 비어있을 때 스켈레톤/로딩 처리하고 싶으면 아래 주석 해제
-                      // final isLoading = BetuChallengeLoader.isLoading;
-                      // if (betuOnly.isEmpty && isLoading) {
-                      //   return const Padding(
-                      //     padding: EdgeInsets.symmetric(vertical: 24),
-                      //     child: Center(
-                      //       child: SizedBox(
-                      //         height: 24, width: 24,
-                      //         child: CircularProgressIndicator(strokeWidth: 2),
-                      //       ),
-                      //     ),
-                      //   );
-                      // }
-
                       return BetuChallengeSectionWidget(
                         challengeFrom: betuOnly,
-                        // onRefresh: () => BetuChallengeLoader.loadAndPublish(context: context), // 원하면 새로고침 버튼 달기
-                        // isRefreshing: isLoading,
                       );
                     },
                   ),

@@ -23,9 +23,6 @@ class Challenge {
   bool participating;
   int progressDays;
 
-  // 개별 유저 포인트를 Map으로 관리
-  Map<int, int> userPoints = {}; // 유저ID -> 포인트
-
   Challenge({
     required this.id,
     required this.title,
@@ -44,13 +41,9 @@ class Challenge {
     this.WhoMadeIt,
     this.todayCheck = TodayCheck.notStarted,
     this.participating = false,
-    Map<int, int>? userPoints,
-  }) : tags = tags ?? [],
-       userPoints = userPoints ?? {};
+  }) : tags = tags ?? [];
 
-  int getUserPoints(int userId) => userPoints[userId] ?? 0;
-
-  void setUserPoints(int userId, int points) => userPoints[userId] = points;
+  double get progressPercent => day > 0 ? progressDays / day : 0;
 
   static const Map<String, String> tagKoMap = {
     'EXAM': '수능',
@@ -62,8 +55,6 @@ class Challenge {
     'CPA': '회계사',
     'SELF_DEVELOPMENT': '생활/자기계발',
   };
-
-  double get progressPercent => day > 0 ? progressDays / day : 0;
 
   factory Challenge.fromJson(Map<String, dynamic> json) {
     final start = DateTime.tryParse(json['challengeStartDate'] ?? '');
@@ -87,16 +78,6 @@ class Challenge {
         (json['customTags'] as List?)?.map((e) => e.toString()).toList() ?? [];
     final allTags = [...backendTags, ...customTags];
 
-    // userPoints 처리
-    Map<int, int> userPoints = {};
-    if (json['userPoints'] != null) {
-      final pointsJson = json['userPoints'] as Map<String, dynamic>;
-      pointsJson.forEach((key, value) {
-        final userId = int.tryParse(key) ?? 0;
-        userPoints[userId] = value ?? 0;
-      });
-    }
-
     return Challenge(
       id: json['challengeId'] ?? 0,
       title: json['challengeName'] ?? '',
@@ -105,10 +86,10 @@ class Challenge {
       status: (start != null && end != null)
           ? ChallengeStatus.inProgress
           : ChallengeStatus.notStarted,
-      category: json['challengeScope'] ?? 'USER', // 기존 category
+      category: json['challengeScope'] ?? 'USER',
       WhoMadeIt: (json['challengeScope'] == 'BETU')
           ? 'BETU'
-          : (json['whomadeit'] ?? 'USER'), // 조건 적용
+          : (json['whomadeit'] ?? 'USER'),
       createdAt: start ?? DateTime.now(),
       type: type,
       tags: allTags,
@@ -120,7 +101,6 @@ class Challenge {
       isFavorite: json['isFavorite'] ?? false,
       progressDays: progressDays,
       participating: json['participating'] ?? false,
-      userPoints: userPoints,
     );
   }
 }

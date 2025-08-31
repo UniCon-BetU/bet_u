@@ -9,6 +9,8 @@ import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
 import '../../widgets/challenge_section_widget.dart';
+import '../../widgets/group_dashboard_widget.dart';
+
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
@@ -29,26 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUserPoints(); // 페이지 열리면 바로 최신 포인트 가져오기
-  }
-
-  Future<int> _fetchUserPoints() async {
-    final token = await TokenStorage.getToken(); // 저장된 토큰 가져오기
-
-    final url = Uri.parse('https://54.180.150.39.nip.io/api/user/points');
-
-    final response = await http.get(
-      url,
-      headers: {'accept': '*/*', 'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      // 서버에서 {"points": 50000} 이런 구조로 내려준다고 가정
-      return data['points'] ?? 0;
-    } else {
-      throw Exception('포인트 조회 실패: ${response.statusCode}');
-    }
   }
 
   @override
@@ -62,6 +44,11 @@ class _ProfilePageState extends State<ProfilePage> {
         .where((c) => c.todayCheck == TodayCheck.done)
         .length;
     final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
+
+    // 상태별 카운트 계산
+    final int inProgressCount = myChallenges
+        .where((c) => c.status == ChallengeStatus.inProgress)
+        .length;
 
     return Scaffold(
       appBar: AppBar(
@@ -96,11 +83,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   ProfileWidget(
                     title: '연오 고',
-                    subtitle: 'BETU와 함께한 시간 D+16',
+                    subtitle: 'BETU와 함께한 오늘',
                     stats: [
-                      StatItemData(label: '진행중', value: '12'),
-                      StatItemData(label: '완료/중단', value: '5'),
-                      StatItemData(label: '성공', value: '5'),
+                      StatItemData(label: '진행중', value: '$inProgressCount'),
+                      StatItemData(label: '내 그룹', value: '5'),
                     ],
                   ),
                   const SizedBox(height: 16),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/models/challenge.dart';
+import 'package:bet_u/utils/point_store.dart';
 import 'package:bet_u/views/pages/welcome_page.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     fetchChallenges(); // 앱 시작 시 데이터 불러오기
+    PointStore.instance.ensureLoaded(); // 서버에서 한번 로딩
   }
 
   @override

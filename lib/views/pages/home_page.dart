@@ -191,7 +191,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 18),
                   BetuChallengeSectionWidget(
                     challengeFrom: allChallengesValue
-                        .where((c) => c.category == 'BETU')
+                        .where((c) => c.WhoMadeIt == 'BETU')
                         .toList(),
                   ),
                 ],

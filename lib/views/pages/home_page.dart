@@ -1,13 +1,37 @@
+import 'dart:convert';
+
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
-import 'package:bet_u/views/widgets/ad_banner_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../../models/challenge.dart';
-import '../widgets/section_widget.dart';
-import '../widgets/popular_section_widget.dart';
-import 'package:bet_u/views/pages/settings_page.dart';
+import '../widgets/challenge_section_widget.dart';
 import '../../theme/app_colors.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
+
+Future<void> fetchAllChallenges() async {
+  try {
+    final token = await TokenStorage.getToken();
+
+    final response = await http.get(
+      Uri.parse('https://54.180.150.39.nip.io/api/challenges'),
+      headers: {
+        'Authorization': 'Bearer $token', // 필요 시
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      final challenges = data.map((e) => Challenge.fromJson(e)).toList();
+      allChallengesNotifier.value = challenges;
+    } else {
+      print('API error: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Fetch failed: $e');
+  }
+}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -85,7 +109,7 @@ class HomePage extends StatelessWidget {
                     )
                   else
                     // myChallenges가 있을 때만 SectionWidget 표시
-                    SectionWidget(
+                    ChallengeSectionWidget(
                       items: myChallenges,
                       onSectionTap: () {
                         Navigator.push(
@@ -165,7 +189,11 @@ class HomePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  BetuChallengeSectionWidget(challengeFrom: allChallengesValue),
+                  BetuChallengeSectionWidget(
+                    challengeFrom: allChallengesValue
+                        .where((c) => c.category == 'BETU')
+                        .toList(),
+                  ),
                 ],
               ),
             ),

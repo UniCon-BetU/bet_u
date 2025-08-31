@@ -1,28 +1,52 @@
+import 'package:bet_u/utils/token_util.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_detail_page.dart';
 import '../../../models/challenge.dart';
 import '../../widgets/long_button_widget.dart'; // LongButtonWidget 임포트
 
-class ChallengeStartPage extends StatelessWidget {
-  final int deductedPoints; // 차감된 포인트
-  final String challengeTitle; // 챌린지 제목
+class ChallengeStartPage extends StatefulWidget {
+  final int deductedPoints;
+  final Challenge challenge;
 
   const ChallengeStartPage({
     super.key,
     required this.deductedPoints,
-    required this.challengeTitle,
+    required this.challenge,
   });
+
+  @override
+  State<ChallengeStartPage> createState() => _ChallengeStartPageState();
+}
+
+class _ChallengeStartPageState extends State<ChallengeStartPage> {
+  int userId = 0;
+  int currentPoints = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initUserPoints();
+  }
+
+  Future<void> _initUserPoints() async {
+    // 토큰에서 유저 ID 가져오기
+    final id = await TokenStorage.getUserId();
+    if (id != null) {
+      setState(() {
+        userId = id;
+        // 유저의 현재 포인트 가져오기, 없으면 0
+        currentPoints = widget.challenge.getUserPoints(userId);
+        // 포인트 차감
+        currentPoints -= widget.deductedPoints;
+        widget.challenge.setUserPoints(userId, currentPoints);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('$challengeTitle 도전!'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios), // iOS 스타일
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: AppBar(title: Text('${widget.challenge.title} 도전!')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
         child: Column(
@@ -40,40 +64,29 @@ class ChallengeStartPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '$deductedPoints 포인트가 차감되었습니다!',
+              '$currentPoints 포인트가 남았습니다!',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
-              '$challengeTitle\n도전을 시작합니다!',
+              '${widget.challenge.title}\n도전을 시작합니다!',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
             const Spacer(),
-
-            // LongButtonWidget으로 변경
             LongButtonWidget(
               text: '도전 시작',
               backgroundColor: Colors.green[600]!,
               height: 56,
               radius: 8,
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ChallengeDetailPage(
-                      challenge: Challenge(
-                        title: challengeTitle,
-                        participants: 0,
-                        day: 1,
-                        status: ChallengeStatus.inProgress,
-                        category: '공부',
-                        createdAt: DateTime.now(),
-                        type: null,
-                      ),
-                    ),
+                    builder: (_) =>
+                        ChallengeDetailPage(challenge: widget.challenge),
                   ),
                 );
               },

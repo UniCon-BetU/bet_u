@@ -1,3 +1,4 @@
+/*
 import 'dart:convert';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
@@ -95,3 +96,4 @@ class _ChallengeListPageState extends State<ChallengeListPage> {
     );
   }
 }
+*/

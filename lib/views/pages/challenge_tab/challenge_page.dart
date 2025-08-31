@@ -1,6 +1,10 @@
 // lib/views/pages/challenge_page.dart
+import 'dart:convert';
+
+import 'package:bet_u/utils/token_util.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/data/global_challenges.dart';
+import 'package:http/http.dart' as http;
 import '../../../models/challenge.dart';
 import 'challenge_detail_page.dart';
 import 'package:bet_u/views/pages/challenge_tab/create_challenge_page.dart';
@@ -47,6 +51,61 @@ int getDaysLeft(Challenge challenge) {
 class _ChallengePageState extends State<ChallengePage> {
   final FocusNode _searchFocusNode = FocusNode();
   List<Challenge> get challengesToShow => getSortedChallenges();
+  // 파일 상단 import 유지: http, jsonDecode, TokenStorage 등 이미 있음
+
+  // --- _ChallengePageState 내부에 추가 ---
+  bool _loading = false;
+  bool _loadedOnce = false;
+
+  Future<void> _loadBackendChallenges() async {
+    if (_loading) return;
+    _loading = true;
+    try {
+      final token = await TokenStorage.getToken();
+      final uri = Uri.parse('https://54.180.150.39.nip.io/api/challenges');
+
+      final res = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'accept': 'application/json',
+        },
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception('챌린지 조회 실패: ${res.statusCode} ${res.body}');
+      }
+
+      final List<dynamic> raw = jsonDecode(res.body);
+      // 백엔드 → 앱 도메인 모델로 변환
+      final list = raw
+          .map<Challenge>((j) => Challenge.fromJson(j as Map<String, dynamic>))
+          .toList();
+
+      // “인기(추천)” 기준: 참가자 수 내림차순
+      list.sort((a, b) => b.participants.compareTo(a.participants));
+
+      // 앱 전역에서 쓰는 노티파이어로 교체 (네 코드에 이미 존재)
+      allChallengesNotifier.value = List<Challenge>.from(list);
+
+      // 더미(allChallenges)를 쓰는 곳도 있어 보여서, 동작 보존용으로 맞춰줌
+      allChallenges
+        ..clear()
+        ..addAll(list);
+
+      _loadedOnce = true;
+      setState(() {}); // 화면 갱신
+    } catch (e) {
+      debugPrint('load backend challenges error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('챌린지 불러오기 실패: $e')));
+      }
+    } finally {
+      _loading = false;
+    }
+  }
 
   // 태그 상태
   String selectedTag = 'all'; // all | goal | time
@@ -129,6 +188,7 @@ class _ChallengePageState extends State<ChallengePage> {
     } else {
       baseList = allChallenges;
     }
+
     // 태그 기준
     if (selectedTag == 'goal') {
       baseList = baseList.where((c) => c.type == 'goal').toList();
@@ -151,7 +211,11 @@ class _ChallengePageState extends State<ChallengePage> {
 
       final query = _searchController.text.trim();
       final matchesSearch =
-          query.isEmpty || c.title.contains(query) || c.tags.contains(query);
+          query.isEmpty ||
+          c.title.contains(query) ||
+          c.tags.contains(query) ||
+          c.bannerDescription!.contains(query); // 상세 설명 포함 내가 추가
+
       print('🔥 allChallengesNotifier: ${allChallengesNotifier.value}');
 
       // 검색 모드에선 selectedTag를 강제로 'all'로 운용하지만
@@ -203,6 +267,13 @@ class _ChallengePageState extends State<ChallengePage> {
       default:
         return '-';
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // 앱 진입 시 한번 로드
+    _loadBackendChallenges();
   }
 
   @override
@@ -824,10 +895,14 @@ class _ChallengePageState extends State<ChallengePage> {
           _buildTabItem(
             label: '인기',
             isSelected: selectedTab == '인기',
-            onTap: () => setState(() {
-              selectedTab = '인기';
-              selectedTag = 'all';
-            }),
+            onTap: () async {
+              setState(() {
+                selectedTab = '인기';
+                selectedTag = 'all';
+              });
+              // 인기 탭 눌렀을 때 항상 최신화 시도 (원하면 _loadedOnce 체크로 조건부 갱신 가능)
+              await _loadBackendChallenges();
+            },
           ),
           const SizedBox(width: 24),
           _buildTabItem(

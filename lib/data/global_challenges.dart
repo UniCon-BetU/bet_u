@@ -23,6 +23,7 @@ Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {
   }
 
   return Challenge(
+    id: backendChallenge['challengeId'],
     title: backendChallenge['challengeName'] ?? '',
     participants: backendChallenge['participantCount'] ?? 0,
     day: day,
@@ -52,9 +53,8 @@ List<Challenge> mapBackendChallenges(List<Map<String, dynamic>> backendList) {
   return backendList.map((e) => mapBackendToFlutterChallenge(e)).toList();
 }
 
-int userPoints = 50000; // 더미 포인트
-
 final List<Challenge> allChallenges = [
+  /*
   Challenge(
     title: '휴대폰 줄이기 | 스크린타임 인증 챌린지',
     participants: 2686,
@@ -179,4 +179,5 @@ final List<Challenge> allChallenges = [
     progressDays: 0,
     isFavorite: false,
   ),
+  */
 ];

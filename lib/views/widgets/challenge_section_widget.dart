@@ -3,7 +3,7 @@ import '/models/challenge.dart';
 import 'package:bet_u/views/widgets/challenge_tile_widget.dart';
 import '../../theme/app_colors.dart';
 
-class SectionWidget extends StatefulWidget {
+class ChallengeSectionWidget extends StatefulWidget {
   final List<Challenge> items;
   final String title;
 
@@ -16,7 +16,7 @@ class SectionWidget extends StatefulWidget {
   /// 프레스 애니메이션 시간
   final Duration pressedAnimDuration;
 
-  const SectionWidget({
+  const ChallengeSectionWidget({
     super.key,
     required this.items,
     this.title = 'MY CHALLENGE 🥇',
@@ -26,10 +26,10 @@ class SectionWidget extends StatefulWidget {
   });
 
   @override
-  State<SectionWidget> createState() => _SectionWidgetState();
+  State<ChallengeSectionWidget> createState() => _ChallengeSectionWidgetState();
 }
 
-class _SectionWidgetState extends State<SectionWidget> {
+class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
   final _pc = PageController(viewportFraction: 1.0);
   int _page = 0;
   bool _pressed = false;
@@ -55,19 +55,21 @@ class _SectionWidgetState extends State<SectionWidget> {
     return Padding(
       // 그림자가 잘리지 않도록 살짝 여백(필요 시 조절)
       padding: const EdgeInsets.all(0),
-      child: DecoratedBox(                    // ← 그림자/배경은 "고정" 레이어
+      child: DecoratedBox(
+        // ← 그림자/배경은 "고정" 레이어
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: radius,
           boxShadow: const [
             BoxShadow(
-              color: Color(0x40000000),      // == Colors.black.withOpacity(0.25)
+              color: Color(0x40000000), // == Colors.black.withOpacity(0.25)
               blurRadius: 4,
               offset: Offset(0, 4),
             ),
           ],
         ),
-        child: ClipRRect(                     // 리플 클리핑
+        child: ClipRRect(
+          // 리플 클리핑
           borderRadius: radius,
           child: Material(
             color: Colors.transparent,
@@ -82,7 +84,10 @@ class _SectionWidgetState extends State<SectionWidget> {
                 duration: widget.pressedAnimDuration,
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 12,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -91,7 +96,10 @@ class _SectionWidgetState extends State<SectionWidget> {
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         child: Text(
                           'MY CHALLENGE 🥇', // widget.title 써도 됨
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -104,7 +112,12 @@ class _SectionWidgetState extends State<SectionWidget> {
                           onPageChanged: (i) => setState(() => _page = i),
                           itemBuilder: (_, idx) => Column(
                             children: _pages[idx]
-                                .map((c) => ChallengeTileWidget(c: c, showTags: false))
+                                .map(
+                                  (c) => ChallengeTileWidget(
+                                    c: c,
+                                    showTags: false,
+                                  ),
+                                )
                                 .toList(),
                           ),
                         ),
@@ -118,11 +131,16 @@ class _SectionWidgetState extends State<SectionWidget> {
                             final active = i == _page;
                             return AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                                vertical: 6,
+                              ),
                               width: active ? 12 : 6,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: active ? AppColors.primaryGreen : AppColors.Gray,
+                                color: active
+                                    ? AppColors.primaryGreen
+                                    : AppColors.Gray,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             );
@@ -139,5 +157,4 @@ class _SectionWidgetState extends State<SectionWidget> {
       ),
     );
   }
-
 }

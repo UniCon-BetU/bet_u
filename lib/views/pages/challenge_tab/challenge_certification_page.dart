@@ -1,9 +1,11 @@
 import 'package:bet_u/models/challenge.dart';
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/challenge_tab/other_certification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class ChallengeCertificationPage extends StatefulWidget {
   final Challenge challenge;
@@ -87,17 +89,28 @@ class _ChallengeCertificationPageState
 
   // ------------------- 서버 업로드 -------------------
   Future<void> _submitImage() async {
+    final token = await TokenStorage.getToken();
+
     if (_image == null) return;
 
     try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://54.180.150.39.nip.io/'), // 서버 엔드포인트
+      final url = Uri.parse(
+        'https://54.180.150.39.nip.io/api/verifications/${widget.challenge.id}',
       );
 
-      request.fields['challengeTitle'] = widget.challenge.title;
+      var request = http.MultipartRequest('POST', url);
+
+      // 토큰 필요 (사용자 로그인 시 받은 access token)
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['accept'] = '*/*';
+
+      String mimeType = 'image/${_image!.path.split('.').last}';
       request.files.add(
-        await http.MultipartFile.fromPath('image', _image!.path),
+        await http.MultipartFile.fromPath(
+          'image',
+          _image!.path,
+          contentType: MediaType.parse(mimeType),
+        ),
       );
 
       var response = await request.send();

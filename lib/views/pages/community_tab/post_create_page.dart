@@ -9,9 +9,9 @@ import '../../widgets/field_card_widget.dart';
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
 class PostCreatePage extends StatefulWidget {
-  const PostCreatePage({super.key, required this.crewId,});
+  const PostCreatePage({super.key, this.crewId});
 
-  final int crewId;
+  final int? crewId;
 
   @override
   State<PostCreatePage> createState() => _PostCreatePageState();
@@ -74,9 +74,13 @@ class _PostCreatePageState extends State<PostCreatePage> {
     // 요청: POST /api/community/posts?title=...&content=...
     // 바디: multipart/form-data (images[]=... 반복)
     try {
-      final uri = Uri.parse(
-        '$baseUrl/api/community/posts',
-      ).replace(queryParameters: {'crewId': widget.crewId.toString(), 'title': title, 'content': content});
+      final uri = Uri.parse('$baseUrl/api/community/posts').replace(
+        queryParameters: {
+          if (widget.crewId != null) 'crewId': widget.crewId.toString(),
+          'title': title,
+          'content': content,
+        },
+      );
 
       final req = http.MultipartRequest('POST', uri);
 

@@ -127,7 +127,7 @@ class _ChallengePageState extends State<ChallengePage> {
 
     return base.where((c) {
       final matchesCategory =
-          selectedCategory == '전체' || c.category == selectedCategory;
+          selectedCategory == '전체' || c.tags[0] == selectedCategory;
 
       final query = _searchController.text.trim();
       final matchesSearch = query.isEmpty ||

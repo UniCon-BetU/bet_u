@@ -21,7 +21,7 @@ class BoardPage extends StatefulWidget {
     super.key,
     required this.title,
     required this.posts,
-    this.crewId,
+    this.crewId = 0,
   });
 
   @override

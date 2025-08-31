@@ -41,42 +41,19 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
 
   /// 카드 배경색
   Color get _bg {
-    if (widget.c.status != ChallengeStatus.inProgress) { return Colors.white; }
-    else {
+    if (widget.c.status != ChallengeStatus.inProgress) {
+      return Colors.white;
+    } else {
       if (widget.c.type == 'time') {
         return switch (widget.c.todayCheck) {
           TodayCheck.notStarted => AppColors.lightRed,
           TodayCheck.waiting => AppColors.lightYellow,
           TodayCheck.done => AppColors.lightGreen,
         };
-      } else { return AppColors.lighterGreen; }
+      } else {
+        return AppColors.lighterGreen;
+      }
     }
-  
-    // if (widget.c.type == 'goal') {
-    //   return switch (widget.c.status) {
-    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
-    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
-    //     ChallengeStatus.missed => AppColors.lightRed, //지워
-    //   };
-    // }
-
-    // if (widget.c.type == 'time') {
-    //   return switch (widget.c.status) {
-    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
-    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
-    //     ChallengeStatus.missed => AppColors.lightRed, //지워
-    //   };
-    // }
-    // if (widget.c.type == 'time') {
-    //   return switch (widget.c.todayCheck) {
-    //     TodayCheck.notStarted => AppColors.lightRed,
-    //     TodayCheck.waiting => AppColors.yellowGreen,
-    //     TodayCheck.done => const Color(0xFFEAFFB9), //지워
-    //   };
-    // }
-    // return const Color.fromRGBO(234, 255, 185, 1);
   }
 
   /// 참여자/기간 칸 색상
@@ -250,33 +227,44 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    widget.c.todayCheck == 'notstarted'
-                                        ? Icons.hourglass_empty
-                                        : widget.c.todayCheck == 'waiting'
-                                        ? Icons.access_time
-                                        : Icons.check_circle,
-                                    size: 12,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      75,
-                                      75,
-                                      75,
+                                  if (widget.c.status !=
+                                      ChallengeStatus.notStarted)
+                                    Icon(
+                                      widget.c.todayCheck ==
+                                              TodayCheck.notStarted
+                                          ? Icons
+                                                .hourglass_top // 도전했지만 인증 전
+                                          : widget.c.todayCheck ==
+                                                TodayCheck.waiting
+                                          ? Icons
+                                                .access_time // 대기중
+                                          : Icons.check_circle, // 인증 완료
+                                      size: 12,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        75,
+                                        75,
+                                        75,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    widget.c.todayCheck == 'notstarted'
-                                        ? '인증 전'
-                                        : widget.c.todayCheck == 'waiting'
-                                        ? '대기중'
-                                        : '인증완료',
-
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Color.fromARGB(255, 75, 75, 75),
+                                  if (widget.c.status !=
+                                      ChallengeStatus.notStarted)
+                                    const SizedBox(width: 2),
+                                  if (widget.c.status !=
+                                      ChallengeStatus.notStarted)
+                                    Text(
+                                      widget.c.todayCheck ==
+                                              TodayCheck.notStarted
+                                          ? '인증 전'
+                                          : widget.c.todayCheck ==
+                                                TodayCheck.waiting
+                                          ? '대기중'
+                                          : '인증완료',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Color.fromARGB(255, 75, 75, 75),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),

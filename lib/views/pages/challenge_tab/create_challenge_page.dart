@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +19,8 @@ class ChipDropdownWidget extends StatelessWidget {
     this.backgroundColor = const Color(0xFF1BAB0F),
     this.foregroundColor = const Color(0xFFEFFAE8),
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    this.required = false, // 추가: 필수 표시 여부
-    this.validator, // 추가: 선택 검증
+    this.required = false,
+    this.validator,
   });
 
   final String text;
@@ -58,7 +57,7 @@ class ChipDropdownWidget extends StatelessWidget {
                   ),
                 ),
                 if (required) ...[
-                  const SizedBox(width: 2), // 텍스트와 * 사이 간격
+                  const SizedBox(width: 2),
                   const Text(
                     '*',
                     style: TextStyle(
@@ -103,7 +102,6 @@ class ChipDropdownFormField extends FormField<String> {
                ChipDropdownWidget(
                  text: field.value!,
                  onTap: () async {
-                   // Dropdown logic 그대로
                    final selected = await showDialog<String>(
                      context: field.context,
                      builder: (_) => SimpleDialog(
@@ -159,8 +157,8 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   final _detailCtrl = TextEditingController();
   final _periodCtrl = TextEditingController();
 
-  final List<String> _selectedTags = [];
-  final bool _isPublic = true;
+  final List<String> _selectedTags = []; // 드롭다운 태그 (하나만)
+  final List<String> _customTags = []; // 직접 입력 태그 (여러 개)
 
   // Overlay용 드롭다운
   OverlayEntry? _tagOverlayEntry;
@@ -168,11 +166,14 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   final GlobalKey _dropdownKey = GlobalKey();
 
   final List<String> tagOptions = [
-    "EXERCISE",
-    "STUDY",
-    "READING",
-    "CODING",
-    "HABIT",
+    'EXAM',
+    'UNIVERSITY',
+    'TOEIC',
+    'CERTIFICATE',
+    'CIVIL_SERVICE',
+    'LEET',
+    'CPA',
+    'SELF_DEVELOPMENT',
   ];
 
   String selectedTagText = '공부 내용';
@@ -202,100 +203,142 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
         .toList();
     if (tags.isNotEmpty) {
       setState(() {
-        _selectedTags.addAll(tags.where((tag) => !_selectedTags.contains(tag)));
+        _customTags.addAll(tags);
       });
     }
     _tagsInputCtrl.clear();
   }
 
+  // 이 함수는 더 이상 사용하지 않으므로 제거합니다.
+  // Uri _buildUriWithParams({
+  //   required Map<String, String> qp,
+  //   required List<String> challengeTags,
+  //   required List<String> customTags,
+  // }) {
+  //   final b = StringBuffer('$baseUrl/api/challenges?');
+  //   var first = true;
+  //   qp.forEach((k, v) {
+  //     if (!first) b.write('&');
+  //     first = false;
+  //     b
+  //       ..write(Uri.encodeQueryComponent(k))
+  //       ..write('=')
+  //       ..write(Uri.encodeQueryComponent(v));
+  //   });
+  //   for (final t in challengeTags) {
+  //     b
+  //       ..write('&challengeTags=')
+  //       ..write(Uri.encodeQueryComponent(t));
+  //   }
+  //   for (final t in customTags) {
+  //     b
+  //       ..write('&customTags=')
+  //       ..write(Uri.encodeQueryComponent(t));
+  //   }
+  //   return Uri.parse(b.toString());
+  // }
+  // _createChallenge 함수 내부
   Future<void> _createChallenge() async {
     if (!_formKey.currentState!.validate()) return;
 
     final token = await TokenStorage.getToken();
+    if (token == null || token.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다')));
+      return;
+    }
 
-    // UI에서 받은 값들을 백엔드 필드로 매핑
-    final challengeName        = _nameCtrl.text.trim();
+    final challengeName = _nameCtrl.text.trim();
     final challengeDescription = _descCtrl.text.trim();
-    final periodDays           = int.parse(_periodCtrl.text);
-
-    // ⚠️ 스웨거 기준으로 임시 기본값/매핑 (필요시 UI에 맞춰 교체)
-    final challengeScope       = 'PUBLIC';        // or 'PRIVATE'
-    final challengeType        = 'DURATION';      // 기간형
-    final challengeBetAmount   = '0';             // 문자열로 넣자 (fields는 String)
-    final crewId               = '33';            // 있으면 실제 값으로
-    final creatorId            = '33';            // 있으면 실제 값으로
-
-    // 시작/종료일 자동 유추 (yyyy-MM-dd)
-    String fmt(DateTime d) =>
-        '${d.year.toString().padLeft(4, '0')}-'
-        '${d.month.toString().padLeft(2, '0')}-'
-        '${d.day.toString().padLeft(2, '0')}';
-    final start = DateTime.now();
-    final end   = start.add(Duration(days: periodDays));
-    final challengeStartDate = fmt(start);
-    final challengeEndDate   = fmt(end);
-
-    final uri = Uri.parse('$baseUrl/api/challenges');
-    final req = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $token';
-
-    // ---- 폼 필드 (ModelAttribute에 바인딩될 단일값들) ----
-    req.fields['challengeScope']       = challengeScope;
-    req.fields['crewId']               = crewId;
-    req.fields['creatorId']            = creatorId;
-    req.fields['challengeType']        = challengeType;
-    req.fields['challengeName']        = challengeName;
-    req.fields['challengeDescription'] = challengeDescription;
-    req.fields['challengeStartDate']   = challengeStartDate;
-    req.fields['challengeEndDate']     = challengeEndDate;
-    req.fields['challengeBetAmount']   = challengeBetAmount;
-
-    // ---- 배열 필드: 같은 이름으로 여러 파트를 추가해야 함 ----
-    // challengeTags (예: EXERCISE, STUDY ...)
-    for (final tag in _selectedTags) {
-      req.files.add(http.MultipartFile.fromString(
-        'challengeTags',
-        tag,
-        contentType: MediaType('text', 'plain'),
-      ));
+    final periodDays = _periodCtrl.text.trim();
+    final challengeDuration = int.tryParse(periodDays);
+    if (challengeDuration == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('기간을 정확히 입력해주세요.')));
+      return;
     }
 
-    // customTags가 따로 있다면 여기에 동일하게
-    // for (final t in _customTags) {
-    //   req.files.add(http.MultipartFile.fromString(
-    //     'customTags',
-    //     t,
-    //     contentType: MediaType('text', 'plain'),
-    //   ));
-    // }
-
-    // ---- 이미지 파일들: @RequestPart("images") ----
-    for (final x in _images) {
-      final path = x.path;
-      final mime = lookupMimeType(path) ?? 'image/jpeg';
-      final parts = mime.split('/');
-      req.files.add(await http.MultipartFile.fromPath(
-        'images',
-        path,
-        contentType: MediaType(parts[0], parts[1]),
-      ));
+    if (_selectedTags.isEmpty && _customTags.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('태그를 최소 1개 이상 선택해주세요')));
+      return;
     }
 
-    // 전송 & 응답
-    final client   = await _devClient();
-    final streamed = await client.send(req);
-    final res      = await http.Response.fromStream(streamed);
+    final client = await _devClient();
+    try {
+      // 1. URL 쿼리 파라미터를 사용하여 URI를 직접 구성합니다.
+      final uri = Uri.parse('$baseUrl/api/challenges').replace(
+        queryParameters: {
+          'challengeScope': 'PUBLIC',
+          'challengeType': 'DURATION',
+          'challengeName': challengeName,
+          'challengeDescription': challengeDescription,
+          'challengeDuration': challengeDuration.toString(),
+          'challengeTags': _selectedTags.isNotEmpty
+              ? _selectedTags.join(',')
+              : '', // 콤마로 구분된 문자열로 전송
+          'customTags': _customTags.isNotEmpty
+              ? _customTags.join(',')
+              : '', // 콤마로 구분된 문자열로 전송
+        },
+      );
 
-    if (!mounted) return;
-    if (res.statusCode == 200 || res.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('챌린지가 성공적으로 생성되었습니다.')),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('생성 실패: ${res.statusCode} ${res.body}')),
-      );
+      final req = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $token'
+        ..headers['accept'] = '*/*';
+
+      // 2. 이미지 파일만 files에 추가합니다.
+      for (final x in _images) {
+        if (x.path.isNotEmpty) {
+          final mime = lookupMimeType(x.path) ?? 'image/jpeg';
+          final parts = mime.split('/');
+          req.files.add(
+            await http.MultipartFile.fromPath(
+              'images',
+              x.path,
+              contentType: MediaType(parts[0], parts[1]),
+            ),
+          );
+        }
+      }
+
+      // 이 방식에서는 텍스트 데이터를 fields에 추가할 필요가 없습니다.
+      // debugPrint에서 fields는 비어있을 것입니다.
+
+      debugPrint('사용자 토큰: $token');
+      debugPrint('요청 URI: $uri');
+      debugPrint('Headers: ${req.headers}');
+      debugPrint('Images: ${_images.map((e) => e.path).toList()}');
+
+      final res = await client.send(req).then(http.Response.fromStream);
+
+      if (!mounted) return;
+      debugPrint('응답 상태 코드: ${res.statusCode}');
+      debugPrint('응답 본문: ${res.body}');
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('챌린지가 성공적으로 생성되었습니다.')));
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('생성 실패: ${res.statusCode} ${res.body}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('에러: $e')));
+    } finally {
+      client.close();
     }
   }
 
@@ -330,7 +373,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.85),
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 8,
@@ -347,6 +390,10 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                       onTap: () {
                         setState(() {
                           selectedTagText = tag;
+                          if (!_selectedTags.contains(tag)) {
+                            _selectedTags.clear(); // 드롭다운 태그 하나만
+                            _selectedTags.add(tag);
+                          }
                         });
                         _closeTagDropdown();
                       },
@@ -357,7 +404,10 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                         ),
                         child: Text(
                           tag,
-                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                     ),
@@ -400,7 +450,6 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
-              // 제목, 공개여부, 내용, 기간 FieldCardWidget 동일
               FieldCardWidget(
                 title: '챌린지 제목',
                 required: true,
@@ -418,10 +467,6 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 공개 여부
-
-              // 챌린지 내용
               FieldCardWidget(
                 title: '챌린지 내용',
                 required: true,
@@ -441,8 +486,6 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 기간
               FieldCardWidget(
                 title: '기간',
                 required: true,
@@ -485,7 +528,6 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
               ),
               const SizedBox(height: 12),
-
               FieldCardWidget(
                 title: '태그',
                 required: true,
@@ -496,23 +538,37 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _selectedTags.map((tag) {
-                        return SelectedTagChip(
-                          text: tag,
-                          onDeleted: () {
-                            setState(() {
-                              _selectedTags.remove(tag);
-                            });
-                          },
-                        );
-                      }).toList(),
+                      children: [
+                        ..._selectedTags.map((tag) {
+                          return SelectedTagChip(
+                            text: tag,
+                            onDeleted: () {
+                              setState(() {
+                                _selectedTags.remove(tag);
+                              });
+                            },
+                          );
+                        }),
+                        ..._customTags.map((tag) {
+                          return SelectedTagChip(
+                            text: tag,
+                            onDeleted: () {
+                              setState(() {
+                                _customTags.remove(tag);
+                              });
+                            },
+                          );
+                        }),
+                      ],
                     ),
-
                     const SizedBox(height: 8),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF6FFE9),
+                        color: const Color(0xFFF6FFE9),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -533,6 +589,10 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                               onChanged: (val) {
                                 setState(() {
                                   selectedTagText = val;
+                                  if (_selectedTags.isNotEmpty) {
+                                    _selectedTags.clear();
+                                  }
+                                  _selectedTags.add(val);
                                 });
                               },
                             ),
@@ -560,26 +620,17 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 사진 추가
-
-              // State 안에 추가
-
-              // 사진 추가 FieldCardWidget
               FieldCardWidget(
-                childBackgroundColor: Colors.transparent, // ⬅️ 배경 제거
-
+                childBackgroundColor: Colors.transparent,
                 title: '사진 추가하기',
                 subtitle: '챌린지 내용을 설명하는 미리보기 이미지를 추가해 보세요.',
                 child: SizedBox(
                   height: 120,
-
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _images.length + 1, // +1은 항상 추가 버튼
+                    itemCount: _images.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        // 항상 맨 앞: 추가 버튼
                         return GestureDetector(
                           onTap: () async {
                             final XFile? pickedImage = await _picker.pickImage(
@@ -602,7 +653,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                             ),
                             child: Center(
                               child: Image.asset(
-                                'assets/images/image_add.png', // 여기 경로에 올린 이미지 넣기
+                                'assets/images/image_add.png',
                                 width: 120,
                                 height: 120,
                               ),
@@ -629,8 +680,6 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 상세설명
               FieldCardWidget(
                 title: '상세설명',
                 subtitle: '챌린지의 내용, 목적, 추천하는 분들 등의 상세 설명을 입력해 보세요.',
@@ -670,7 +719,7 @@ class SelectedTagChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFFF6FFE9),
-        borderRadius: BorderRadius.circular(20), // 완만하게 둥글게
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.green.withOpacity(0.5)),
       ),
       child: Row(

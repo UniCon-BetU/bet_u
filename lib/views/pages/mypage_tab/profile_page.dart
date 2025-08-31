@@ -1,26 +1,54 @@
+import 'dart:convert';
+
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/security_page.dart';
-import 'package:bet_u/views/widgets/ad_banner_widget.dart';
-import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
-import '../../../models/category.dart';
 import '../../widgets/challenge_section_widget.dart';
-import '../../widgets/popular_section_widget.dart';
-import 'package:bet_u/views/pages/settings_page.dart';
 import '../../../theme/app_colors.dart';
-import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
-
 import 'package:bet_u/data/global_challenges.dart';
-import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
-import 'package:bet_u/views/widgets/profile_widget.dart';
+import '../../widgets/profile_widget.dart';
+import 'package:http/http.dart' as http;
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  int userPoints = 0;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserPoints(); // 페이지 열리면 바로 최신 포인트 가져오기
+  }
+
+  Future<int> _fetchUserPoints() async {
+    final token = await TokenStorage.getToken(); // 저장된 토큰 가져오기
+
+    final url = Uri.parse('https://54.180.150.39.nip.io/api/user/points');
+
+    final response = await http.get(
+      url,
+      headers: {'accept': '*/*', 'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final points = jsonDecode(response.body) as int;
+      return points; // 그냥 int 리턴
+    } else {
+      throw Exception('포인트 조회 실패: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,40 +67,21 @@ class ProfilePage extends StatelessWidget {
         toolbarHeight: 64,
         backgroundColor: Colors.white,
         elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/images/normal_lettuce.png',
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    '마이페이지',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ],
+              Image.asset(
+                'assets/images/normal_lettuce.png',
+                width: 48,
+                height: 48,
+                fit: BoxFit.contain,
               ),
-              /*
-              IconButton(
-                icon: const Icon(Icons.notifications_none_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingsPage()),
-                  );
-                },
+              const SizedBox(width: 8),
+              const Text(
+                '마이페이지',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
-              */
             ],
           ),
         ),
@@ -80,19 +89,17 @@ class ProfilePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ✅ 프로필/챌린지/진행률: 패딩 적용
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               child: Column(
                 children: [
                   ProfileWidget(
-                    title: '연오 고', // 닉네임
-                    subtitle: 'BETU와 함께한 시간 D+16', // 하위 코멘트
+                    title: '연오 고',
+                    subtitle: 'BETU와 함께한 시간 D+16',
                     stats: [
                       StatItemData(label: '진행중', value: '12'),
                       StatItemData(label: '완료/중단', value: '5'),
                       StatItemData(label: '성공', value: '5'),
-                      // 필요한 만큼 더 추가 가능
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -140,7 +147,6 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           const Text(
@@ -177,23 +183,18 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // ✅ 세팅 위젯만 좌우 끝까지
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 MyPageSettingWidget(
                   title: '포인트 결제',
-                  image: AssetImage('assets/images/point_icon.png'),
-                  point: '$userPoints P', // userPoints 변수 사용
+                  image: const AssetImage('assets/images/point_icon.png'),
+                  point: '$userPoints P',
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => PointPage(), // 실제 포인트 페이지로 교체
-                      ),
+                      MaterialPageRoute(builder: (_) => const PointPage()),
                     );
                   },
                 ),
@@ -232,7 +233,6 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
-
                 MyPageSettingWidget(
                   title: '스크랩',
                   icon: Icons.bookmark,

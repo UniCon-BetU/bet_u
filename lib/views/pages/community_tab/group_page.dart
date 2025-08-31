@@ -7,6 +7,7 @@ import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:bet_u/views/widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/profile_widget.dart';
 import 'package:bet_u/views/widgets/ranking_widget.dart';
+import 'package:bet_u/views/widgets/challenge_section_widget.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/board_widget.dart';
 import 'package:http/http.dart' as http;
@@ -259,7 +260,7 @@ class _GroupPageState extends State<GroupPage> {
 
   /// BoardSectionCard가 기대하는 BoardPost로 매핑
   List<BoardPost> get boardPosts => _posts
-      .map((p) => BoardPost(title: p.title, createdAt: p.createdAt))
+      .map((p) => BoardPost(title: p.title, createdAt: p.createdAt, likeCount: p.likeCount))
       .toList();
 
   String get profileTitle => widget.group.name;
@@ -282,7 +283,6 @@ class _GroupPageState extends State<GroupPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: Text(
           widget.group.name,
           style: const TextStyle(fontWeight: FontWeight.w700),
@@ -329,6 +329,7 @@ class _GroupPageState extends State<GroupPage> {
                   ),
                 ),
 
+              SizedBox(height:6),
               ProfileWidget(
                 title: profileTitle,
                 subtitle: profileSubtitle,
@@ -337,7 +338,8 @@ class _GroupPageState extends State<GroupPage> {
 
               const SizedBox(height: 20),
 
-              /*   SectionWidget(title: '그룹 챌린지 🧩', items: demoChallenges),*/
+              // ChallengeSectionWidget(title: '그룹  챌린지 🧩', items: demoChallenges),
+
               const SizedBox(height: 20),
 
               BoardSectionCard(

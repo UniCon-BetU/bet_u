@@ -89,28 +89,43 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 2),
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         child: Text(
-                          'MY CHALLENGE 🥇', // widget.title 써도 됨
+                          widget.title, // widget.title 써도 됨
                           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                         ),
                       ),
                       const SizedBox(height: 8),
 
-                      SizedBox(
-                        height: 210,
-                        child: PageView.builder(
-                          controller: _pc,
-                          itemCount: _pages.length,
-                          onPageChanged: (i) => setState(() => _page = i),
-                          itemBuilder: (_, idx) => Column(
-                            children: _pages[idx]
-                                .map((c) => ChallengeTileWidget(c: c, showTags: false))
-                                .toList(),
+                      if (widget.items.isEmpty)
+                        SizedBox(
+                          height:210,
+                          child: Center(
+                            child: Text(
+                              '진행 중인 챌린지가 없습니다.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        SizedBox(
+                          height: 210,
+                          child: PageView.builder(
+                            controller: _pc,
+                            itemCount: _pages.length,
+                            onPageChanged: (i) => setState(() => _page = i),
+                            itemBuilder: (_, idx) => Column(
+                              children: _pages[idx]
+                                  .map((c) => ChallengeTileWidget(c: c, showTags: false))
+                                  .toList(),
+                            ),
                           ),
                         ),
-                      ),
 
                       const SizedBox(height: 4),
                       Center(

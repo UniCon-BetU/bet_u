@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:bet_u/theme/app_colors.dart';
+import 'package:bet_u/utils/number_extensions.dart';
 
 class PostCard {
   final int postId;
@@ -31,21 +33,14 @@ class PostCardWidget extends StatelessWidget {
     final dfTime = DateFormat('HH:mm');
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(11),
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
+          borderRadius: BorderRadius.circular(11),
+          // border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,36 +50,36 @@ class PostCardWidget extends StatelessWidget {
               post.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black, height: 1.05),
             ),
-            const SizedBox(height: 6),
-            // 내용 1줄
+            const SizedBox(height: 2),
+            // 내용 2줄
             Text(
               post.excerpt,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 12, color: AppColors.darkestGray, fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 10),
             // 메타(작성자/좋아요/날짜+시간)
             Row(
               children: [
-                Icon(Icons.person, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.person, size: 16, color: Colors.black),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     post.author,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                    style: TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.w500),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Icon(Icons.favorite, size: 16, color: Colors.grey.shade500),
+                Icon(Icons.favorite, size: 16, color: AppColors.primaryRed),
                 const SizedBox(width: 3),
                 Text(
-                  '${post.likes}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  post.likes.comma,
+                  style: TextStyle(fontSize: 12, color: AppColors.primaryRed),
                 ),
                 const SizedBox(width: 10),
                 Icon(Icons.schedule, size: 16, color: Colors.grey.shade500),

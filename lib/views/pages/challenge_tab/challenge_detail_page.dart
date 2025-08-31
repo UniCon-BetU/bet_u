@@ -28,12 +28,12 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     // 👉 ChallengeStatus에 따른 색상 분기
     double percent = challenge.progressDays / challenge.day * 100;
     Color progressColor;
-    if (percent <= 30) {
-      progressColor = AppColors.primaryGreen;
+    if (percent >= 70) {
+      progressColor = AppColors.primaryRed;
     } else if (percent > 30 && percent <= 70) {
       progressColor = AppColors.darkYellowGreen;
     } else {
-      progressColor = AppColors.primaryRed;
+      progressColor = AppColors.primaryGreen;
     }
 
     Color statusColor;

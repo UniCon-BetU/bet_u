@@ -168,6 +168,7 @@ class _CommunityPageState extends State<CommunityPage> {
       (i) => BoardPost(
         title: _posts[i].title,
         createdAt: _posts[i].createdAt ?? DateTime.now(),
+        likeCount: _posts[i].likeCount
       ),
     );
     // 같은 순서의 postId 배열
@@ -209,10 +210,101 @@ class _CommunityPageState extends State<CommunityPage> {
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           children: [
+          // 내 그룹 대시보드
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _fetchMyGroups,
+                      child: const Text('다시 시도'),
+                    ),
+                  ],
+                ),
+              ),
+            
+            const SizedBox(height: 6),
+            GroupDashboardWidget(
+              groups: _myGroups, // []면 컴포넌트가 빈 상태 문구를 보여줌
+              onTapDiscover: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GroupFindPage()),
+                );
+              },
+              onTapCreate: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GroupCreatePage()),
+                );
+              },
+              onTapGroup: (g) {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => GroupPage(group: g)));
+              },
+            ),
+            
+            SizedBox(height: 24),
             // 게시판 섹션
+            // 게시글 로딩/에러
+            if (_loadingPosts)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
+            if (_postError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _postError!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _fetchPosts,
+                      child: const Text('다시 시도'),
+                    ),
+                  ],
+                ),
+              ),
+
+            const SizedBox(height: 6),
+
             BoardSectionCard(
               title: '일반 게시판',
               posts: boardList,
@@ -259,95 +351,6 @@ class _CommunityPageState extends State<CommunityPage> {
                     builder: (_) => BoardPage(title: '일반 게시판', posts: cards),
                   ),
                 );
-              },
-            ),
-
-            // 게시글 로딩/에러
-            if (_loadingPosts)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
-            if (_postError != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 18,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _postError!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _fetchPosts,
-                      child: const Text('다시 시도'),
-                    ),
-                  ],
-                ),
-              ),
-
-            const SizedBox(height: 20.0),
-
-            // 내 그룹 대시보드
-            if (_loading)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 18,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _fetchMyGroups,
-                      child: const Text('다시 시도'),
-                    ),
-                  ],
-                ),
-              ),
-
-            GroupDashboardWidget(
-              groups: _myGroups, // []면 컴포넌트가 빈 상태 문구를 보여줌
-              onTapDiscover: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GroupFindPage()),
-                );
-              },
-              onTapCreate: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GroupCreatePage()),
-                );
-              },
-              onTapGroup: (g) {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => GroupPage(group: g)));
               },
             ),
 

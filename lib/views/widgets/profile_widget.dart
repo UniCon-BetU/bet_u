@@ -67,15 +67,16 @@ class _TitleBlock extends StatelessWidget {
           title,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            height: 1.05
           ),
         ),
         if (subtitle.isNotEmpty) ...[
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ],
       ],
@@ -95,18 +96,18 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 2),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: FontWeight.w800,
+            height: 1.1
           ),
         ),
       ],

@@ -43,9 +43,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      // 서버에서 {"points": 50000} 이런 구조로 내려준다고 가정
-      return data['points'] ?? 0;
+      final points = jsonDecode(response.body) as int;
+      return points; // 그냥 int 리턴
     } else {
       throw Exception('포인트 조회 실패: ${response.statusCode}');
     }

@@ -1,7 +1,11 @@
 // models/challenge.dart
 enum ChallengeStatus { inProgress, done, missed, notStarted }
 
-enum TodayCheck { waiting, done, notStarted }
+enum TodayCheck {
+  waiting, // 인증 대기중
+  done, // 완료
+  notStarted, // 시작 전
+}
 
 class Challenge {
   final int id;

@@ -1,9 +1,7 @@
 import 'package:bet_u/views/pages/challenge_tab/challenge_certification_page.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
-import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_participate_page.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 
 import 'package:bet_u/views/widgets/chip_widget.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
@@ -172,7 +170,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  InfoRow(title: "공개 여부", value: "공개 챌린지 or 그룹 내부 챌린지"),
+                  InfoRow(title: "공개 여부", value: "공개 챌린지"),
                   const SizedBox(height: 6),
                   InfoRow(title: "챌린지 내용", value: "성공 조건"),
                   const SizedBox(height: 6),

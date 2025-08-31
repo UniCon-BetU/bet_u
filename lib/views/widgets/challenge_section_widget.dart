@@ -55,19 +55,21 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
     return Padding(
       // 그림자가 잘리지 않도록 살짝 여백(필요 시 조절)
       padding: const EdgeInsets.all(0),
-      child: DecoratedBox(                    // ← 그림자/배경은 "고정" 레이어
+      child: DecoratedBox(
+        // ← 그림자/배경은 "고정" 레이어
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: radius,
           boxShadow: const [
             BoxShadow(
-              color: Color(0x40000000),      // == Colors.black.withOpacity(0.25)
+              color: Color(0x40000000), // == Colors.black.withOpacity(0.25)
               blurRadius: 4,
               offset: Offset(0, 4),
             ),
           ],
         ),
-        child: ClipRRect(                     // 리플 클리핑
+        child: ClipRRect(
+          // 리플 클리핑
           borderRadius: radius,
           child: Material(
             color: Colors.transparent,

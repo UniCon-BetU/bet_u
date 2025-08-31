@@ -105,9 +105,10 @@ class Challenge {
       status: (start != null && end != null)
           ? ChallengeStatus.inProgress
           : ChallengeStatus.notStarted,
-      category: (json['challengeScope'] == 'BETU')
+      category: json['challengeScope'] ?? 'USER', // 기존 category
+      WhoMadeIt: (json['challengeScope'] == 'BETU')
           ? 'BETU'
-          : json['whomadeit'] ?? 'USER',
+          : (json['whomadeit'] ?? 'USER'), // 조건 적용
       createdAt: start ?? DateTime.now(),
       type: type,
       tags: allTags,

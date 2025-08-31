@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/betu_challenges_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
+import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -66,7 +67,18 @@ class HomePage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              ChallengeSectionWidget(items: myChallenges),
+              ChallengeSectionWidget(
+                items: myChallenges,
+                onSectionTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          MyChallengePage(myChallenges: allChallenges),
+                    ),
+                  );
+                },                
+              ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

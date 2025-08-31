@@ -96,7 +96,18 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ChallengeSectionWidget(items: myChallenges),
+                  ChallengeSectionWidget(
+                    items: myChallenges,
+                    onSectionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MyChallengePage(myChallenges: allChallenges),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

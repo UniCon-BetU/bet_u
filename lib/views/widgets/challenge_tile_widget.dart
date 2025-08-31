@@ -48,38 +48,12 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
         return switch (widget.c.todayCheck) {
           TodayCheck.notStarted => AppColors.lightRed,
           TodayCheck.waiting => AppColors.lightYellow,
-          TodayCheck.done => AppColors.lighterGreen,
+          TodayCheck.done => AppColors.lightGreen,
         };
       } else {
         return AppColors.lighterGreen;
       }
     }
-
-    // if (widget.c.type == 'goal') {
-    //   return switch (widget.c.status) {
-    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
-    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
-    //     ChallengeStatus.missed => AppColors.lightRed, //지워
-    //   };
-    // }
-
-    // if (widget.c.type == 'time') {
-    //   return switch (widget.c.status) {
-    //     ChallengeStatus.notStarted => AppColors.lighterGreen,
-    //     ChallengeStatus.inProgress => const Color(0xFFEAFFB9),
-    //     ChallengeStatus.done => AppColors.lighterGreen, //지워
-    //     ChallengeStatus.missed => AppColors.lightRed, //지워
-    //   };
-    // }
-    // if (widget.c.type == 'time') {
-    //   return switch (widget.c.todayCheck) {
-    //     TodayCheck.notStarted => AppColors.lightRed,
-    //     TodayCheck.waiting => AppColors.yellowGreen,
-    //     TodayCheck.done => const Color(0xFFEAFFB9), //지워
-    //   };
-    // }
-    // return const Color.fromRGBO(234, 255, 185, 1);
   }
 
   /// 참여자/기간 칸 색상
@@ -136,7 +110,8 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
       curve: Curves.easeOut,
       child: Card(
         color: widget.background ?? _bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(11)),
         elevation: 0,
         clipBehavior: Clip.antiAlias,
         child: InkWell(

@@ -1,46 +1,34 @@
-import 'dart:convert';
-
-import 'package:bet_u/utils/token_util.dart';
-import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
+// lib/views/pages/home_page.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../../models/challenge.dart';
-import '../widgets/challenge_section_widget.dart';
-import '../../theme/app_colors.dart';
+import 'package:bet_u/models/challenge.dart';
+import 'package:bet_u/views/widgets/challenge_section_widget.dart';
+import 'package:bet_u/theme/app_colors.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
+import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
+import 'package:bet_u/services/betu_challenge_loader.dart';
 
-Future<void> fetchAllChallenges() async {
-  try {
-    final token = await TokenStorage.getToken();
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-    final response = await http.get(
-      Uri.parse('https://54.180.150.39.nip.io/api/challenges'),
-      headers: {
-        'Authorization': 'Bearer $token', // 필요 시
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      final challenges = data.map((e) => Challenge.fromJson(e)).toList();
-      allChallengesNotifier.value = challenges;
-    } else {
-      print('API error: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Fetch failed: $e');
-  }
+  @override
+  State<HomePage> createState() => _HomePageState();
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // 앱 첫 진입 시 챌린지 로드
+    BetuChallengeLoader.loadAndPublish(context: context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<List<Challenge>>(
       valueListenable: allChallengesNotifier,
       builder: (context, allChallengesValue, _) {
+        // 진행중인 챌린지 (UI 용)
         final List<Challenge> myChallenges = allChallengesValue
             .where((c) => c.status == ChallengeStatus.inProgress)
             .toList();
@@ -92,37 +80,22 @@ class HomePage extends StatelessWidget {
               clipBehavior: Clip.none,
               child: Column(
                 children: [
-                  // myChallenges 리스트가 비어있을 때 메시지 표시
-                  if (myChallenges.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: Text(
-                          '진행 중인 챌린지가 없습니다.',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[600],
-                          ),
+                  // 내 챌린지 섹션
+                  ChallengeSectionWidget(
+                    items: myChallenges,
+                    onSectionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              MyChallengePage(myChallenges: allChallengesValue),
                         ),
-                      ),
-                    )
-                  else
-                    // myChallenges가 있을 때만 SectionWidget 표시
-                    ChallengeSectionWidget(
-                      items: myChallenges,
-                      onSectionTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MyChallengePage(
-                              myChallenges: allChallengesValue,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 12),
+
+                  // 오늘 인증 진행바
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -188,11 +161,37 @@ class HomePage extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 18),
-                  BetuChallengeSectionWidget(
-                    challengeFrom: allChallengesValue
-                        .where((c) => c.WhoMadeIt == 'BETU')
-                        .toList(),
+
+                  // BETU 챌린지 섹션 (전역 노티파이어 구독으로 자동 갱신)
+                  ValueListenableBuilder<List<Challenge>>(
+                    valueListenable: allChallengesNotifier,
+                    builder: (context, challenges, __) {
+                      final betuOnly = challenges
+                          .where((c) => c.WhoMadeIt == 'BETU')
+                          .toList();
+
+                      // 로딩 중 & 비어있을 때 스켈레톤/로딩 처리하고 싶으면 아래 주석 해제
+                      // final isLoading = BetuChallengeLoader.isLoading;
+                      // if (betuOnly.isEmpty && isLoading) {
+                      //   return const Padding(
+                      //     padding: EdgeInsets.symmetric(vertical: 24),
+                      //     child: Center(
+                      //       child: SizedBox(
+                      //         height: 24, width: 24,
+                      //         child: CircularProgressIndicator(strokeWidth: 2),
+                      //       ),
+                      //     ),
+                      //   );
+                      // }
+
+                      return BetuChallengeSectionWidget(
+                        challengeFrom: betuOnly,
+                        // onRefresh: () => BetuChallengeLoader.loadAndPublish(context: context), // 원하면 새로고침 버튼 달기
+                        // isRefreshing: isLoading,
+                      );
+                    },
                   ),
                 ],
               ),

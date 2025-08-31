@@ -28,19 +28,16 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
   }
 
   void _onStartPressed() {
-    // UI 상태 업데이트 (관리자 승인 대기 상태 표기)
-    widget.challenge.participating = true;
-    widget.challenge.status = ChallengeStatus.inProgress; // 진행중(대기 포함)
-    widget.challenge.todayCheck = TodayCheck.waiting; // 오늘 인증 대기
-    // progressDays는 관리자 승인되면 +1 하도록 서버/관리 툴에서 처리
-
-    // 상세 페이지로 교체 이동
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChallengeDetailPage(challenge: widget.challenge),
-      ),
-    );
+    // 서버에서 이미 IN_PROGRESS로 전환됨
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChallengeDetailPage(challenge: widget.challenge),
+        ),
+      );
+    });
   }
 
   String _fmt(int n) => n.toString().replaceAllMapped(

@@ -7,9 +7,13 @@ import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
+import 'dart:ui';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
+  // 숫자 포맷할 때 사용할 기본 로케일
+  Intl.defaultLocale = PlatformDispatcher.instance.locale.toLanguageTag();
   runApp(const MyApp());
 }
 
@@ -63,6 +67,10 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
             colorScheme: const ColorScheme.light(
               surface: Color.fromARGB(255, 255, 255, 255),
+            ),
+            appBarTheme: const AppBarTheme(
+              scrolledUnderElevation: 0,
+              surfaceTintColor: Colors.transparent,
             ),
             fontFamily: 'Freesentation', // 폰트 적용
             textTheme: baseTextTheme.apply(fontFamily: 'Freesentation'),

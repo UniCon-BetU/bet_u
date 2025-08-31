@@ -67,10 +67,7 @@ class _LoginPageState extends State<LoginPage> {
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'userEmail': userEmail,
-              'userPassword': userPassword,
-            }),
+            body: jsonEncode({'userEmail': userEmail, 'userPassword': userPassword}),
           )
           .timeout(
             const Duration(seconds: 15),
@@ -229,8 +226,8 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.w500,
                           ),
                           textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.username],
-                          enabled: !isLoading,
+                          autofillHints: const [AutofillHints.email],
+                          enabled: !isLoading, // ← 추가
                         ),
                         const SizedBox(height: 10),
                         TextField(

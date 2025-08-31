@@ -6,7 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
 import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
-import 'package:bet_u/utils/point_api.dart';
+import 'package:bet_u/utils/challenge_api.dart';
+
+Future<bool> _postChallengeParticipation({
+  required int userId,
+  required int challengeId,
+  required int points,
+}) async {
+  await ChallengeApi.joinChallenge(challengeId: challengeId, betAmount: points);
+  return true;
+}
 
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge;
@@ -218,16 +227,18 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
       return;
     }
 
-    // 4) 성공 시 전역 포인트 차감 반영
-    final after = (PointStore.instance.points.value - selectedAmount).clamp(
-      0,
-      1 << 31,
-    );
-    PointStore.instance.setFromServer(after);
+    // 4) 성공 시 전역 포인트 새로고침 + 로컬 모델도 진행중으로 갱신
+    try {
+      await PointStore.instance.refreshFromServer();
+    } catch (_) {}
+    widget.challenge.participating = true;
+    widget.challenge.status = ChallengeStatus.inProgress;
+    widget.challenge.todayCheck = TodayCheck.waiting;
+    // widget.challenge.progressDays = 0; // 서버 정책에 맞춰 필요하면 설정
 
     if (!mounted) return;
 
-    // 5) 시작 페이지로 이동
+    // 5) 시작 페이지로 이동 (기존 UX 유지)
     Navigator.push(
       context,
       MaterialPageRoute(

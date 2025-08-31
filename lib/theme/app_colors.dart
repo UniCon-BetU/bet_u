@@ -5,6 +5,7 @@ class AppColors {
   static const pressedGreen = Color(0xFF106209);
   static const yellowGreen = Color(0xFFCEF467);
   static const darkYellowGreen = Color(0xFF98E52C);
+  static const lightYellowGreen = Color(0xFFE4FF9A);
   static const lightGreen = Color(0xFFEAFFB9);
   static const pressedLightGreen = Color(0xFFA9BC8E);
   static const lighterGreen = Color(0xFFF6FFE9);

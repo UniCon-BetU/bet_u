@@ -1,7 +1,11 @@
 // models/challenge.dart
 enum ChallengeStatus { inProgress, done, missed, notStarted }
 
-enum TodayCheck { waiting, done, notStarted }
+enum TodayCheck {
+  waiting, // 인증 대기중
+  done, // 완료
+  notStarted, // 시작 전
+}
 
 class Challenge {
   final int id;
@@ -73,19 +77,26 @@ class Challenge {
             .map((e) => Challenge.tagKoMap[e.toUpperCase()] ?? e)
             .toList() ??
         [];
-
     final customTags =
         (json['customTags'] as List?)?.map((e) => e.toString()).toList() ?? [];
     final allTags = [...backendTags, ...customTags];
+
+    // ⬇️ 참여 여부 먼저 뽑고
+    final bool participating = json['participating'] == true;
+
+    // ⬇️ 참여 중이면 무조건 inProgress, 아니면 날짜로 추정
+    final ChallengeStatus status = participating
+        ? ChallengeStatus.inProgress
+        : ((start != null && end != null)
+              ? ChallengeStatus.inProgress
+              : ChallengeStatus.notStarted);
 
     return Challenge(
       id: json['challengeId'] ?? 0,
       title: json['challengeName'] ?? '',
       participants: json['participantCount'] ?? 0,
       day: day,
-      status: (start != null && end != null)
-          ? ChallengeStatus.inProgress
-          : ChallengeStatus.notStarted,
+      status: status, // ⬅️ 위 보정 반영
       category: json['challengeScope'] ?? 'USER',
       WhoMadeIt: (json['challengeScope'] == 'BETU')
           ? 'BETU'
@@ -100,7 +111,7 @@ class Challenge {
       bannerDescription: json['challengeDescription'],
       isFavorite: json['isFavorite'] ?? false,
       progressDays: progressDays,
-      participating: json['participating'] ?? false,
+      participating: participating, // ⬅️ 동일
     );
   }
 }

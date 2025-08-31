@@ -8,7 +8,7 @@ class PointStore {
   static final PointStore instance = PointStore._();
 
   /// 서버 권위 포인트. 화면들은 이걸 구독(ValueListenableBuilder 등)만 하면 됨.
-  final ValueNotifier<int> points = ValueNotifier<int>(0);
+  final ValueNotifier<int> points = ValueNotifier<int>(10000); // 기본값 수정
 
   bool _loaded = false;
   bool get isLoaded => _loaded;

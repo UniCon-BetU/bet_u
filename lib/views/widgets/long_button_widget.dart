@@ -5,6 +5,7 @@ class LongButtonWidget extends StatefulWidget {
   const LongButtonWidget({
     super.key,
     required this.text,
+    this.fontsize = 20,
     this.onPressed,
     required this.backgroundColor,
     this.textColor = Colors.white,
@@ -18,6 +19,7 @@ class LongButtonWidget extends StatefulWidget {
   });
 
   final String text;
+  final double fontsize;
   final Color backgroundColor;
   final Color textColor;
   final double height;
@@ -96,7 +98,7 @@ class _LongButtonWidgetState extends State<LongButtonWidget> {
                   style: TextStyle(
                     color: widget.textColor,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20,
+                    fontSize: widget.fontsize,
                   ),
                 ),
                 if (widget.trailing != null) ...[

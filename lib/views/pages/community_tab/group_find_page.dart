@@ -26,12 +26,32 @@ class _GroupFindPageState extends State<GroupFindPage> {
   bool _loading = false;
   String? _error;
 
+  final _searchController = TextEditingController();
+  final _searchFocusNode = FocusNode();
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
+
+      // 텍스트 변화 → _query 갱신 (SearchBarOnly에 onChanged 없으니 리스너로 처리)
+    _searchController.addListener(() {
+      final v = _searchController.text;
+      if (_query != v) {
+        setState(() => _query = v);
+      }
+    });
+
     _fetchGroups();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+  
   Future<void> _fetchGroups() async {
     setState(() {
       _loading = true;
@@ -140,71 +160,92 @@ class _GroupFindPageState extends State<GroupFindPage> {
           '그룹 찾기',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        actions: [
-          IconButton(
-            tooltip: '새로고침',
-            onPressed: _fetchGroups,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     tooltip: '새로고침',
+        //     onPressed: _fetchGroups,
+        //     icon: const Icon(Icons.refresh),
+        //   ),
+        // ],
       ),
       body: Column(
         children: [
           // 검색창
-          // SearchBarOnly(
-          //   onSearchingChanged: (v) => setState(() => _query = v),
-          //   decoration: InputDecoration(
-          //     hintText: '문제풀이, #수능 ...',
-          //     hintStyle: TextStyle(
-          //       fontSize: 20,
-          //       fontWeight: FontWeight.w700,
-          //       color: AppColors.darkerGray,
-          //     ),
-          //     border: InputBorder.none,
-          //     isDense: true,
-          //     contentPadding: const EdgeInsets.symmetric(
-          //       vertical: 11,
-          //       horizontal: 12,
-          //     ),
-          //     prefixIcon: Padding(
-          //       padding: const EdgeInsets.all(4),
-          //       child: Image.asset(
-          //         'assets/images/normal_lettuce.png',
-          //         width: 48,
-          //         height: 48,
-          //       ),
-          //     ),
-          //     suffixIcon: Row(
-          //       mainAxisSize: MainAxisSize.min,
-          //       children: [
-          //           GestureDetector(
-          //             onTap: () {
-          //               setState(() {
-          //                 // _searchController.clear();
-          //                 // _isSearching = false;
-          //                 // selectedCategory = '전체';
-          //                 // _searchFocusNode.unfocus();
-          //                 _searchController.clear();
-          //               });
-          //               _searchFocusNode.requestFocus();
-          //             },
-          //             child: const Icon(
-          //               Icons.close,
-          //               color: AppColors.darkerGray,
-          //             ),
-          //           ),
-          //         const SizedBox(width: 7),
-          //         const Icon(Icons.search, size: 30, color: Colors.black),
-          //         const SizedBox(width: 15),
-          //       ],
-          //     ),
-          //   ),
-          // )
-          SearchBar(
-            hintText: '그룹 이름으로 검색',
-            onChanged: (v) => setState(() => _query = v),
-            onSubmitted: (v) => setState(() => _query = v),
+          
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: SearchBarOnly(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              isSearching: _isSearching,
+              onSearchingChanged: (isOn) => setState(() => _isSearching = isOn),
+              icon: Icons.refresh,
+              onTapSearch: () {
+                // 검색창 탭 시 동작이 필요하면 여기에
+                // ex) 최근 검색어 노출 등
+              },
+              onPlusPressed: _fetchGroups
+                // + 버튼 동작 (원하면 새 그룹 만들기 등)
+                // _fetchGroups
+                // Navigator.push(...);
+              ,
+              decoration: InputDecoration(
+                hintText: '그룹 이름으로 검색',
+                hintStyle: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkerGray,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 11,
+                  horizontal: 12,
+                ),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Image.asset(
+                    'assets/images/normal_lettuce.png',
+                    width: 48,
+                    height: 48,
+                  ),
+                ),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 지우기
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _searchController.clear();   // <- _query는 리스너로 자동 반영
+                          _isSearching = true;         // 유지하거나 false로 바꿔도 됨
+                        });
+                        _searchFocusNode.requestFocus();
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        color: AppColors.darkerGray,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    // 검색(엔터 대신 아이콘 눌러 실행하고 싶을 때)
+                    GestureDetector(
+                      onTap: () {
+                        // 필요 시 포커스 내려주기
+                        _searchFocusNode.unfocus();
+                        // _query는 이미 최신값, 여기서 필터링은 자동 반영됨
+                        // 서버 검색 트리거가 필요하면 호출
+                        // _fetchGroups();
+                      },
+                      child: const Icon(Icons.search, size: 30, color: Colors.black),
+                    ),
+                    const SizedBox(width: 15),
+                  ],
+                ),
+              ),
+            ),
           ),
+
 
           if (_loading) const LinearProgressIndicator(minHeight: 2),
 
@@ -231,63 +272,74 @@ class _GroupFindPageState extends State<GroupFindPage> {
 
           // 결과 리스트
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: _fetchGroups,
-              child: results.isEmpty && !_loading && _error == null
-                  ? ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Center(
-                            child: Text(
-                              '검색 결과가 없어요',
-                              style: TextStyle(color: Colors.grey.shade600),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : ListView.separated(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      itemCount: results.length,
-                      separatorBuilder: (_, __) => Divider(
-                        height: 16,
-                        thickness: 1,
-                        color: Colors.grey.withValues(alpha: 0.12),
-                      ),
-                      itemBuilder: (context, i) {
-                        final g = results[i];
-                        return GroupCardWidget(
-                          group: g,
-                          onTap: () {
-                            // 상세 페이지로 이동 — 모르는 값은 기본값
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => GroupInfoPage(
-                                  groupName: g.name,
-                                  nickname: g.description, // 임시로 코드/설명을 노출
-                                  memberCount: g.memberCount,
-                                  challengeCount: 0,
-                                  tags: const [],
-                                  isPublic: g.icon == Icons.public,
-                                  description: '',
-                                  onJoinPressed: () {
-                                    _joinCrew(
-                                      context,
-                                      crewId: g.crewId,
-                                      crewCode: g.crewCode,
-                                    );
-                                  },
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent, // 빈 공간도 탭 감지
+              onTap: () {
+                setState(() => _isSearching = false);
+                FocusScope.of(context).unfocus(); // 키보드/포커스도 내려주기(선택)
+              },
+              child: RefreshIndicator(
+                onRefresh: _fetchGroups,
+                child: Container(
+                  color: AppColors.lightGray, // 배경색 유지
+                  child: results.isEmpty && !_loading && _error == null
+                      ? ListView(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Center(
+                                child: Text(
+                                  '검색 결과가 없어요',
+                                  style: TextStyle(color: Colors.grey.shade600),
                                 ),
                               ),
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          itemCount: results.length,
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 16,
+                            thickness: 1,
+                            color: Colors.transparent,
+                          ),
+                          itemBuilder: (context, i) {
+                            final g = results[i];
+                            return GroupCardWidget(
+                              background: Colors.white,
+                              group: g,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => GroupInfoPage(
+                                      groupName: g.name,
+                                      nickname: g.description,
+                                      memberCount: g.memberCount,
+                                      challengeCount: 0,
+                                      tags: const [],
+                                      isPublic: g.icon == Icons.public,
+                                      description: '',
+                                      onJoinPressed: () {
+                                        _joinCrew(
+                                          context,
+                                          crewId: g.crewId,
+                                          crewCode: g.crewCode,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                ),
+              ),
             ),
           ),
+
         ],
       ),
     );

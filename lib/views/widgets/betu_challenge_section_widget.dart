@@ -13,7 +13,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
     required this.challengeFrom,
     this.title = 'BETU Challenges',
     this.leadingIcon = const Icon(Icons.eco, color: AppColors.primaryGreen),
-    this.cardBackground = const Color(0xFFE4FF9A),
+    this.cardBackground = AppColors.lightYellowGreen,
     this.itemsPerPage = 3,
     this.onTileTap,
   });

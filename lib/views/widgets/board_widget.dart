@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:bet_u/theme/app_colors.dart';
 
 class BoardPost {
   final String title;
   final DateTime createdAt;
-  const BoardPost({required this.title, required this.createdAt});
+  final int likeCount;
+  const BoardPost({required this.title, required this.createdAt, required this.likeCount});
 }
 
 /// 섹션 카드: 제목 + 게시물 리스트(최대 5개) + 더보기
@@ -26,84 +28,68 @@ class BoardSectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final visibleCount = posts.length > 5 ? 5 : posts.length;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 헤더: 제목 - 더보기
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text('🗣️', style: TextStyle(fontSize: 14)),
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(11),
+            onTap: onMore ?? () {},
+            child: Container(
+              width: double.infinity, // ← 전체 폭
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text('전체 게시판 🗣️', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.black),
                 ],
               ),
-              GestureDetector(
-                onTap: onMore ?? () {},
-                child: Text(
-                  '더보기',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+
+        SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+          decoration: BoxDecoration(
+            color: AppColors.lightYellowGreen,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (posts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      '아직 게시물이 없어요',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ),
+                )
+              else
+                SizedBox(
+                  height: 200,
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: visibleCount,
+                    separatorBuilder: (_, __) => Divider(
+                      height: 16,
+                      thickness: 1,
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    itemBuilder: (context, i) =>
+                        _BoardRow(post: posts[i], onTap: onTap),
                   ),
                 ),
-              ),
             ],
           ),
-
-          const SizedBox(height: 12),
-
-          if (posts.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  '아직 게시물이 없어요',
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
-              ),
-            )
-          else
-            SizedBox(
-              height: 260,
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleCount,
-                separatorBuilder: (_, __) => Divider(
-                  height: 16,
-                  thickness: 1,
-                  color: Colors.grey.withValues(alpha: 0.15),
-                ),
-                itemBuilder: (context, i) =>
-                    _BoardRow(post: posts[i], onTap: onTap),
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -117,12 +103,12 @@ class _BoardRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final df = DateFormat('M/d');
+    final df = DateFormat('M/d hh:mm');
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap == null ? null : () => onTap!(post),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
             Expanded(
@@ -137,12 +123,27 @@ class _BoardRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Text(
-              df.format(post.createdAt),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.chevron_right, size: 18, color: Colors.grey.shade500),
+
+                Text(
+                  df.format(post.createdAt),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                ),
+
+                const SizedBox(width: 6), 
+                Row(
+                  children: [
+                    Icon(Icons.favorite, color: AppColors.primaryRed, size: 12),
+                    SizedBox(width: 2),
+                    Text(
+                      '${post.likeCount}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.primaryRed,
+                        fontWeight: FontWeight.w700,
+                      )
+                    )
+                  ],
+                )
           ],
         ),
       ),

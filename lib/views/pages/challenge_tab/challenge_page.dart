@@ -254,16 +254,25 @@ class _ChallengePageState extends State<ChallengePage> {
         elevation: _isSearching ? 2 : 0,
         shadowColor: Colors.black.withValues(alpha: 0.25),
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: 12,
         // 검색바 높이 + 살짝 여유
         toolbarHeight: 64,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () {
-            setState(() {
-              _isSearching = false;
-            });
-          }
+        leadingWidth: _isSearching ? kToolbarHeight : 0,
+        leading: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) =>
+              FadeTransition(opacity: anim, child: child),
+          child: _isSearching
+              ? IconButton(
+                  key: const ValueKey('leading-searching'),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () {
+                    setState(() => _isSearching = false);
+                  },
+                )
+              : const SizedBox.shrink( // 아무것도 안 보임
+                  key: ValueKey('leading-empty'),
+                ),
         ),
 
         title: Padding(

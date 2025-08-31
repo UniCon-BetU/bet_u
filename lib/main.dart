@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
 import 'theme/app_colors.dart';
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
+  // 숫자 포맷할 때 사용할 기본 로케일
+  Intl.defaultLocale = PlatformDispatcher.instance.locale.toLanguageTag();
   runApp(const MyApp());
 }
 

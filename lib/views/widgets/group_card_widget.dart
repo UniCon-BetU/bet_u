@@ -6,11 +6,13 @@ import 'package:bet_u/theme/app_colors.dart';
 class GroupCardWidget extends StatefulWidget {
   final GroupInfo group;
   final VoidCallback? onTap;
+  final Color background;
 
   const GroupCardWidget({
     super.key,
     required this.group,
     this.onTap,
+    this.background = AppColors.lighterGreen,
   });
 
   @override
@@ -46,17 +48,17 @@ class _GroupCardWidgetState extends State<GroupCardWidget> {
         duration: const Duration(milliseconds: 90),
         curve: Curves.easeOut,
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: widget.background,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x14000000),
-                blurRadius: 4,
-                offset: Offset(0, 4),
-              ),
-            ],
+            // boxShadow: const [
+            //   BoxShadow(
+            //     color: Color(0x14000000),
+            //     blurRadius: 4,
+            //     offset: Offset(0, 4),
+            //   ),
+            // ],
           ),
           child: Row(
             children: [

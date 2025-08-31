@@ -259,7 +259,7 @@ class _GroupPageState extends State<GroupPage> {
 
   /// BoardSectionCard가 기대하는 BoardPost로 매핑
   List<BoardPost> get boardPosts => _posts
-      .map((p) => BoardPost(title: p.title, createdAt: p.createdAt))
+      .map((p) => BoardPost(title: p.title, createdAt: p.createdAt, likeCount: p.likeCount))
       .toList();
 
   String get profileTitle => widget.group.name;

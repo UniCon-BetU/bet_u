@@ -9,6 +9,7 @@ class SearchBarOnly extends StatelessWidget {
   final InputDecoration decoration;
   final VoidCallback? onPlusPressed;
   final VoidCallback? onTapSearch;
+  final IconData icon;
 
   const SearchBarOnly({
     super.key,
@@ -19,6 +20,7 @@ class SearchBarOnly extends StatelessWidget {
     required this.decoration,
     this.onPlusPressed,
     this.onTapSearch,
+    this.icon = Icons.add_rounded,
   });
 
   static const double _plusHitWidth = 48;     // IconButton 최소 터치 폭
@@ -84,7 +86,7 @@ class SearchBarOnly extends StatelessWidget {
                     height: 54,
                     child: IconButton(
                       iconSize: 24,
-                      icon: Icon(Icons.add_rounded, color: isSearching ? Colors.white : Colors.black),
+                      icon: Icon(icon, color: isSearching ? Colors.white : Colors.black),
                       onPressed: onPlusPressed,
                     ),
                   ),

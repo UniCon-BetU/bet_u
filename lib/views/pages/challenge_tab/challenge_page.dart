@@ -257,10 +257,18 @@ class _ChallengePageState extends State<ChallengePage> {
         titleSpacing: 0,
         // 검색바 높이 + 살짝 여유
         toolbarHeight: 64,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            setState(() {
+              _isSearching = false;
+            });
+          }
+        ),
 
         title: Padding(
           // toolbarHeight 64에서 세로 패딩 12면 살짝 넘칠 수 있어요 → 6 정도로 줄이거나, toolbarHeight를 늘리세요
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.fromLTRB(6, 0, 24, 0),
           child: SearchBarOnly(
             controller: _searchController,
             focusNode: _searchFocusNode,
@@ -480,6 +488,7 @@ class _ChallengePageState extends State<ChallengePage> {
                                           ),
                                           child: ChallengeTileWidget(
                                             c: challenge,
+                                            background: Colors.white,
                                             showTags: true,
                                             onTap: () => _goToProcessingPage(
                                               challenge,

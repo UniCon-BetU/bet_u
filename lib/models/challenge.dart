@@ -7,7 +7,7 @@ enum ChallengeStatus {
 
 enum TodayCheck {
   waiting, // 인증 대기중
-  done, // 놓친 챌린지
+  done, // 완료
   notStarted, // 시작 전
 }
 

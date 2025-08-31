@@ -282,7 +282,6 @@ class _GroupPageState extends State<GroupPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: Text(
           widget.group.name,
           style: const TextStyle(fontWeight: FontWeight.w700),
@@ -329,6 +328,7 @@ class _GroupPageState extends State<GroupPage> {
                   ),
                 ),
 
+              SizedBox(height:6),
               ProfileWidget(
                 title: profileTitle,
                 subtitle: profileSubtitle,
@@ -337,7 +337,7 @@ class _GroupPageState extends State<GroupPage> {
 
               const SizedBox(height: 20),
 
-              ChallengeSectionWidget(title: '그룹 챌린지 🧩', items: demoChallenges),
+              ChallengeSectionWidget(title: '그룹  챌린지 🧩', items: demoChallenges),
 
               const SizedBox(height: 20),
 

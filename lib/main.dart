@@ -35,6 +35,10 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.light(
           surface: const Color.fromARGB(255, 255, 255, 255),
         ),
+        appBarTheme: const AppBarTheme(
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+        )
       ),
       home: const WelcomePage(),
       routes: {

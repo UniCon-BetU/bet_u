@@ -35,6 +35,59 @@ class _CommunityPageState extends State<CommunityPage> {
     return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
   }
 
+ // 1) 더미 데이터 (파일 상단, _myGroups 아래쯤에 둬요)
+  final List<GroupInfo> _dummyGroups = [
+    GroupInfo(
+      crewId: 1,
+      crewCode: 'ABCD12',
+      name: '고대 CS 스터디',
+      description: '알고리즘·자료구조 문제풀이',
+      memberCount: 12,
+      icon: Icons.public,
+    ),
+    GroupInfo(
+      crewId: 2,
+      crewCode: 'EFGH34',
+      name: '토익 900+',
+      description: '매일 모의고사/쉐도잉',
+      memberCount: 8,
+      icon: Icons.lock,
+    ),
+    GroupInfo(
+      crewId: 3,
+      crewCode: 'IJKL56',
+      name: '아침형 인간 챌린지',
+      description: '기상 인증·러닝',
+      memberCount: 21,
+      icon: Icons.public,
+    ),
+        GroupInfo(
+      crewId: 4,
+      crewCode: '155706',
+      name: '아 자고 싶다',
+      description: '살려주세요',
+      memberCount: 1246,
+      icon: Icons.public,
+    ),
+        GroupInfo(
+      crewId: 5,
+      crewCode: '088848',
+      name: '한화의이원석승리를위하여치고달려',
+      description: '안타치기, 도루하기',
+      memberCount: 112667,
+      icon: Icons.lock,
+    ),
+        GroupInfo(
+      crewId: 6,
+      crewCode: '588689',
+      name: '무관탈출',
+      description: '우승하기',
+      memberCount: 18,
+      icon: Icons.public,
+    ),
+
+  ];
+
   // 게시글
   List<Post> _posts = [];
   bool _loadingPosts = false;
@@ -93,6 +146,7 @@ class _CommunityPageState extends State<CommunityPage> {
         setState(() => _myGroups = items);
       } else {
         if (!mounted) return;
+        setState(() => _myGroups = [..._dummyGroups]); // 더미 데이터로 대체
         setState(() => _error = '그룹 불러오기 실패: ${res.statusCode}');
       }
     } catch (e) {

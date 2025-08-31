@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
         .where((c) => c.status == ChallengeStatus.inProgress)
         .toList();
 
-    final int totalCount = myChallenges.length;
+    final int totalCount = myChallenges.where((c) => c.type == 'time').length;
     final int doneCount = myChallenges
         .where((c) => c.todayCheck == TodayCheck.done)
         .length;
@@ -142,6 +142,30 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                     ],
+                  ),
+
+                  SizedBox(width: 12),
+                  Card(
+                    color: AppColors.primaryGreen,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$userPoints P',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -87,10 +87,10 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 2),
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         child: Text(
-                          'MY CHALLENGE 🥇', // widget.title 써도 됨
+                          widget.title, // widget.title 써도 됨
                           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                         ),
                       ),

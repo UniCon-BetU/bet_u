@@ -6,8 +6,10 @@ import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/group_info_page.dart';
 import 'package:bet_u/views/widgets/group_card_widget.dart';
 import 'package:bet_u/views/widgets/searchbar_widget.dart';
+import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:bet_u/theme/app_colors.dart';
 
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
@@ -134,7 +136,6 @@ class _GroupFindPageState extends State<GroupFindPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: const Text(
           '그룹 찾기',
           style: TextStyle(fontWeight: FontWeight.w700),
@@ -150,7 +151,56 @@ class _GroupFindPageState extends State<GroupFindPage> {
       body: Column(
         children: [
           // 검색창
-          SearchBarWidget(
+          // SearchBarOnly(
+          //   onSearchingChanged: (v) => setState(() => _query = v),
+          //   decoration: InputDecoration(
+          //     hintText: '문제풀이, #수능 ...',
+          //     hintStyle: TextStyle(
+          //       fontSize: 20,
+          //       fontWeight: FontWeight.w700,
+          //       color: AppColors.darkerGray,
+          //     ),
+          //     border: InputBorder.none,
+          //     isDense: true,
+          //     contentPadding: const EdgeInsets.symmetric(
+          //       vertical: 11,
+          //       horizontal: 12,
+          //     ),
+          //     prefixIcon: Padding(
+          //       padding: const EdgeInsets.all(4),
+          //       child: Image.asset(
+          //         'assets/images/normal_lettuce.png',
+          //         width: 48,
+          //         height: 48,
+          //       ),
+          //     ),
+          //     suffixIcon: Row(
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: [
+          //           GestureDetector(
+          //             onTap: () {
+          //               setState(() {
+          //                 // _searchController.clear();
+          //                 // _isSearching = false;
+          //                 // selectedCategory = '전체';
+          //                 // _searchFocusNode.unfocus();
+          //                 _searchController.clear();
+          //               });
+          //               _searchFocusNode.requestFocus();
+          //             },
+          //             child: const Icon(
+          //               Icons.close,
+          //               color: AppColors.darkerGray,
+          //             ),
+          //           ),
+          //         const SizedBox(width: 7),
+          //         const Icon(Icons.search, size: 30, color: Colors.black),
+          //         const SizedBox(width: 15),
+          //       ],
+          //     ),
+          //   ),
+          // )
+          SearchBar(
             hintText: '그룹 이름으로 검색',
             onChanged: (v) => setState(() => _query = v),
             onSubmitted: (v) => setState(() => _query = v),

@@ -31,7 +31,7 @@ final List<Challenge> allChallenges = [
     bannerPeriod: '2025.7.1~2025.7.12',
     bannerDescription: '매일 3지문씩 꾸준히 읽으며 국어 독해력을 향상시키는 챌린지입니다.',
     WhoMadeIt: 'BETU',
-    todayCheck: TodayCheck.done,
+    todayCheck: TodayCheck.notStarted,
     progressDays: 6,
     isFavorite: false,
   ),
@@ -48,7 +48,7 @@ final List<Challenge> allChallenges = [
     bannerDescription: '매일 30개의 영어 단어를 암기하여 영어 실력을 높이는 챌린지입니다.',
     WhoMadeIt: 'BETU',
     todayCheck: TodayCheck.done,
-    progressDays: 10,
+    progressDays: 8,
     isFavorite: false,
   ),
   Challenge(

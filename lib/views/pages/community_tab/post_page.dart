@@ -1,4 +1,6 @@
 // lib/views/pages/post_page.dart
+import 'dart:async';
+
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/post_edit_page.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +18,16 @@ class PostComment {
   final String userName;
   final String content;
 
+  final int likeCount;
+  final bool likedByMe;
+
   PostComment({
     required this.commentId,
     required this.userId,
     required this.userName,
     required this.content,
+    this.likeCount = 0,
+    this.likedByMe = false,
   });
 
   factory PostComment.fromJson(Map<String, dynamic> j) => PostComment(
@@ -28,6 +35,17 @@ class PostComment {
     userId: j['userId'] ?? 0,
     userName: j['userName'] ?? '',
     content: j['content'] ?? '',
+    likeCount: j['likeCount'] ?? 0,
+    likedByMe: j['likedByMe'] ?? false,
+  );
+
+  PostComment copyWith({int? likeCount, bool? likedByMe}) => PostComment(
+    commentId: commentId,
+    userId: userId,
+    userName: userName,
+    content: content,
+    likeCount: likeCount ?? this.likeCount,
+    likedByMe: likedByMe ?? this.likedByMe,
   );
 }
 
@@ -369,8 +387,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       final res = await http.delete(
         uri,
         headers: {
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -503,7 +520,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
     try {
       final token = await TokenStorage.getToken();
-      final uri = Uri.parse('$baseUrl/api/community/reply'); // ← 백엔드 규약에 맞게
+      final uri = Uri.parse('$baseUrl/api/community/reply');
+
       final res = await http.post(
         uri,
         headers: {
@@ -513,9 +531,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
             'Authorization': 'Bearer $token',
         },
         body: json.encode({
-          'postId': _post?.postId ?? widget.args.postId,
-          'parentCommentId': parent.commentId,
-          'content': text,
+          'commentId': parent.commentId, // ← 부모 댓글 ID
+          'commentContent': text, // ← 답글 내용
         }),
       );
 
@@ -540,6 +557,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> _deleteComment(int commentId) async {
+    // 1) 사용자 확인
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -550,7 +568,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('취소'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('삭제'),
           ),
@@ -559,40 +577,104 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
     if (ok != true) return;
 
+    // 2) 요청
     try {
       final token = await TokenStorage.getToken();
       final uri = Uri.parse(
         '$baseUrl/api/community/comments/$commentId',
-      ); // ← DELETE 엔드포인트 가정
-      final res = await http.delete(
+      ); // DELETE /{commentId}
+
+      final res = await http
+          .delete(
+            uri,
+            headers: {
+              'accept': 'application/json',
+              if (token != null && token.isNotEmpty)
+                'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
+
+      // 3) 결과 처리 (200 또는 204 성공으로 간주)
+      if (res.statusCode == 200 || res.statusCode == 204) {
+        await _fetchPost(); // 상세 다시 불러오기
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글이 삭제되었습니다')));
+        return;
+      }
+
+      // 4) 실패 처리 (메시지 노출)
+      if (!mounted) return;
+      final body = (res.body.isNotEmpty)
+          ? res.body
+          : 'status ${res.statusCode}';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('삭제 실패: $body')));
+    } on TimeoutException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('요청이 지연됩니다. 네트워크를 확인해주세요')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    }
+  }
+
+  final Set<int> _likingCommentIds = {};
+
+  Future<void> _toggleCommentLike(PostComment comment) async {
+    if (_likingCommentIds.contains(comment.commentId)) return;
+    _likingCommentIds.add(comment.commentId);
+    setState(() {});
+
+    try {
+      final token = await TokenStorage.getToken();
+      final uri = Uri.parse('$baseUrl/api/community/${comment.commentId}/like');
+
+      final res = await http.post(
         uri,
         headers: {
-          'Content-Type': 'application/json',
+          'accept': '*/*',
           if (token != null && token.isNotEmpty)
             'Authorization': 'Bearer $token',
         },
       );
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        await _fetchPost();
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글이 삭제되었습니다')));
+        final Map<String, dynamic> body = jsonDecode(res.body);
+        final int newCount = body['likeCount'] ?? comment.likeCount;
+        final bool liked = body['liked'] ?? comment.likedByMe;
+
+        // dto.comments 갱신
+        setState(() {
+          final idx = _post?.comments.indexWhere(
+            (c) => c.commentId == comment.commentId,
+          );
+          if (idx != -1) {
+            _post?.comments[idx!] = _post!.comments[idx].copyWith(
+              likeCount: newCount,
+              likedByMe: liked,
+            );
+          }
+        });
       } else {
-        if (!mounted) return;
-        final body = res.body.isNotEmpty
-            ? res.body
-            : 'status ${res.statusCode}';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('삭제 실패: $body')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('좋아요 처리 실패 (${res.statusCode})')),
+        );
       }
     } catch (e) {
-      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('네트워크 오류: $e')));
+    } finally {
+      _likingCommentIds.remove(comment.commentId);
+      setState(() {});
     }
   }
 
@@ -1012,6 +1094,64 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                 fontSize: 14,
                                                 height: 1.4,
                                               ),
+                                            ),
+
+                                            const SizedBox(height: 6),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  padding: EdgeInsets.zero,
+                                                  constraints:
+                                                      const BoxConstraints(),
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  onPressed: () =>
+                                                      _toggleCommentLike(
+                                                        c,
+                                                      ), // ← commentId 말고 객체 통째로 넘김
+                                                  icon: AnimatedSwitcher(
+                                                    duration: const Duration(
+                                                      milliseconds: 180,
+                                                    ),
+                                                    transitionBuilder:
+                                                        (child, anim) =>
+                                                            ScaleTransition(
+                                                              scale: anim,
+                                                              child: child,
+                                                            ),
+                                                    child:
+                                                        c
+                                                            .likedByMe // ← dto.comments[i].likedByMe 값 반영
+                                                        ? const Icon(
+                                                            Icons.favorite,
+                                                            key: ValueKey(
+                                                              'liked',
+                                                            ),
+                                                            size: 18,
+                                                            color: Colors.red,
+                                                          )
+                                                        : const Icon(
+                                                            Icons
+                                                                .favorite_border,
+                                                            key: ValueKey(
+                                                              'unliked',
+                                                            ),
+                                                            size: 18,
+                                                          ),
+                                                  ),
+                                                  tooltip: c.likedByMe
+                                                      ? '좋아요 취소'
+                                                      : '좋아요',
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  '${c.likeCount}', // ← 서버에서 내려준 likeCount 표시
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),

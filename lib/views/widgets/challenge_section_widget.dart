@@ -84,10 +84,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                 duration: widget.pressedAnimDuration,
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -96,10 +93,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         child: Text(
                           'MY CHALLENGE 🥇', // widget.title 써도 됨
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -112,12 +106,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                           onPageChanged: (i) => setState(() => _page = i),
                           itemBuilder: (_, idx) => Column(
                             children: _pages[idx]
-                                .map(
-                                  (c) => ChallengeTileWidget(
-                                    c: c,
-                                    showTags: false,
-                                  ),
-                                )
+                                .map((c) => ChallengeTileWidget(c: c, showTags: false))
                                 .toList(),
                           ),
                         ),
@@ -131,16 +120,11 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                             final active = i == _page;
                             return AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 3,
-                                vertical: 6,
-                              ),
+                              margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
                               width: active ? 12 : 6,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: active
-                                    ? AppColors.primaryGreen
-                                    : AppColors.Gray,
+                                color: active ? AppColors.primaryGreen : AppColors.Gray,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             );

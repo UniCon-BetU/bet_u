@@ -9,6 +9,7 @@ import '../widgets/challenge_section_widget.dart';
 import '../../theme/app_colors.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/views/widgets/betu_challenge_section_widget.dart';
+import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 
 Future<void> fetchAllChallenges() async {
   try {
@@ -86,11 +87,28 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            child: SingleChildScrollView(
-              clipBehavior: Clip.none,
-              child: Column(
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ChallengeSectionWidget(
+                items: myChallenges,
+                onSectionTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          MyChallengePage(myChallenges: allChallenges),
+                    ),
+                  );
+                },                
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // myChallenges 리스트가 비어있을 때 메시지 표시
                   if (myChallenges.isEmpty)

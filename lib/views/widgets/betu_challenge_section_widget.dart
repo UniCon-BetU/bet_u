@@ -130,8 +130,8 @@ class BetuChallengeSectionWidget extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: 12),
 
+        const SizedBox(height: 12),
         Center(
           child: SmoothPageIndicator(
             controller: pageController,
@@ -146,5 +146,14 @@ class BetuChallengeSectionWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+  List<List<Challenge>> _chunk(List<Challenge> list, int size) {
+    final chunks = <List<Challenge>>[];
+    for (int i = 0; i < list.length; i += size) {
+      chunks.add(
+        list.sublist(i, i + size > list.length ? list.length : i + size),
+      );
+    }
+    return chunks;
   }
 }

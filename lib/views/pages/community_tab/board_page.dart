@@ -132,7 +132,9 @@ class _BoardPageState extends State<BoardPage> {
           final res = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => PostCreatePage(crewId: widget.crewId!),
+              builder: (_) => widget.crewId == null
+                  ? PostCreatePage()
+                  : PostCreatePage(crewId: widget.crewId),
             ),
           );
 

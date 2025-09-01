@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:bet_u/utils/point_api.dart';
 import 'package:bet_u/utils/point_store.dart';
-import 'package:tosspayments_widget_sdk_flutter/model/tosspayments_result.dart';
 import 'package:tosspayments_widget_sdk_flutter/payment_widget.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';
@@ -129,6 +128,14 @@ class _PointPageState extends State<PointPage> {
       return;
     }
 
+    final status = await _agreementWidgetControl?.getAgreementStatus();
+    if (status != null && status.agreedRequiredTerms != true) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('필수 약관에 동의해 주세요')));
+      return;
+    }
+
     setState(() => selectedAmount = amt);
     await _paymentMethodWidgetControl?.updateAmount(amount: amt);
 
@@ -150,7 +157,7 @@ class _PointPageState extends State<PointPage> {
       if (success != null) {
         final paymentKey = success.paymentKey;
         final orderId = success.orderId;
-        final paidAmount = success.amount ?? amt;
+        final paidAmount = success.amount;
 
         // 3) 서버 승인 + 포인트 적립 (API 유틸 그대로 사용)
         final confirmed = await PointApi.confirmCharge(
@@ -258,7 +265,7 @@ class _PointPageState extends State<PointPage> {
                         right: 16,
                         child: ValueListenableBuilder<int>(
                           valueListenable: PointStore.instance.points,
-                          builder: (_, p, __) => Text(
+                          builder: (_, p, _) => Text(
                             '$p P',
                             style: const TextStyle(
                               color: Colors.white,

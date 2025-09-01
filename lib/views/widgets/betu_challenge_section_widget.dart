@@ -7,16 +7,6 @@ import '../../theme/app_colors.dart';
 import '../widgets/challenge_tile_widget.dart';
 import '../pages/betu_challenges_page.dart';
 
-/// 리스트를 지정한 크기로 잘라서 chunk 리스트 반환
-List<List<Challenge>> _chunk(List<Challenge> list, int size) {
-  List<List<Challenge>> chunks = [];
-  for (var i = 0; i < list.length; i += size) {
-    final end = (i + size < list.length) ? i + size : list.length;
-    chunks.add(list.sublist(i, end));
-  }
-  return chunks;
-}
-
 class BetuChallengeSectionWidget extends StatelessWidget {
   const BetuChallengeSectionWidget({
     super.key,
@@ -42,7 +32,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // BETU 제작 챌린지만 필터링
-    final betuOnly = challengeFrom.where((c) => c.WhoMadeIt == 'BETU').toList();
+    final betuOnly = challengeFrom.where((c) => c.whoMadeIt == 'BETU').toList();
 
     // BETU 없으면 안내 문구
     if (betuOnly.isEmpty) {

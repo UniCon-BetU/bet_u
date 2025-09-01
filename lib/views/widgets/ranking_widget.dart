@@ -84,7 +84,7 @@ class RankingWidget extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 height: 16,
                 thickness: 1,
                 color: Colors.grey.withValues(alpha: 0.15),

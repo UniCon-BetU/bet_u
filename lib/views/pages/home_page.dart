@@ -79,7 +79,6 @@ class _HomePageState extends State<HomePage> {
               clipBehavior: Clip.none,
               child: Column(
                 children: [
-                  // ✅ 내 챌린지 섹션 (ChallengeSectionWidget 내부에서 자동 API 호출)
                   ChallengeSectionWidget(
                     onSectionTap: () {
                       Navigator.push(
@@ -90,7 +89,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ✅ 오늘 인증 진행바 (myChallenges 기준)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -161,9 +159,9 @@ class _HomePageState extends State<HomePage> {
                   // BETU 챌린지 섹션 (전역 노티파이어 구독으로 자동 갱신)
                   ValueListenableBuilder<List<Challenge>>(
                     valueListenable: allChallengesNotifier,
-                    builder: (context, challenges, __) {
+                    builder: (context, challenges, _) {
                       final betuOnly = challenges
-                          .where((c) => c.WhoMadeIt == 'BETU')
+                          .where((c) => c.whoMadeIt == 'BETU')
                           .toList();
 
                       return BetuChallengeSectionWidget(

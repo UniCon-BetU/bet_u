@@ -12,8 +12,6 @@ class BetuChallengesPage extends StatefulWidget {
 }
 
 class _BetuChallengesPageState extends State<BetuChallengesPage> {
-  final TextEditingController _searchController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

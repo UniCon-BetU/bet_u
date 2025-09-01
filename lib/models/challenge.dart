@@ -20,7 +20,7 @@ class Challenge {
   final String? imageUrl;
   final String? bannerPeriod;
   final String? bannerDescription;
-  final String? WhoMadeIt;
+  final String? whoMadeIt;
   TodayCheck todayCheck;
 
   bool isFavorite;
@@ -42,7 +42,7 @@ class Challenge {
     this.bannerDescription,
     this.isFavorite = false,
     this.progressDays = 0,
-    this.WhoMadeIt,
+    this.whoMadeIt,
     this.todayCheck = TodayCheck.notStarted,
     this.participating = false,
   }) : tags = tags ?? [];
@@ -61,7 +61,7 @@ class Challenge {
   };
   factory Challenge.fromJson(Map<String, dynamic> json) {
     // 날짜 파싱은 로컬 타임존 보정(서버가 UTC일 수 있음)
-    DateTime? _parse(String? s) {
+    DateTime? parse(String? s) {
       if (s == null || s.isEmpty) return null;
       try {
         final dt = DateTime.parse(s);
@@ -71,8 +71,8 @@ class Challenge {
       }
     }
 
-    final start = _parse(json['challengeStartDate']);
-    final end = _parse(json['challengeEndDate']);
+    final start = parse(json['challengeStartDate']);
+    final end = parse(json['challengeEndDate']);
 
     // 타입/기간
     final isDuration =
@@ -160,7 +160,7 @@ class Challenge {
       isFavorite: isFavorite,
       progressDays: progressDays,
       participating: participating,
-      WhoMadeIt: (json['challengeScope']?.toString().toUpperCase() == 'BETU')
+      whoMadeIt: (json['challengeScope']?.toString().toUpperCase() == 'BETU')
           ? 'BETU'
           : (json['whomadeit'] ?? json['whoMadeIt'] ?? 'USER'),
       todayCheck: todayCheck,

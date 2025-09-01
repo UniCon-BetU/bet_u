@@ -37,8 +37,6 @@ class _OtherCertificationPageState extends State<OtherCertificationPage> {
   int currentIndex = 0;
 
   void _handleClick(bool suspicious) {
-    final current = submissions[currentIndex];
-
     if (suspicious) {
       ScaffoldMessenger.of(
         context,

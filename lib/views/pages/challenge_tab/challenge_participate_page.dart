@@ -1,12 +1,16 @@
 // lib/views/pages/challenge_tab/challenge_participate_page.dart
+import 'dart:convert';
+
 import 'package:bet_u/utils/point_store.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
+import 'package:http/http.dart' as http;
 import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
-import 'package:bet_u/utils/challenge_api.dart';
+
+const String baseUrl = 'https://54.180.150.39.nip.io';
 
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge;
@@ -56,14 +60,47 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
     }
   }
 
-  // FIXME: 실제 참여 API로 교체
   Future<bool> _postChallengeParticipation({
-    required int userId,
     required int challengeId,
     required int points,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    return true;
+    final token = await TokenStorage.getToken();
+
+    final uri = Uri.parse('$baseUrl/api/challenges/$challengeId/join');
+
+    try {
+      final res = await http
+          .post(
+            uri,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({'betAmount': points}),
+          )
+          .timeout(const Duration(seconds: 12));
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return true;
+      }
+
+      // 에러 로깅 및 예외
+      debugPrint('[join] ${res.statusCode} ${res.body}');
+      if (res.statusCode == 401) {
+        throw Exception('인증이 만료되었습니다 다시 로그인해 주세요');
+      }
+      if (res.statusCode == 403) {
+        throw Exception('참여 권한이 없습니다');
+      }
+      if (res.statusCode == 409) {
+        throw Exception('이미 참여한 챌린지입니다');
+      }
+      throw Exception('챌린지 참여에 실패했습니다 (${res.statusCode})');
+    } on Exception catch (e) {
+      debugPrint('[join] error: $e');
+      rethrow;
+    }
   }
 
   void _toggleDropdown() =>
@@ -205,7 +242,6 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
 
     // 3) 참여 API 호출
     final success = await _postChallengeParticipation(
-      userId: _userId!,
       challengeId: widget.challenge.id,
       points: selectedAmount,
     );
@@ -287,7 +323,7 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
             // 🔔 전역 포인트를 “구독”해서 항상 최신값 표시
             ValueListenableBuilder<int>(
               valueListenable: PointStore.instance.points,
-              builder: (_, p, __) {
+              builder: (_, p, _) {
                 return Text(
                   '내 보유 포인트: ${_fmt(p)}',
                   style: const TextStyle(

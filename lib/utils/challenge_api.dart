@@ -6,7 +6,6 @@ class ChallengeApi {
   static const String _base = 'https://54.180.150.39.nip.io';
 
   /// POST /api/challenges/{challengeId}/join
-  /// body: { "betAmount": <int> }
   static Future<void> joinChallenge({
     required int challengeId,
     required int betAmount,

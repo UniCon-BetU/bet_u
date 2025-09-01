@@ -106,7 +106,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                 width: active ? 12 : 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: active ? AppColors.primaryGreen : AppColors.Gray,
+                  color: active ? AppColors.primaryGreen : AppColors.gray,
                   borderRadius: BorderRadius.circular(6),
                 ),
               );
@@ -166,7 +166,7 @@ class _ChallengeSectionWidgetState extends State<ChallengeSectionWidget> {
                       const SizedBox(height: 8),
                       ValueListenableBuilder<List<Challenge>>(
                         valueListenable: myChallengesNotifier,
-                        builder: (_, items, __) => _buildBody(items),
+                        builder: (_, items, _) => _buildBody(items),
                       ),
                     ],
                   ),

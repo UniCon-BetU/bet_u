@@ -475,7 +475,7 @@ class _SignupPageState extends State<SignupPage> {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(
-          color: AppColors.Gray, fontSize: 17, fontWeight: FontWeight.w400),
+          color: AppColors.gray, fontSize: 17, fontWeight: FontWeight.w400),
       filled: true,
       fillColor: AppColors.lighterGreen,
       border: InputBorder.none,

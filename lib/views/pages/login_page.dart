@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(
-        color: AppColors.Gray,
+        color: AppColors.gray,
         fontSize: 17,
         fontWeight: FontWeight.w400,
       ),

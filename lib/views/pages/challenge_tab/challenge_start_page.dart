@@ -69,7 +69,7 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
             // 전역 포인트 구독해서 남은 포인트 보여주기
             ValueListenableBuilder<int>(
               valueListenable: PointStore.instance.points,
-              builder: (_, p, __) {
+              builder: (_, p, _) {
                 return Text(
                   '${_fmt(p)} 포인트가 남았습니다!',
                   textAlign: TextAlign.center,

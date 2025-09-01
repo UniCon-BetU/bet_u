@@ -35,9 +35,7 @@ class _ChallengePageState extends State<ChallengePage> {
   String selectedTag = 'all'; // all | goal | time
   final List<String> tags = ['전체', '목표 챌린지', '기간 챌린지'];
 
-  final LayerLink _tagLayerLink = LayerLink();
   OverlayEntry? _tagOverlayEntry;
-  bool _isTagDropdownOpen = false;
 
   final TextEditingController _searchController = TextEditingController();
   String selectedCategory = '전체';
@@ -53,9 +51,9 @@ class _ChallengePageState extends State<ChallengePage> {
   ];
 
   List<String> get searchCategories => [
-        '전체',
-        ...categories.map((c) => c["name"]!),
-      ];
+    '전체',
+    ...categories.map((c) => c["name"]!),
+  ];
 
   List<String> recentSearches = [];
   String selectedTab = '인기'; // 인기 | 최근
@@ -69,19 +67,6 @@ class _ChallengePageState extends State<ChallengePage> {
     recentSearches.remove(title);
     recentSearches.insert(0, title);
     if (recentSearches.length > 5) recentSearches.removeLast();
-  }
-
-  void _onTagSelected(String tagLabel) {
-    setState(() {
-      if (tagLabel == '전체') {
-        selectedTag = 'all';
-      } else if (tagLabel == '목표 챌린지') {
-        selectedTag = 'goal';
-      } else if (tagLabel == '기간 챌린지') {
-        selectedTag = 'time';
-      }
-      _closeTagDropdown();
-    });
   }
 
   void _onSearchTap() {
@@ -130,12 +115,14 @@ class _ChallengePageState extends State<ChallengePage> {
           selectedCategory == '전체' || c.tags[0] == selectedCategory;
 
       final query = _searchController.text.trim();
-      final matchesSearch = query.isEmpty ||
+      final matchesSearch =
+          query.isEmpty ||
           c.title.contains(query) ||
           c.tags.contains(query) ||
           (c.bannerDescription?.contains(query) ?? false);
 
-      final matchesTag = selectedTag == 'all' ||
+      final matchesTag =
+          selectedTag == 'all' ||
           (selectedTag == 'goal' && c.type == 'goal') ||
           (selectedTag == 'time' && c.type == 'time');
 
@@ -176,8 +163,6 @@ class _ChallengePageState extends State<ChallengePage> {
         return '미참여';
       case ChallengeStatus.notStarted:
         return '-';
-      default:
-        return '-';
     }
   }
 
@@ -202,27 +187,6 @@ class _ChallengePageState extends State<ChallengePage> {
       currentFocus.unfocus();
       setState(() => _isSearching = false);
     }
-  }
-
-  void _toggleTagDropdown() {
-    if (_isTagDropdownOpen) {
-      _closeTagDropdown();
-    } else {
-      _openTagDropdown();
-    }
-  }
-
-  void _openTagDropdown() {
-    final overlay = Overlay.of(context);
-    _tagOverlayEntry = _createTagOverlayEntry();
-    overlay.insert(_tagOverlayEntry!);
-    setState(() => _isTagDropdownOpen = true);
-  }
-
-  void _closeTagDropdown() {
-    _tagOverlayEntry?.remove();
-    _tagOverlayEntry = null;
-    setState(() => _isTagDropdownOpen = false);
   }
 
   // ---------- build ----------
@@ -251,9 +215,7 @@ class _ChallengePageState extends State<ChallengePage> {
                     setState(() => _isSearching = false);
                   },
                 )
-              : const SizedBox.shrink(
-                  key: ValueKey('leading-empty'),
-                ),
+              : const SizedBox.shrink(key: ValueKey('leading-empty')),
         ),
         title: Padding(
           padding: const EdgeInsets.fromLTRB(6, 0, 24, 0),
@@ -370,14 +332,16 @@ class _ChallengePageState extends State<ChallengePage> {
                           ),
                           Expanded(
                             child: ListView.builder(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               itemCount: filteredChallenges.length,
                               itemBuilder: (context, index) {
                                 final challenge = filteredChallenges[index];
                                 return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
                                   child: ChallengeTileWidget(
                                     c: challenge,
                                     showTags: true,
@@ -407,15 +371,13 @@ class _ChallengePageState extends State<ChallengePage> {
                           ),
                           const SizedBox(height: 24),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24),
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: ValueListenableBuilder<List<Challenge>>(
                               valueListenable: allChallengesNotifier,
                               builder: (context, challenges, _) {
                                 return BetuChallengeSectionWidget(
                                   challengeFrom: challenges,
-                                  onTileTap: (challenge) =>
-                                      _goToProcessingPage(
+                                  onTileTap: (challenge) => _goToProcessingPage(
                                     challenge,
                                     fromSearch: _isSearching,
                                   ),
@@ -429,14 +391,15 @@ class _ChallengePageState extends State<ChallengePage> {
                           ValueListenableBuilder<List<Challenge>>(
                             valueListenable:
                                 ch.ChallengeHistory.instance.recent,
-                            builder: (context, _, __) {
+                            builder: (context, _, _) {
                               final list = challengesToShow;
                               if (selectedTab == '최근' && list.isEmpty) {
                                 return Container(
                                   color: AppColors.lightGray,
                                   child: const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 100),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 100,
+                                    ),
                                     child: Center(
                                       child: Text(
                                         '최근 방문한 챌린지가 없습니다.',
@@ -451,8 +414,9 @@ class _ChallengePageState extends State<ChallengePage> {
                               }
 
                               return Container(
-                                constraints:
-                                    const BoxConstraints(minHeight: 160),
+                                constraints: const BoxConstraints(
+                                  minHeight: 160,
+                                ),
                                 color: AppColors.lightGray,
                                 child: Column(
                                   children: list
@@ -490,60 +454,6 @@ class _ChallengePageState extends State<ChallengePage> {
     );
   }
 
-  // ---------- overlays ----------
-  OverlayEntry _createTagOverlayEntry() {
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        width: 120,
-        child: CompositedTransformFollower(
-          link: _tagLayerLink,
-          offset: const Offset(0, 40),
-          showWhenUnlinked: false,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: tags.length,
-              itemBuilder: (context, index) {
-                final tag = tags[index];
-                final isSelected = (tag == '전체' && selectedTag == 'all') ||
-                    (tag == '목표 챌린지' && selectedTag == 'goal') ||
-                    (tag == '기간 챌린지' && selectedTag == 'time');
-
-                return ListTile(
-                  title: Text(
-                    tag,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? Colors.green : Colors.black87,
-                    ),
-                  ),
-                  onTap: () => _onTagSelected(tag),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------- UI parts ----------
-  String _currentTagLabel() {
-    switch (selectedTag) {
-      case 'time':
-        return '기간 챌린지';
-      case 'goal':
-        return '목표 챌린지';
-      case 'all':
-      default:
-        return '전체';
-    }
-  }
-
   /// 검색 모드용: 우측에 붙는 드롭다운 버튼
   Widget buildSearchTagDropdown() {
     return Container(
@@ -556,8 +466,7 @@ class _ChallengePageState extends State<ChallengePage> {
         padding: EdgeInsets.zero,
         offset: const Offset(0, 8),
         position: PopupMenuPosition.under,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
         onSelected: (value) {
           setState(() {
             selectedTag = value; // 'all' | 'time' | 'goal'
@@ -605,10 +514,7 @@ class _ChallengePageState extends State<ChallengePage> {
             children: [
               Icon(Icons.filter_list, size: 18),
               SizedBox(width: 6),
-              Text(
-                '전체',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              Text('전체', style: TextStyle(fontWeight: FontWeight.w600)),
               SizedBox(width: 4),
               Icon(Icons.arrow_drop_down),
             ],
@@ -648,8 +554,9 @@ class _ChallengePageState extends State<ChallengePage> {
                     cat["name"]!,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -706,8 +613,7 @@ class _ChallengePageState extends State<ChallengePage> {
             },
             child: Container(
               margin: const EdgeInsets.only(right: 8),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected ? Colors.green : Colors.green.shade100,
                 borderRadius: BorderRadius.circular(20),
@@ -716,8 +622,7 @@ class _ChallengePageState extends State<ChallengePage> {
                 search,
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),

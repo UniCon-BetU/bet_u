@@ -56,7 +56,7 @@ Challenge mapBackendToFlutterChallenge(Map<String, dynamic> backendChallenge) {
     bannerPeriod:
         "${backendChallenge['challengeStartDate']}~${backendChallenge['challengeEndDate']}",
     bannerDescription: backendChallenge['challengeDescription'] ?? '',
-    WhoMadeIt: backendChallenge['challengeScope'] == "BETU" ? "BETU" : null,
+    whoMadeIt: backendChallenge['challengeScope'] == "BETU" ? "BETU" : null,
     todayCheck: TodayCheck.waiting,
     progressDays: backendChallenge['progress'] ?? 0,
     isFavorite: backendChallenge['isFavorite'] ?? false,

@@ -60,11 +60,9 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final String? imageUrl = widget.c.imageUrl?.trim();
-    final bool hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
-    final int day = widget.c.progressDays ?? 0;
-    final int totalDay = widget.c.day ?? 1;
+    final int day = widget.c.progressDays;
+    final int totalDay = widget.c.day;
     final double percent = totalDay > 0 ? day / totalDay : 0;
 
     final Widget? lettuceImage =
@@ -307,21 +305,6 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _imageBox(String url) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      errorBuilder: (ctx, err, st) => Container(
-        color: const Color(0xFFF3F3F3),
-        child: const Icon(
-          Icons.image_not_supported,
-          size: 20,
-          color: Colors.grey,
         ),
       ),
     );

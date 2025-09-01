@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
@@ -9,13 +6,10 @@ import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
 import '../../widgets/challenge_section_widget.dart';
-import '../../widgets/group_dashboard_widget.dart';
-
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import '../../widgets/profile_widget.dart';
-import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -70,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(width: 8),
               const Text(
-                '마이페이지',
+                '마이 페이지',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
             ],
@@ -85,11 +79,11 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   ProfileWidget(
-                    title: '연오 고',
+                    title: '사용자님 안녕하세요!', // TODO: 사용자 이름을 추가하자
                     subtitle: 'BETU와 함께한 오늘',
                     stats: [
                       StatItemData(label: '진행중', value: '$inProgressCount'),
-                      StatItemData(label: '내 그룹', value: '5'),
+                      StatItemData(label: '내 그룹', value: '5'), //TODO: 그룹 개수를 추가하자
                     ],
                   ),
                   const SizedBox(height: 16),

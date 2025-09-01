@@ -117,7 +117,7 @@ class _GroupDashboardWidgetState extends State<GroupDashboardWidget> {
                     width: active ? 12 : 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: active ? AppColors.primaryGreen : (AppColors.Gray), // Gray 없으면 Colors.grey.shade400
+                      color: active ? AppColors.primaryGreen : (AppColors.gray), // Gray 없으면 Colors.grey.shade400
                       borderRadius: BorderRadius.circular(6),
                     ),
                   );

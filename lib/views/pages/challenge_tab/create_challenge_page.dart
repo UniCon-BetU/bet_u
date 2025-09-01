@@ -43,7 +43,7 @@ class ChipDropdownWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: foregroundColor.withOpacity(0.25)),
+              border: Border.all(color: foregroundColor.withValues(alpha: 0.25)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -371,7 +371,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.85),
+              color: Colors.white.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -720,7 +720,7 @@ class SelectedTagChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF6FFE9),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.green.withOpacity(0.5)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

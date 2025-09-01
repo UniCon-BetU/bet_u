@@ -307,7 +307,7 @@ class _BoardPageState extends State<BoardPage> {
                                   16,
                                 ),
                                 itemCount: results.length,
-                                separatorBuilder: (_, __) =>
+                                separatorBuilder: (_, _) =>
                                     const SizedBox(height: 10),
                                 itemBuilder: (context, i) {
                                   final p = results[i];

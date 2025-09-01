@@ -300,7 +300,7 @@ class _GroupFindPageState extends State<GroupFindPage> {
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                           itemCount: results.length,
-                          separatorBuilder: (_, __) => const Divider(
+                          separatorBuilder: (_, _) => const Divider(
                             height: 16,
                             thickness: 1,
                             color: Colors.transparent,

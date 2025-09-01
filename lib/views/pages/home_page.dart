@@ -161,9 +161,9 @@ class _HomePageState extends State<HomePage> {
                   // BETU 챌린지 섹션 (전역 노티파이어 구독으로 자동 갱신)
                   ValueListenableBuilder<List<Challenge>>(
                     valueListenable: allChallengesNotifier,
-                    builder: (context, challenges, __) {
+                    builder: (context, challenges, _) {
                       final betuOnly = challenges
-                          .where((c) => c.WhoMadeIt == 'BETU')
+                          .where((c) => c.whoMadeIt == 'BETU')
                           .toList();
 
                       return BetuChallengeSectionWidget(

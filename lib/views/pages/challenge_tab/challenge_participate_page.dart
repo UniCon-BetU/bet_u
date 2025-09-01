@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
 import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
-import 'package:bet_u/utils/challenge_api.dart';
 
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge;
@@ -287,7 +286,7 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
             // 🔔 전역 포인트를 “구독”해서 항상 최신값 표시
             ValueListenableBuilder<int>(
               valueListenable: PointStore.instance.points,
-              builder: (_, p, __) {
+              builder: (_, p, _) {
                 return Text(
                   '내 보유 포인트: ${_fmt(p)}',
                   style: const TextStyle(

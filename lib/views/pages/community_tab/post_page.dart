@@ -928,7 +928,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: dto.imageUrls.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(width: 12),
                           itemBuilder: (context, i) {
                             final url = dto.imageUrls[i];
@@ -939,7 +939,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                 child: Image.network(
                                   url,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, _, _) => Container(
                                     color: Colors.grey.shade200,
                                     alignment: Alignment.center,
                                     child: const Icon(
@@ -1004,7 +1004,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               )
                             : ListView.separated(
                                 itemCount: dto.comments.length,
-                                separatorBuilder: (_, __) =>
+                                separatorBuilder: (_, _) =>
                                     const Divider(height: 16, thickness: 1),
                                 itemBuilder: (context, i) {
                                   final c = dto.comments[i];

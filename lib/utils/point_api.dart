@@ -12,7 +12,6 @@ class PointApi {
       url,
       headers: {'accept': '*/*', 'Authorization': 'Bearer $token'},
     );
-
     if (res.statusCode == 200) {
       // 서버가 숫자 하나(예: 0, 12345)를 그대로 반환하므로 바로 파싱
       return int.tryParse(res.body) ?? 0;

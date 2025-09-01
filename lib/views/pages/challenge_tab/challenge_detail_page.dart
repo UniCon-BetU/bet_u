@@ -26,7 +26,9 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     final challenge = widget.challenge;
 
     // 👉 ChallengeStatus에 따른 색상 분기
-    double percent = challenge.progressDays / challenge.day * 100;
+    double percent = (challenge.day == 0)
+        ? 0
+        : (challenge.progressDays / challenge.day * 100);
     Color progressColor;
     if (percent >= 70) {
       progressColor = AppColors.primaryRed;

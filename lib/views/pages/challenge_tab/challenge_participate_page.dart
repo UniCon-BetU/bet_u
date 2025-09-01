@@ -1,14 +1,24 @@
+// lib/views/pages/challenge_tab/challenge_participate_page.dart
+import 'package:bet_u/utils/point_store.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
-// 글로벌 챌린지 리스트 임포트
 import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
 import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
-import 'package:bet_u/utils/point_api.dart'; // TokenStorage or TokenUtil 가져오는 곳
+import 'package:bet_u/utils/challenge_api.dart';
+
+Future<bool> _postChallengeParticipation({
+  required int userId,
+  required int challengeId,
+  required int points,
+}) async {
+  await ChallengeApi.joinChallenge(challengeId: challengeId, betAmount: points);
+  return true;
+}
 
 class ChallengeParticipatePage extends StatefulWidget {
-  final Challenge challenge; // 챌린지 필드
+  final Challenge challenge;
 
   const ChallengeParticipatePage({super.key, required this.challenge});
 
@@ -28,79 +38,57 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
     50000,
     100000,
   ];
-
   int selectedAmount = 5000;
 
-  // 서버에서 가져올 실제 사용자 포인트
-  int _userPoints = 0;
   int? _userId;
 
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _isDropdownOpen = false;
 
-  // 더미 서버 함수 - 실제 API 호출로 교체 필요
-  // 챌린지 참여 API 호출을 시뮬레이션하는 더미 함수
+  @override
+  void initState() {
+    super.initState();
+    _initUserAndPoints();
+  }
+
+  Future<void> _initUserAndPoints() async {
+    try {
+      _userId = await TokenStorage.getUserId();
+      // ✅ 전역 스토어가 로딩/동기화 담당
+      await PointStore.instance.ensureLoaded();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('포인트 불러오기 실패: $e')));
+    }
+  }
+
+  // FIXME: 실제 참여 API로 교체
   Future<bool> _postChallengeParticipation({
     required int userId,
     required int challengeId,
     required int points,
   }) async {
-    // 실제 API 호출 로직 (예: http.post)
-    await Future.delayed(const Duration(seconds: 1)); // 네트워크 지연 시뮬레이션
-    // 서버 응답에 따라 true 또는 false 반환
+    await Future.delayed(const Duration(milliseconds: 600));
     return true;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _initUser();
-  }
-
-  Future<void> _initUser() async {
-    try {
-      _userId = await TokenStorage.getUserId(); // ← 이 줄 추가
-
-      final points = await PointApi.fetchUserPoints(); // ✅ 요렇게
-      if (mounted) {
-        setState(() {
-          _userPoints = points;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('포인트 불러오기 실패: $e')));
-      }
-    }
-  }
-
-  void _toggleDropdown() {
-    if (_isDropdownOpen) {
-      _closeDropdown();
-    } else {
-      _openDropdown();
-    }
-  }
+  void _toggleDropdown() =>
+      _isDropdownOpen ? _closeDropdown() : _openDropdown();
 
   void _openDropdown() {
     final overlay = Overlay.of(context);
-
     _overlayEntry = _createOverlayEntry();
     overlay.insert(_overlayEntry!);
-    setState(() {
-      _isDropdownOpen = true;
-    });
+    setState(() => _isDropdownOpen = true);
   }
 
   void _closeDropdown() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    setState(() {
-      _isDropdownOpen = false;
-    });
+    setState(() => _isDropdownOpen = false);
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -109,7 +97,7 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
         width: 120,
         child: CompositedTransformFollower(
           link: _layerLink,
-          offset: const Offset(120, 40), // x값을 양수로 바꾸면 오른쪽, y값은 아래쪽
+          offset: const Offset(120, 40),
           showWhenUnlinked: false,
           child: Material(
             elevation: 4,
@@ -129,29 +117,23 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
                   itemCount: amounts.length,
                   itemBuilder: (context, index) {
                     final amount = amounts[index];
-                    final formatted = amount.toString().replaceAllMapped(
-                      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-                      (match) => '${match[1]},',
-                    );
+                    final formatted = _fmt(amount);
                     final selected = amount == selectedAmount;
-
                     return ListTile(
                       dense: true,
                       title: Text(
                         formatted,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: selected
                               ? FontWeight.bold
-                              : FontWeight.normal,
+                              : FontWeight.w400,
                           color: selected ? Colors.green[700] : Colors.black87,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                       onTap: () {
-                        setState(() {
-                          selectedAmount = amount;
-                        });
+                        setState(() => selectedAmount = amount);
                         _closeDropdown();
                       },
                     );
@@ -165,102 +147,116 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
     );
   }
 
-  void _onParticipatePressed() async {
-    // 포인트 부족 여부 체크
-    if (_userPoints < selectedAmount) {
-      showDialog(
+  Future<void> _onParticipatePressed() async {
+    if (_userId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다.')));
+      return;
+    }
+
+    // 항상 전역 최신값으로 검사
+    final currentPoints = PointStore.instance.points.value;
+
+    // 1) 포인트 부족 → 충전 화면
+    if (currentPoints < selectedAmount) {
+      final go = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('포인트 부족'),
           content: const Text('포인트가 부족합니다. 충전 페이지로 이동하시겠습니까?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: const Text('취소'),
             ),
             TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-
-                final newPoints = await Navigator.push<int>(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PointPage()),
-                );
-                if (newPoints != null && mounted) {
-                  setState(() => _userPoints = newPoints);
-                }
-              },
+              onPressed: () => Navigator.pop(context, true),
               child: const Text('확인'),
             ),
           ],
         ),
       );
-      return; // 포인트 부족 시 함수 종료
+
+      if (go == true) {
+        final newPoints = await Navigator.push<int>(
+          context,
+          MaterialPageRoute(builder: (_) => const PointPage()),
+        );
+        if (newPoints != null) {
+          // 전역 갱신
+          PointStore.instance.setFromServer(newPoints);
+        }
+      }
+      return;
     }
 
-    // 포인트가 충분하면 참여 확인 다이얼로그 표시
-    showDialog(
+    // 2) 포인트 충분 → 참여 확인
+    final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('참여 확인'),
-        content: Text(
-          '${selectedAmount.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')} 포인트를 걸고 도전하시겠습니까?',
-        ),
+        content: Text('${_fmt(selectedAmount)} 포인트를 걸고 도전하시겠습니까?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('취소'),
           ),
           TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // 다이얼로그 닫기
-
-              // 실제 API 호출
-              final success = await _postChallengeParticipation(
-                userId: _userId!,
-                challengeId: widget.challenge.id,
-                points: selectedAmount,
-              );
-
-              if (success && mounted) {
-                // 성공 시 포인트 차감 및 페이지 이동
-                setState(() {
-                  _userPoints -= selectedAmount;
-                });
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ChallengeStartPage(
-                      deductedPoints: selectedAmount,
-                      challenge: widget.challenge,
-                    ),
-                  ),
-                );
-              } else if (mounted) {
-                // 실패 시 에러 메시지 표시
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('챌린지 참여에 실패했습니다. 다시 시도해주세요.')),
-                );
-              }
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('확인'),
           ),
         ],
       ),
     );
+
+    if (ok != true) return;
+
+    // 3) 참여 API 호출
+    final success = await _postChallengeParticipation(
+      userId: _userId!,
+      challengeId: widget.challenge.id,
+      points: selectedAmount,
+    );
+
+    if (!success) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('챌린지 참여에 실패했습니다. 다시 시도해주세요.')),
+      );
+      return;
+    }
+
+    // 4) 성공 시 전역 포인트 새로고침 + 로컬 모델도 진행중으로 갱신
+    try {
+      await PointStore.instance.refreshFromServer();
+    } catch (_) {}
+    widget.challenge.participating = true;
+    widget.challenge.status = ChallengeStatus.inProgress;
+    widget.challenge.todayCheck = TodayCheck.waiting;
+    // widget.challenge.progressDays = 0; // 서버 정책에 맞춰 필요하면 설정
+
+    if (!mounted) return;
+
+    // 5) 시작 페이지로 이동 (기존 UX 유지)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChallengeStartPage(
+          deductedPoints: selectedAmount,
+          challenge: widget.challenge,
+        ),
+      ),
+    );
   }
+
+  String _fmt(int n) => n.toString().replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]},',
+  );
 
   @override
   Widget build(BuildContext context) {
-    final formattedSelected = selectedAmount.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]},',
-    );
-    final formattedUserPoints = _userPoints.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]},',
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('챌린지 참여하기'),
@@ -287,27 +283,40 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
             const SizedBox(height: 16),
             Text(
               widget.challenge.title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             Text(
               '챌린지에',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 40),
-            Text(
-              '내 보유 포인트: $formattedUserPoints',
-              style: const TextStyle(fontSize: 16, color: Colors.blueAccent),
+
+            // 🔔 전역 포인트를 “구독”해서 항상 최신값 표시
+            ValueListenableBuilder<int>(
+              valueListenable: PointStore.instance.points,
+              builder: (_, p, __) {
+                return Text(
+                  '내 보유 포인트: ${_fmt(p)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.blueAccent,
+                  ),
+                );
+              },
             ),
+
             const SizedBox(height: 12),
+
+            // 배팅 금액 + 드롭다운
             Center(
               child: Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
                   Text(
-                    formattedSelected,
+                    _fmt(selectedAmount),
                     style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
@@ -318,32 +327,30 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
                     child: GestureDetector(
                       onTap: _toggleDropdown,
                       behavior: HitTestBehavior.translucent,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 200),
-                        child: Icon(
-                          _isDropdownOpen
-                              ? Icons.arrow_drop_up
-                              : Icons.arrow_drop_down,
-                          size: 40,
-                        ),
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 200),
+                        child: Icon(Icons.arrow_drop_down, size: 40),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 12),
-            Text(
+            const Text(
               '포인트를 걸고',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
             ),
-            Text(
+            const Text(
               '도전하시겠어요?',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
             ),
+
             const Spacer(),
+
             LongButtonWidget(
               text: '결제하고 참여하기',
               backgroundColor: Colors.green[600]!,

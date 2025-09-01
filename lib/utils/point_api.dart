@@ -1,3 +1,4 @@
+// lib/utils/point_api.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'token_util.dart';
@@ -6,16 +7,16 @@ class PointApi {
   static Future<int> fetchUserPoints() async {
     final token = await TokenStorage.getToken();
     final url = Uri.parse('https://54.180.150.39.nip.io/api/user/points');
-    final response = await http.get(
+
+    final res = await http.get(
       url,
       headers: {'accept': '*/*', 'Authorization': 'Bearer $token'},
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data;
-    } else {
-      throw Exception('포인트 조회 실패: ${response.statusCode}');
+    if (res.statusCode == 200) {
+      // 서버가 숫자 하나(예: 0, 12345)를 그대로 반환하므로 바로 파싱
+      return int.tryParse(res.body) ?? 0;
     }
+    throw Exception('포인트 조회 실패: ${res.statusCode}');
   }
 
   static Future<ConfirmedPoint> confirmCharge({
@@ -27,6 +28,7 @@ class PointApi {
     final url = Uri.parse(
       'https://54.180.150.39.nip.io/api/points/charge/confirm',
     );
+
     final response = await http.post(
       url,
       headers: {

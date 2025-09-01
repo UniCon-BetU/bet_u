@@ -1,43 +1,30 @@
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:bet_u/utils/point_api.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_participate_page.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
-import 'package:flutter/material.dart';
-import 'package:bet_u/utils/token_util.dart';
-import 'package:bet_u/views/widgets/point_option_card_widget.dart';
+import 'package:bet_u/utils/point_store.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/tosspayments_result.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_certification_page.dart';
-import 'package:flutter/material.dart';
-import '../../../models/challenge.dart';
-import 'package:bet_u/views/pages/challenge_tab/challenge_participate_page.dart';
-
-import 'package:bet_u/views/widgets/chip_widget.dart';
-import 'package:bet_u/views/widgets/long_button_widget.dart';
-import '../../../theme/app_colors.dart';
-
-import 'package:bet_u/views/widgets/goal_bubble_widget.dart';
-// Toss Payments Flutter SDK
 import 'package:tosspayments_widget_sdk_flutter/payment_widget.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/payment_method.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/agreement.dart';
+import 'package:bet_u/utils/token_util.dart';
+import 'package:bet_u/views/widgets/point_option_card_widget.dart';
+// import 들은 기존대로
 
 class PointPage extends StatefulWidget {
   const PointPage({super.key});
-
   @override
   State<PointPage> createState() => _PointPageState();
 }
 
 class _PointPageState extends State<PointPage> {
-  // ── Toss widget ──────────────────────────────────────────────────────────────
+  // Toss Payments
   late PaymentWidget _paymentWidget;
   PaymentMethodWidgetControl? _paymentMethodWidgetControl;
   AgreementWidgetControl? _agreementWidgetControl;
 
-  // ── State ───────────────────────────────────────────────────────────────────
-  int userPoints = 0; // 현재 로그인 유저 포인트
   int selectedAmount = 3000;
   int? userId;
   bool _loading = false;
@@ -88,19 +75,29 @@ class _PointPageState extends State<PointPage> {
   @override
   void initState() {
     super.initState();
-
-    // ✅ 토스 위젯 초기화
     _paymentWidget = PaymentWidget(
       clientKey: "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm", // 테스트 키
-      customerKey: "yi5Sv5mHoX6s5l9kM2wiQ", // 임의의 고객 키
+      customerKey: "yi5Sv5mHoX6s5l9kM2wiQ", // 고객 식별 키
     );
-
     _initPaymentWidgets();
-    _initUser();
+    _initUserAndPoints();
+  }
+
+  Future<void> _initUserAndPoints() async {
+    userId = await TokenStorage.getUserId();
+    try {
+      // 전역 스토어가 알아서 서버에서 가져오도록
+      await PointStore.instance.ensureLoaded();
+      if (!mounted) return;
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('포인트 불러오기 실패')));
+    }
   }
 
   Future<void> _initPaymentWidgets() async {
-    // 결제수단 위젯 그리기
     _paymentMethodWidgetControl = await _paymentWidget.renderPaymentMethods(
       selector: 'methods',
       amount: Amount(
@@ -110,31 +107,9 @@ class _PointPageState extends State<PointPage> {
       ),
       options: RenderPaymentMethodsOptions(variantKey: "DEFAULT"),
     );
-
-    // 약관 위젯 그리기
     _agreementWidgetControl = await _paymentWidget.renderAgreement(
       selector: 'agreement',
     );
-  }
-
-  Future<void> _initUser() async {
-    final id = await TokenStorage.getUserId();
-    if (id == null) return;
-    userId = id;
-    await _fetchUserPoints();
-  }
-
-  Future<void> _fetchUserPoints() async {
-    try {
-      final points = await PointApi.fetchUserPoints();
-      setState(() => userPoints = points);
-    } catch (e) {
-      debugPrint('포인트 불러오기 실패: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('포인트 불러오기 실패')));
-    }
   }
 
   Future<void> _payAndSelect(int amt) async {
@@ -148,13 +123,10 @@ class _PointPageState extends State<PointPage> {
     setState(() => selectedAmount = amt);
     await _paymentMethodWidgetControl?.updateAmount(amount: amt);
 
-    final option = pointOptions.firstWhere((o) => o["amount"] == amt);
-    final int bonus = option["bonus"] ?? 0;
-
     try {
       setState(() => _loading = true);
 
-      // 결제 요청
+      // 1) 토스 결제창 호출
       final result = await _paymentWidget.requestPayment(
         paymentInfo: PaymentInfo(
           orderId: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -162,38 +134,48 @@ class _PointPageState extends State<PointPage> {
         ),
       );
 
+      // 2) 결과 분기
       final success = result.success;
       final fail = result.fail;
 
       if (success != null) {
         final paymentKey = success.paymentKey;
         final orderId = success.orderId;
-
-        // 실제 결제된 금액(필드명 방어)
         final paidAmount = success.amount ?? amt;
 
+        // 3) 서버 승인 + 포인트 적립 (API 유틸 그대로 사용)
         final confirmed = await PointApi.confirmCharge(
           paymentKey: paymentKey,
           orderId: orderId,
           amount: paidAmount.toInt(),
         );
 
-        setState(() => userPoints = confirmed.totalPoint);
-
         if (!mounted) return;
 
-        // 결제 성공 스낵바
+        // 4) 전역 포인트 갱신(서버 권위)
+        PointStore.instance.setFromServer(confirmed.totalPoint);
+
+        // 5) 알림 + 부모로 최신 포인트 반환(선택)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('결제 성공! 현재 포인트: ${confirmed.totalPoint} P')),
         );
-
-        // 결제 완료 후 challenge_start_page로 이동
         Navigator.pop<int>(context, confirmed.totalPoint);
       } else if (fail != null) {
         if (!mounted) return;
+
+        final Map<String, dynamic> map = jsonDecode(jsonEncode(fail));
+
+        final code = map['errorCode']?.toString() ?? '';
+        final msg =
+            map['message']?.toString() ??
+            map['errorMsg']?.toString() ??
+            map['error']?.toString() ??
+            '';
+
+        final text = msg.isNotEmpty ? '[$code] $msg' : '결제 실패';
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('[${'결제 실패'}')));
+        ).showSnackBar(SnackBar(content: Text(text)));
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(
@@ -201,7 +183,6 @@ class _PointPageState extends State<PointPage> {
         ).showSnackBar(const SnackBar(content: Text('알 수 없는 결제 결과입니다.')));
       }
     } catch (e) {
-      debugPrint('포인트 충전 실패: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -232,7 +213,7 @@ class _PointPageState extends State<PointPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── 현재 포인트 표시 바 ───────────────────────────────────────────
+            // 현재 포인트 바
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: ClipRRect(
@@ -266,12 +247,15 @@ class _PointPageState extends State<PointPage> {
                       ),
                       Positioned(
                         right: 16,
-                        child: Text(
-                          '$userPoints P',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: PointStore.instance.points,
+                          builder: (_, p, __) => Text(
+                            '$p P',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
@@ -281,13 +265,11 @@ class _PointPageState extends State<PointPage> {
               ),
             ),
 
-            // ── 결제수단/약관 위젯 표시 영역 ─────────────────────────────────
-            // ⚠️ 이 두 위젯이 있어야 결제수단 선택/약관이 실제로 렌더됩니다.
+            // 결제수단/약관
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  // 결제수단
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -301,7 +283,6 @@ class _PointPageState extends State<PointPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // 약관
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -320,7 +301,7 @@ class _PointPageState extends State<PointPage> {
 
             const SizedBox(height: 8),
 
-            // ── 포인트 상품 선택 리스트 ─────────────────────────────────────
+            // 상품 리스트
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -330,14 +311,14 @@ class _PointPageState extends State<PointPage> {
                   return Column(
                     children: [
                       PointOptionCard(
-                        points: option["points"],
-                        amount: option["amount"],
-                        bonus: (option["bonus"] ?? 0) > 0
-                            ? option["bonus"]
+                        points: option["points"] as int,
+                        amount: option["amount"] as int,
+                        bonus: (option["bonus"] ?? 0) as int > 0
+                            ? option["bonus"] as int
                             : null,
-                        imagePath: option["image"],
-                        backgroundImagePath: option["background"],
-                        onTap: () => _payAndSelect(option["amount"]),
+                        imagePath: option["image"] as String,
+                        backgroundImagePath: option["background"] as String?,
+                        onTap: () => _payAndSelect(option["amount"] as int),
                         isSelected: selectedAmount == option["amount"],
                       ),
                       const SizedBox(height: 12),
@@ -351,8 +332,4 @@ class _PointPageState extends State<PointPage> {
       ),
     );
   }
-}
-
-extension on Fail {
-  Null get errorMsg => null;
 }

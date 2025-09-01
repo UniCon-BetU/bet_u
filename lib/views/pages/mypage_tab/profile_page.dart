@@ -8,6 +8,8 @@ import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
 import '../../widgets/challenge_section_widget.dart';
+import '../../widgets/group_dashboard_widget.dart';
+
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import '../../widgets/profile_widget.dart';
@@ -30,6 +32,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
+=======
     _fetchUserPoints();             // 포인트 불러오기
     MyChallengeLoader.loadAndPublish(context: context); // 내 챌린지 불러오기
   }
@@ -49,6 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } else {
       debugPrint('포인트 조회 실패: ${response.statusCode}');
     }
+>>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
   }
 
   @override
@@ -61,6 +66,57 @@ class _ProfilePageState extends State<ProfilePage> {
             myChallenges.where((c) => c.todayCheck == TodayCheck.done).length;
         final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
+<<<<<<< HEAD
+    final int totalCount = myChallenges.length;
+    final int doneCount = myChallenges
+        .where((c) => c.todayCheck == TodayCheck.done)
+        .length;
+    final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
+
+    // 상태별 카운트 계산
+    final int inProgressCount = myChallenges
+        .where((c) => c.status == ChallengeStatus.inProgress)
+        .length;
+
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 64,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/images/normal_lettuce.png',
+                width: 48,
+                height: 48,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                '마이페이지',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              child: Column(
+                children: [
+                  ProfileWidget(
+                    title: '연오 고',
+                    subtitle: 'BETU와 함께한 오늘',
+                    stats: [
+                      StatItemData(label: '진행중', value: '$inProgressCount'),
+                      StatItemData(label: '내 그룹', value: '5'),
+                    ],
+=======
         return Scaffold(
           appBar: AppBar(
             toolbarHeight: 64,
@@ -75,6 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 48,
                     height: 48,
                     fit: BoxFit.contain,
+>>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
                   ),
                   const SizedBox(width: 8),
                   const Text(

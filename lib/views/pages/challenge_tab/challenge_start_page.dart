@@ -1,11 +1,12 @@
-import 'package:bet_u/utils/token_util.dart';
+// lib/views/pages/challenge_tab/challenge_start_page.dart
+import 'package:bet_u/utils/point_store.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_detail_page.dart';
 import '../../../models/challenge.dart';
-import '../../widgets/long_button_widget.dart'; // LongButtonWidget 임포트
+import '../../widgets/long_button_widget.dart';
 
 class ChallengeStartPage extends StatefulWidget {
-  final int deductedPoints;
+  final int deductedPoints; // 이전 화면에서 이미 차감된 금액(정보용)
   final Challenge challenge;
 
   const ChallengeStartPage({
@@ -19,29 +20,30 @@ class ChallengeStartPage extends StatefulWidget {
 }
 
 class _ChallengeStartPageState extends State<ChallengeStartPage> {
-  int userId = 0;
-  int currentPoints = 0;
-
   @override
   void initState() {
     super.initState();
-    _initUserPoints();
+    // ⚠️ 여기서 포인트 차감/갱신 하지 않습니다.
+    // 차감은 참여 단계(ParticipatePage)에서 하고 PointStore에 반영 완료.
   }
 
-  Future<void> _initUserPoints() async {
-    // 토큰에서 유저 ID 가져오기
-    final id = await TokenStorage.getUserId();
-    if (id != null) {
-      setState(() {
-        userId = id;
-        // 유저의 현재 포인트 가져오기, 없으면 0
-        currentPoints = widget.challenge.getUserPoints(userId);
-        // 포인트 차감
-        currentPoints -= widget.deductedPoints;
-        widget.challenge.setUserPoints(userId, currentPoints);
-      });
-    }
+  void _onStartPressed() {
+    // 서버에서 이미 IN_PROGRESS로 전환됨
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChallengeDetailPage(challenge: widget.challenge),
+        ),
+      );
+    });
   }
+
+  String _fmt(int n) => n.toString().replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]},',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +65,27 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              '$currentPoints 포인트가 남았습니다!',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center,
+
+            // 전역 포인트 구독해서 남은 포인트 보여주기
+            ValueListenableBuilder<int>(
+              valueListenable: PointStore.instance.points,
+              builder: (_, p, __) {
+                return Text(
+                  '${_fmt(p)} 포인트가 남았습니다!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              },
             ),
+
             const SizedBox(height: 12),
             Text(
               '${widget.challenge.title}\n도전을 시작합니다!',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 40),
             const Spacer(),
@@ -81,15 +94,7 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
               backgroundColor: Colors.green[600]!,
               height: 56,
               radius: 8,
-              onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        ChallengeDetailPage(challenge: widget.challenge),
-                  ),
-                  (route) => route.isFirst, // 맨 처음(홈)만 남김
-                );
-              },
+              onPressed: _onStartPressed,
             ),
           ],
         ),

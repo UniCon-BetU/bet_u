@@ -285,20 +285,25 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
 // 진행도 위젯
 class ProgressStatusBar extends StatelessWidget {
-  final double percent;
   final int day;
   final int totalDay;
-  final int remainDay;
 
   const ProgressStatusBar({
     super.key,
     required this.day,
     required this.totalDay,
-  }) : percent = day / totalDay * 100,
-       remainDay = totalDay - day;
+  });
 
   @override
   Widget build(BuildContext context) {
+    // ✅ NaN/오버플로 방지용 안전값
+    final int safeTotal = totalDay > 0 ? totalDay : 0;
+    final int safeDay = (safeTotal == 0) ? 0 : day.clamp(0, safeTotal);
+    final double percent = (safeTotal == 0)
+        ? 0.0
+        : (safeDay / safeTotal) * 100.0;
+    final int remainDay = (safeTotal - safeDay).clamp(0, 1 << 30);
+
     Color progressColor;
     if (percent <= 30) {
       progressColor = AppColors.primaryGreen;

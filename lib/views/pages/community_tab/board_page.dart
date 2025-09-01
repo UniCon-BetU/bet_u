@@ -2,7 +2,6 @@
 import 'package:bet_u/views/pages/community_tab/post_create_page.dart';
 import 'package:bet_u/views/pages/community_tab/post_page.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/searchbar_widget.dart';
 import '../../widgets/postcard_widget.dart';
 import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:bet_u/theme/app_colors.dart';
@@ -41,7 +40,10 @@ class _BoardPageState extends State<BoardPage> {
   String? _error;
 
   Future<void> _fetchPosts() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
     final token = await TokenStorage.getToken();
     try {
@@ -54,13 +56,16 @@ class _BoardPageState extends State<BoardPage> {
         uri,
         headers: {
           'Accept': 'application/json',
-          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
         },
       );
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         final body = res.body.trim();
-        final decoded = body.isNotEmpty ? jsonDecode(body) as List<dynamic> : <dynamic>[];
+        final decoded = body.isNotEmpty
+            ? jsonDecode(body) as List<dynamic>
+            : <dynamic>[];
 
         // JSON → PostCard 매핑 (키 이름은 백엔드 스키마에 맞게 조정)
         final latest = decoded.map((e) {
@@ -71,7 +76,9 @@ class _BoardPageState extends State<BoardPage> {
             excerpt: (m['content'] ?? m['preview'] ?? '').toString(),
             author: (m['authorName'] ?? m['author'] ?? '익명').toString(),
             likes: (m['likeCount'] ?? 0) as int,
-            createdAt: DateTime.tryParse((m['createdAt'] ?? '').toString()) ?? DateTime.now(),
+            createdAt:
+                DateTime.tryParse((m['createdAt'] ?? '').toString()) ??
+                DateTime.now(),
             // thumbnailUrl: m['thumbnailUrl'] as String?,
           );
         }).toList();
@@ -79,11 +86,17 @@ class _BoardPageState extends State<BoardPage> {
         // crewId 없을 때는 일반게시판만(crewId가 null/0) 필터링
         final filtered = widget.crewId == null
             ? latest.where((p) {
-                final rawCrewId = (decoded.firstWhere(
-                  (e0) => (e0 as Map<String, dynamic>)['postId'] == p.postId,
-                  orElse: () => const {},
-                ) as Map?)?['crewId'];
-                final cid = (rawCrewId is int) ? rawCrewId : (rawCrewId == null ? 0 : 0);
+                final rawCrewId =
+                    (decoded.firstWhere(
+                          (e0) =>
+                              (e0 as Map<String, dynamic>)['postId'] ==
+                              p.postId,
+                          orElse: () => const {},
+                        )
+                        as Map?)?['crewId'];
+                final cid = (rawCrewId is int)
+                    ? rawCrewId
+                    : (rawCrewId == null ? 0 : 0);
                 return cid == 0 || rawCrewId == null;
               }).toList()
             : latest;
@@ -174,8 +187,8 @@ class _BoardPageState extends State<BoardPage> {
                 // 필요 시 최근검색어/필터 패널 표시 등
               },
               onPlusPressed: _fetchPosts,
-                // + 버튼 동작 (원하면 글쓰기 진입 등으로 연결 가능)
-                // Navigator.push(... PostCreatePage ...);
+              // + 버튼 동작 (원하면 글쓰기 진입 등으로 연결 가능)
+              // Navigator.push(... PostCreatePage ...);
               decoration: InputDecoration(
                 hintText: '제목 및 내용으로 검색',
                 hintStyle: const TextStyle(
@@ -204,8 +217,8 @@ class _BoardPageState extends State<BoardPage> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          _searchController.clear();   // <- _query는 리스너로 자동 반영
-                          _isSearching = true;         // 유지하거나 false로 바꿔도 됨
+                          _searchController.clear(); // <- _query는 리스너로 자동 반영
+                          _isSearching = true; // 유지하거나 false로 바꿔도 됨
                         });
                         _searchFocusNode.requestFocus();
                       },
@@ -224,7 +237,11 @@ class _BoardPageState extends State<BoardPage> {
                         // 서버 검색 트리거가 필요하면 호출
                         // _fetchGroups();
                       },
-                      child: const Icon(Icons.search, size: 30, color: Colors.black),
+                      child: const Icon(
+                        Icons.search,
+                        size: 30,
+                        color: Colors.black,
+                      ),
                     ),
                     const SizedBox(width: 15),
                   ],
@@ -247,86 +264,95 @@ class _BoardPageState extends State<BoardPage> {
                   child: _loading
                       ? const Center(child: CircularProgressIndicator())
                       : (_error != null)
-                          ? ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                const SizedBox(height: 24),
-                                Center(
-                                  child: Text(
-                                    _error!,
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Center(
-                                  child: TextButton(
-                                    onPressed: _fetchPosts,
-                                    child: const Text('다시 시도'),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : (results.isEmpty
-                              ? ListView(
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  children: [
-                                    const SizedBox(height: 24),
-                                    Center(
-                                      child: Text(
-                                        '게시물이 없어요',
-                                        style: TextStyle(color: Colors.grey.shade600),
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            const SizedBox(height: 24),
+                            Center(
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Center(
+                              child: TextButton(
+                                onPressed: _fetchPosts,
+                                child: const Text('다시 시도'),
+                              ),
+                            ),
+                          ],
+                        )
+                      : (results.isEmpty
+                            ? ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  const SizedBox(height: 24),
+                                  Center(
+                                    child: Text(
+                                      '게시물이 없어요',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
                                       ),
                                     ),
-                                  ],
-                                )
-                              : ListView.separated(
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                                  itemCount: results.length,
-                                  separatorBuilder: (_, __) =>
-                                      const SizedBox(height: 10),
-                                  itemBuilder: (context, i) {
-                                    final p = results[i];
-                                    return PostCardWidget(
-                                      post: p,
-                                      onTap: () async {
-                                        final res = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => PostDetailPage(
-                                              args: PostDetailArgs(
-                                                postId: p.postId,
-                                                title: p.title,
-                                                author: p.author,
-                                                content: p.excerpt,
-                                              ),
+                                  ),
+                                ],
+                              )
+                            : ListView.separated(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  8,
+                                  16,
+                                  16,
+                                ),
+                                itemCount: results.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemBuilder: (context, i) {
+                                  final p = results[i];
+                                  return PostCardWidget(
+                                    post: p,
+                                    onTap: () async {
+                                      final res = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PostDetailPage(
+                                            args: PostDetailArgs(
+                                              postId: p.postId,
+                                              title: p.title,
+                                              author: p.author,
+                                              content: p.excerpt,
                                             ),
                                           ),
-                                        );
-                                        if (res == 'deleted') {
-                                          setState(() {
-                                            _items.removeWhere(
-                                                (x) => x.postId == p.postId);
-                                          });
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                  content: Text('게시물이 삭제되었습니다')),
-                                            );
-                                          }
-                                          // 필요하면 서버 갱신
-                                          // await _fetchPosts();
+                                        ),
+                                      );
+                                      if (res == 'deleted') {
+                                        setState(() {
+                                          _items.removeWhere(
+                                            (x) => x.postId == p.postId,
+                                          );
+                                        });
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('게시물이 삭제되었습니다'),
+                                            ),
+                                          );
                                         }
-                                      },
-                                    );
-                                  },
-                                )),
+                                        // 필요하면 서버 갱신
+                                        // await _fetchPosts();
+                                      }
+                                    },
+                                  );
+                                },
+                              )),
                 ),
               ),
             ),
           ),
-
-
         ],
       ),
 

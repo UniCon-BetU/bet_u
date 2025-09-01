@@ -8,15 +8,6 @@ import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
 import 'package:bet_u/utils/challenge_api.dart';
 
-Future<bool> _postChallengeParticipation({
-  required int userId,
-  required int challengeId,
-  required int points,
-}) async {
-  await ChallengeApi.joinChallenge(challengeId: challengeId, betAmount: points);
-  return true;
-}
-
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge;
 

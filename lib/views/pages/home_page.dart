@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // 앱 첫 진입 시 챌린지 로드
     BetuChallengeLoader.loadAndPublish(context: context); // BETU 챌린지
-    MyChallengeLoader.loadAndPublish(context: context);   // 내 챌린지
+    MyChallengeLoader.loadAndPublish(context: context); // 내 챌린지
   }
 
   @override
@@ -34,15 +34,9 @@ class _HomePageState extends State<HomePage> {
       valueListenable: myChallengesNotifier, // ✅ 내 챌린지 기준으로 UI 구성
       builder: (context, myChallenges, _) {
         final int totalCount = myChallenges.length;
-<<<<<<< HEAD
         final int doneCount = myChallenges
             .where((c) => c.todayCheck == TodayCheck.done)
             .length;
-
-=======
-        final int doneCount =
-            myChallenges.where((c) => c.todayCheck == TodayCheck.done).length;
->>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
         final double progress = totalCount == 0 ? 0 : doneCount / totalCount;
 
         return Scaffold(
@@ -90,14 +84,7 @@ class _HomePageState extends State<HomePage> {
                     onSectionTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-<<<<<<< HEAD
-                          builder: (_) =>
-                              MyChallengePage(myChallenges: allChallengesValue),
-=======
-                          builder: (_) => MyChallengePage(),
->>>>>>> 9f8851bf034d7a0cdd0b5d373461e4f067ab83c1
-                        ),
+                        MaterialPageRoute(builder: (_) => MyChallengePage()),
                       );
                     },
                   ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/utils/point_store.dart';
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/welcome_page.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +20,16 @@ void main() {
 
 // 서버에서 챌린지 데이터를 가져와 allChallengesNotifier에 반영
 Future<void> fetchChallenges() async {
+  final token = await TokenStorage.getToken(); // ← 토큰 읽기
+  if (token == null || token.isEmpty) {
+    debugPrint('No token. Skip fetchChallenges');
+    return;
+  }
+  
   try {
     final response = await http.get(
       Uri.parse('https://54.180.150.39.nip.io/api/challenges'),
+      headers: {'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {
@@ -39,6 +47,16 @@ Future<void> fetchChallenges() async {
   }
 }
 
+Future<void> _bootstrap() async {
+  final token = await TokenStorage.getToken();
+  if (token != null && token.isNotEmpty) {
+    await Future.wait([
+      fetchChallenges(),
+      PointStore.instance.ensureLoaded(),
+    ]);
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -50,8 +68,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    fetchChallenges(); // 앱 시작 시 데이터 불러오기
-    PointStore.instance.ensureLoaded(); // 서버에서 한번 로딩
+    _bootstrap();
   }
 
   @override

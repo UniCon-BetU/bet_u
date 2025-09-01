@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show HttpClient, X509Certificate, SocketException;
+import 'package:bet_u/main.dart';
+import 'package:bet_u/utils/point_store.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -67,7 +69,10 @@ class _LoginPageState extends State<LoginPage> {
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'userEmail': userEmail, 'userPassword': userPassword}),
+            body: jsonEncode({
+              'userEmail': userEmail,
+              'userPassword': userPassword,
+            }),
           )
           .timeout(
             const Duration(seconds: 15),
@@ -96,6 +101,8 @@ class _LoginPageState extends State<LoginPage> {
         if (token != null) {
           await TokenStorage.saveToken(token);
           debugPrint('토큰 저장 완료');
+          await fetchChallenges();
+          await PointStore.instance.ensureLoaded();
         }
 
         if (!mounted) return;

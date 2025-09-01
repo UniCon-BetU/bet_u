@@ -5,7 +5,6 @@ import 'package:bet_u/models/group.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/community_tab/group_info_page.dart';
 import 'package:bet_u/views/widgets/group_card_widget.dart';
-import 'package:bet_u/views/widgets/searchbar_widget.dart';
 import 'package:bet_u/views/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +33,7 @@ class _GroupFindPageState extends State<GroupFindPage> {
   void initState() {
     super.initState();
 
-      // 텍스트 변화 → _query 갱신 (SearchBarOnly에 onChanged 없으니 리스너로 처리)
+    // 텍스트 변화 → _query 갱신 (SearchBarOnly에 onChanged 없으니 리스너로 처리)
     _searchController.addListener(() {
       final v = _searchController.text;
       if (_query != v) {
@@ -51,7 +50,7 @@ class _GroupFindPageState extends State<GroupFindPage> {
     _searchFocusNode.dispose();
     super.dispose();
   }
-  
+
   Future<void> _fetchGroups() async {
     setState(() {
       _loading = true;
@@ -171,7 +170,6 @@ class _GroupFindPageState extends State<GroupFindPage> {
       body: Column(
         children: [
           // 검색창
-          
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: SearchBarOnly(
@@ -184,11 +182,10 @@ class _GroupFindPageState extends State<GroupFindPage> {
                 // 검색창 탭 시 동작이 필요하면 여기에
                 // ex) 최근 검색어 노출 등
               },
-              onPlusPressed: _fetchGroups
-                // + 버튼 동작 (원하면 새 그룹 만들기 등)
-                // _fetchGroups
-                // Navigator.push(...);
-              ,
+              onPlusPressed: _fetchGroups,
+              // + 버튼 동작 (원하면 새 그룹 만들기 등)
+              // _fetchGroups
+              // Navigator.push(...);
               decoration: InputDecoration(
                 hintText: '그룹 이름으로 검색',
                 hintStyle: const TextStyle(
@@ -217,8 +214,8 @@ class _GroupFindPageState extends State<GroupFindPage> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          _searchController.clear();   // <- _query는 리스너로 자동 반영
-                          _isSearching = true;         // 유지하거나 false로 바꿔도 됨
+                          _searchController.clear(); // <- _query는 리스너로 자동 반영
+                          _isSearching = true; // 유지하거나 false로 바꿔도 됨
                         });
                         _searchFocusNode.requestFocus();
                       },
@@ -237,7 +234,11 @@ class _GroupFindPageState extends State<GroupFindPage> {
                         // 서버 검색 트리거가 필요하면 호출
                         // _fetchGroups();
                       },
-                      child: const Icon(Icons.search, size: 30, color: Colors.black),
+                      child: const Icon(
+                        Icons.search,
+                        size: 30,
+                        color: Colors.black,
+                      ),
                     ),
                     const SizedBox(width: 15),
                   ],
@@ -245,7 +246,6 @@ class _GroupFindPageState extends State<GroupFindPage> {
               ),
             ),
           ),
-
 
           if (_loading) const LinearProgressIndicator(minHeight: 2),
 
@@ -339,7 +339,6 @@ class _GroupFindPageState extends State<GroupFindPage> {
               ),
             ),
           ),
-
         ],
       ),
     );

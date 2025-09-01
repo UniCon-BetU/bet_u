@@ -84,16 +84,25 @@ class _PointPageState extends State<PointPage> {
   }
 
   Future<void> _initUserAndPoints() async {
-    userId = await TokenStorage.getUserId();
     try {
-      // 전역 스토어가 알아서 서버에서 가져오도록
+      userId = await TokenStorage.getUserId();
+      final token = (await TokenStorage.getToken())?.trim();
+      if (token == null || token.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다. (토큰 없음)')));
+        return;
+      }
+
       await PointStore.instance.ensureLoaded();
+      // OK
+    } catch (e) {
       if (!mounted) return;
-    } catch (_) {
-      if (!mounted) return;
+      // e 안에 status/body가 들어가서 원인 파악 쉬움
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('포인트 불러오기 실패')));
+      ).showSnackBar(SnackBar(content: Text('포인트 불러오기 실패: $e')));
     }
   }
 

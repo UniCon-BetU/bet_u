@@ -214,16 +214,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
                 MyPageSettingWidget(
-                  title: '진행 중인 챌린지',
-                  icon: Icons.stars,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => MyChallengePage()),
-                    );
-                  },
-                ),
-                MyPageSettingWidget(
                   title: '챌린지 내역 확인',
                   icon: Icons.check_circle,
                   onTap: () {

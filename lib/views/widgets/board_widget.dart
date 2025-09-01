@@ -6,7 +6,11 @@ class BoardPost {
   final String title;
   final DateTime createdAt;
   final int likeCount;
-  const BoardPost({required this.title, required this.createdAt, required this.likeCount});
+  const BoardPost({
+    required this.title,
+    required this.createdAt,
+    required this.likeCount,
+  });
 }
 
 /// 섹션 카드: 제목 + 게시물 리스트(최대 5개) + 더보기
@@ -40,9 +44,19 @@ class BoardSectionCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('전체 게시판 🗣️', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.black),
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 18,
+                    color: Colors.black,
+                  ),
                 ],
               ),
             ),
@@ -124,26 +138,26 @@ class _BoardRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
 
-                Text(
-                  df.format(post.createdAt),
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-                ),
+            Text(
+              df.format(post.createdAt),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
 
-                const SizedBox(width: 6), 
-                Row(
-                  children: [
-                    Icon(Icons.favorite, color: AppColors.primaryRed, size: 12),
-                    SizedBox(width: 2),
-                    Text(
-                      '${post.likeCount}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.primaryRed,
-                        fontWeight: FontWeight.w700,
-                      )
-                    )
-                  ],
-                )
+            const SizedBox(width: 6),
+            Row(
+              children: [
+                Icon(Icons.favorite, color: AppColors.primaryRed, size: 12),
+                SizedBox(width: 2),
+                Text(
+                  '${post.likeCount}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primaryRed,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

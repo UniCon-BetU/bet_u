@@ -8,13 +8,21 @@ import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
-void main() {
-  // 숫자 포맷할 때 사용할 기본 로케일
-  Intl.defaultLocale = PlatformDispatcher.instance.locale.toLanguageTag();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 기기 로케일 쓰기 또는 고정 'ko_KR'
+  final localeTag = PlatformDispatcher.instance.locale
+      .toLanguageTag(); // ex) ko-KR
+  Intl.defaultLocale = localeTag.replaceAll('-', '_'); // ko_KR 로 변환
+  await initializeDateFormatting(Intl.defaultLocale!);
+
   runApp(const MyApp());
 }
 
@@ -25,7 +33,7 @@ Future<void> fetchChallenges() async {
     debugPrint('No token. Skip fetchChallenges');
     return;
   }
-  
+
   try {
     final response = await http.get(
       Uri.parse('https://54.180.150.39.nip.io/api/challenges'),
@@ -50,10 +58,7 @@ Future<void> fetchChallenges() async {
 Future<void> _bootstrap() async {
   final token = await TokenStorage.getToken();
   if (token != null && token.isNotEmpty) {
-    await Future.wait([
-      fetchChallenges(),
-      PointStore.instance.ensureLoaded(),
-    ]);
+    await Future.wait([fetchChallenges(), PointStore.instance.ensureLoaded()]);
   }
 }
 
@@ -79,6 +84,8 @@ class _MyAppState extends State<MyApp> {
       valueListenable: allChallengesNotifier,
       builder: (context, challenges, _) {
         return MaterialApp(
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
           debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(
@@ -94,8 +101,7 @@ class _MyAppState extends State<MyApp> {
           ),
           home: const WelcomePage(),
           routes: {
-            '/my_challenge': (context) =>
-                MyChallengePage(),
+            '/my_challenge': (context) => MyChallengePage(),
             '/challenge': (context) => const ChallengePage(),
             '/community': (context) => CommunityPage(),
           },

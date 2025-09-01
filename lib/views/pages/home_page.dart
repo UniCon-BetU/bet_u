@@ -79,7 +79,6 @@ class _HomePageState extends State<HomePage> {
               clipBehavior: Clip.none,
               child: Column(
                 children: [
-                  // ✅ 내 챌린지 섹션 (ChallengeSectionWidget 내부에서 자동 API 호출)
                   ChallengeSectionWidget(
                     onSectionTap: () {
                       Navigator.push(
@@ -90,7 +89,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ✅ 오늘 인증 진행바 (myChallenges 기준)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

@@ -1,15 +1,19 @@
+import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/security_page.dart';
 import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../../../models/challenge.dart';
 import '../../widgets/challenge_section_widget.dart';
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import '../../widgets/profile_widget.dart';
+
+const String baseUrl = 'https://54.180.150.39.nip.io';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,12 +23,30 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int userPoints = 0;
+  int? userPoints;
 
-  @override
+  Future<void> fetchUserPoints() async {
+    final token = await TokenStorage.getToken();
+
+    final url = Uri.parse('$baseUrl/api/user/points');
+    final res = await http.get(
+      url,
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    if (res.statusCode == 200) {
+      setState(() {
+        userPoints = int.tryParse(res.body); // body = "5000"
+      });
+    } else {
+      print('포인트 불러오기 실패: ${res.statusCode} ${res.body}');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    fetchUserPoints();
   }
 
   @override
@@ -83,7 +105,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     subtitle: 'BETU와 함께한 오늘',
                     stats: [
                       StatItemData(label: '진행중', value: '$inProgressCount'),
-                      StatItemData(label: '내 그룹', value: '5'), //TODO: 그룹 개수를 추가하자
+                      StatItemData(
+                        label: '내 그룹',
+                        value: '5',
+                      ), //TODO: 그룹 개수를 추가하자
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -170,7 +195,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 MyPageSettingWidget(
                   title: '포인트 결제',
                   image: const AssetImage('assets/images/point_icon.png'),
-                  point: '$userPoints P',
+                  point: userPoints != null ? '${userPoints!} P' : '불러오는 중...',
                   onTap: () {
                     Navigator.push(
                       context,

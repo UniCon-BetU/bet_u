@@ -82,12 +82,12 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
               height: 56,
               radius: 8,
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
+                Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                     builder: (_) =>
                         ChallengeDetailPage(challenge: widget.challenge),
                   ),
+                  (route) => route.isFirst, // 맨 처음(홈)만 남김
                 );
               },
             ),

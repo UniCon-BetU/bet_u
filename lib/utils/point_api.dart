@@ -12,7 +12,7 @@ class PointApi {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['points'] ?? 0;
+      return data;
     } else {
       throw Exception('포인트 조회 실패: ${response.statusCode}');
     }

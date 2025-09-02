@@ -32,7 +32,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // BETU 제작 챌린지만 필터링
-    final betuOnly = challengeFrom.where((c) => c.whoMadeIt == 'BETU').toList();
+    final betuOnly = challengeFrom.where((c) => c.scope == 'BETU').toList();
 
     // BETU 없으면 안내 문구
     if (betuOnly.isEmpty) {

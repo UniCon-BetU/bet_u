@@ -19,14 +19,6 @@ class ChallengePage extends StatefulWidget {
   State<ChallengePage> createState() => _ChallengePageState();
 }
 
-int getDaysLeft(Challenge challenge) {
-  final now = DateTime.now();
-  final startDate = challenge.createdAt;
-  final endDate = startDate.add(Duration(days: challenge.day));
-  final diff = endDate.difference(now).inDays;
-  return diff >= 0 ? diff : 0;
-}
-
 class _ChallengePageState extends State<ChallengePage> {
   final FocusNode _searchFocusNode = FocusNode();
   List<Challenge> get challengesToShow => getSortedChallenges();
@@ -40,19 +32,35 @@ class _ChallengePageState extends State<ChallengePage> {
   final TextEditingController _searchController = TextEditingController();
   String selectedCategory = '전체';
   final List<Map<String, String>> categories = [
-    {"name": "수능", "image": "assets/category/suneung.png"},
-    {"name": "대학", "image": "assets/category/university.png"},
-    {"name": "토익", "image": "assets/category/toeic.png"},
-    {"name": "자격증", "image": "assets/category/certificate.png"},
-    {"name": "공무원/행시", "image": "assets/category/gongmuwon.png"},
-    {"name": "회계사", "image": "assets/category/account.png"},
-    {"name": "LEET", "image": "assets/category/leet.png"},
-    {"name": "생활/자기계발", "image": "assets/category/self.png"},
+    {"tag": "EXAM", "name": "수능", "image": "assets/category/suneung.png"},
+    {
+      "tag": "UNIVERSITY",
+      "name": "대학",
+      "image": "assets/category/university.png",
+    },
+    {"tag": "TOEIC", "name": "토익", "image": "assets/category/toeic.png"},
+    {
+      "tag": "CERTIFICATE",
+      "name": "자격증",
+      "image": "assets/category/certificate.png",
+    },
+    {
+      "tag": "CIVIL_SERVICE",
+      "name": "공무원/행시",
+      "image": "assets/category/gongmuwon.png",
+    },
+    {"tag": "CPA", "name": "회계사", "image": "assets/category/account.png"},
+    {"tag": "LEET", "name": "LEET", "image": "assets/category/leet.png"},
+    {
+      "tag": "SELF_DEVELOPMENT",
+      "name": "생활/자기계발",
+      "image": "assets/category/self.png",
+    },
   ];
 
-  List<String> get searchCategories => [
-    '전체',
-    ...categories.map((c) => c["name"]!),
+  List<Map<String, String>> get searchCategories => [
+    {"tag": "ALL", "name": "전체"}, // 전체 항목 직접 추가
+    ...categories.map((c) => {"tag": c["tag"]!, "name": c["name"]!}),
   ];
 
   List<String> recentSearches = [];
@@ -92,7 +100,7 @@ class _ChallengePageState extends State<ChallengePage> {
     } else if (selectedTab == '최근') {
       baseList = List.from(ch.ChallengeHistory.instance.recent.value);
     } else {
-      baseList = allChallenges;
+      baseList = allChallengesNotifier.value;
     }
 
     // 태그 기준
@@ -104,7 +112,7 @@ class _ChallengePageState extends State<ChallengePage> {
     return baseList;
   }
 
-  List<Challenge> get _searchBaseList => allChallenges;
+  List<Challenge> get _searchBaseList => allChallengesNotifier.value;
 
   List<Challenge> get filteredChallenges {
     // 검색 중이면 '탭 영향 없음' → 전체 목록에서 필터
@@ -119,7 +127,7 @@ class _ChallengePageState extends State<ChallengePage> {
           query.isEmpty ||
           c.title.contains(query) ||
           c.tags.contains(query) ||
-          (c.bannerDescription?.contains(query) ?? false);
+          (c.description.contains(query));
 
       final matchesTag =
           selectedTag == 'all' ||
@@ -157,12 +165,10 @@ class _ChallengePageState extends State<ChallengePage> {
     switch (status) {
       case ChallengeStatus.inProgress:
         return '진행중';
-      case ChallengeStatus.done:
-        return '완료';
-      case ChallengeStatus.missed:
-        return '미참여';
       case ChallengeStatus.notStarted:
         return '-';
+      case ChallengeStatus.completed:
+        return '완료';
     }
   }
 

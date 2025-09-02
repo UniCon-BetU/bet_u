@@ -15,7 +15,7 @@ class BetuChallengeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 140, // Stack 전체 높이 지정
+      height: 120, // Stack 전체 높이 지정
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -37,23 +37,13 @@ class BetuChallengeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (challenge.bannerPeriod != null)
-                    Text(
-                      challenge.bannerPeriod!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                   const SizedBox(height: 0),
-                  if (challenge.bannerDescription != null)
-                    Text(
-                      challenge.bannerDescription!,
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  Text(
+                    challenge.description,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   SizedBox(height: 2),
                 ],
               ),

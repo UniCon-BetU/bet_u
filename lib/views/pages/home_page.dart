@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                     valueListenable: allChallengesNotifier,
                     builder: (context, challenges, _) {
                       final betuOnly = challenges
-                          .where((c) => c.whoMadeIt == 'BETU')
+                          .where((c) => c.scope == 'BETU')
                           .toList();
 
                       return BetuChallengeSectionWidget(

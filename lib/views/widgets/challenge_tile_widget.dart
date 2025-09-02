@@ -31,6 +31,17 @@ class ChallengeTileWidget extends StatefulWidget {
   State<ChallengeTileWidget> createState() => _ChallengeTileWidgetState();
 }
 
+const Map<String, String> tagNameMap = {
+  "EXAM": "수능",
+  "UNIVERSITY": "대학",
+  "TOEIC": "토익",
+  "CERTIFICATE": "자격증",
+  "CIVIL_SERVICE": "공무원/행시",
+  "CPA": "회계사",
+  "LEET": "LEET",
+  "SELF_DEVELOPMENT": "자기계발",
+};
+
 class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
   bool _pressed = false;
 
@@ -44,7 +55,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
     if (widget.c.status != ChallengeStatus.inProgress) {
       return Colors.white;
     } else {
-      if (widget.c.type == 'time') {
+      if (widget.c.type == 'duration') {
         return switch (widget.c.todayCheck) {
           TodayCheck.notStarted => AppColors.lightRed,
           TodayCheck.waiting => AppColors.lightYellow,
@@ -60,13 +71,13 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     final int day = widget.c.progressDays;
     final int totalDay = widget.c.day;
     final double percent = totalDay > 0 ? day / totalDay : 0;
 
     final Widget? lettuceImage =
-        widget.c.status == ChallengeStatus.notStarted && widget.c.type == 'time'
+        widget.c.status == ChallengeStatus.notStarted &&
+            widget.c.type == 'duration'
         ? null
         : Image.asset(
             percent * 100 <= 30
@@ -82,12 +93,12 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
     final Widget rightWidget =
         widget.trailingOverride ??
         (() {
-          if (widget.c.type == 'time') {
+          if (widget.c.type == 'duration') {
             // time 타입: 진행중이면 배추, 시작 전이면 빈 박스
             return widget.c.status == ChallengeStatus.notStarted
                 ? const SizedBox.shrink()
                 : lettuceImage ?? const SizedBox.shrink();
-          } else if (widget.c.type == 'goal') {
+          } else if (widget.c.type == 'target') {
             // goal 타입: 시작 전이면 빈 박스, 진행중/완료/놓친 경우 트로피
             return widget.c.status == ChallengeStatus.notStarted
                 ? const SizedBox.shrink()
@@ -108,8 +119,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
       curve: Curves.easeOut,
       child: Card(
         color: widget.background ?? _bg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(11)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
         elevation: 0,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -154,8 +164,6 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                         ),
                         Row(
                           children: [
-                            // 참여자
-                            // 참여자
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 0,
@@ -203,7 +211,7 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                                   ),
                                   const SizedBox(width: 2),
                                   Text(
-                                    widget.c.type == 'time'
+                                    widget.c.type == 'duration'
                                         ? '${widget.c.day} Days'
                                         : '목표 달성 챌린지',
                                     style: const TextStyle(
@@ -269,23 +277,22 @@ class _ChallengeTileWidgetState extends State<ChallengeTileWidget> {
                           ],
                         ),
                         if (widget.showTags && widget.c.tags.isNotEmpty)
-                          if (widget.showTags && widget.c.tags.isNotEmpty)
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: -2,
-                              children: widget.c.tags
-                                  .map(
-                                    (tag) => Text(
-                                      '#$tag',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.green,
-                                        height: 1.0,
-                                      ),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: -2,
+                            children: widget.c.tags
+                                .map(
+                                  (tag) => Text(
+                                    '#${tagNameMap[tag]}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.green,
+                                      height: 1.0,
                                     ),
-                                  )
-                                  .toList(),
-                            ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
                       ],
                     ),
                   ),

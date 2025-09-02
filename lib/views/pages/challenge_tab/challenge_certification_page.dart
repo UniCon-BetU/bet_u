@@ -6,6 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:typed_data';
+import 'dart:io' show File; // 모바일용
+
+Uint8List? _imageBytes;
 
 class ChallengeCertificationPage extends StatefulWidget {
   final Challenge challenge;
@@ -26,15 +31,48 @@ class _ChallengeCertificationPageState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _openCamera();
+      _showSourceDialog();
     });
   }
+
+  // 카메라/갤러리 선택 다이얼로그
+  void _showSourceDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("사진 업로드"),
+        content: const Text("사진을 가져올 방법을 선택하세요."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _openCamera();
+            },
+            child: const Text("카메라"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _pickFromGallery();
+            },
+            child: const Text("갤러리"),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   // ------------------- 사진 찍기 ------------------- // 카메라 권한 거부당하면 앱이 뻗어버림!!!
   Future<void> _openCamera() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      setState(() => _image = File(pickedFile.path));
+      if (kIsWeb) {
+        _imageBytes = await pickedFile.readAsBytes();
+        setState(() {});
+      } else {
+        setState(() => _image = File(pickedFile.path));
+      }
       _showConfirmDialog();
     } else {
       if (mounted) Navigator.of(context).pop(); // 뒤로가기
@@ -45,7 +83,14 @@ class _ChallengeCertificationPageState
   Future<void> _pickFromGallery() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _image = File(pickedFile.path));
+      if (kIsWeb) {
+        // 웹 → Uint8List로 변환
+        _imageBytes = await pickedFile.readAsBytes();
+        setState(() {}); // UI 업데이트
+      } else {
+        // 모바일 → File 사용
+        setState(() => _image = File(pickedFile.path));
+      }
       _showConfirmDialog();
     }
   }
@@ -57,9 +102,23 @@ class _ChallengeCertificationPageState
       barrierDismissible: false,
       builder: (_) => AlertDialog(
         title: const Text("사진 확인"),
-        content: _image != null
-            ? Image.file(_image!, width: 200, height: 200, fit: BoxFit.cover)
-            : const Text("사진 없음"),
+        content: kIsWeb
+            ? (_imageBytes != null
+                  ? Image.memory(
+                      _imageBytes!,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    )
+                  : const Text("사진 없음"))
+            : (_image != null
+                  ? Image.file(
+                      _image!,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    )
+                  : const Text("사진 없음")),
         actions: [
           TextButton(
             onPressed: () {
@@ -91,7 +150,8 @@ class _ChallengeCertificationPageState
   Future<void> _submitImage() async {
     final token = await TokenStorage.getToken();
 
-    if (_image == null) return;
+if (!kIsWeb && _image == null) return;
+    if (kIsWeb && _imageBytes == null) return;
 
     try {
       final url = Uri.parse(
@@ -100,18 +160,30 @@ class _ChallengeCertificationPageState
 
       var request = http.MultipartRequest('POST', url);
 
-      // 토큰 필요 (사용자 로그인 시 받은 access token)
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['accept'] = '*/*';
 
-      String mimeType = 'image/${_image!.path.split('.').last}';
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
-          _image!.path,
-          contentType: MediaType.parse(mimeType),
-        ),
-      );
+      if (kIsWeb) {
+        // 웹 → 메모리에서 업로드
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            _imageBytes!,
+            filename: 'upload.png', // 임의 이름
+            contentType: MediaType('image', 'png'),
+          ),
+        );
+      } else {
+        // 모바일 → 파일 경로에서 업로드
+        String mimeType = 'image/${_image!.path.split('.').last}';
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            _image!.path,
+            contentType: MediaType.parse(mimeType),
+          ),
+        );
+      }
 
       var response = await request.send();
 
@@ -152,9 +224,23 @@ class _ChallengeCertificationPageState
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: _image == null
-            ? const Text("카메라 실행 중...")
-            : Image.file(_image!, width: 200, height: 200, fit: BoxFit.cover),
+        child: kIsWeb
+            ? (_imageBytes != null
+                  ? Image.memory(
+                      _imageBytes!,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    )
+                  : const Text("카메라 실행 중..."))
+            : (_image != null
+                  ? Image.file(
+                      _image!,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    )
+                  : const Text("카메라 실행 중...")),
       ),
     );
   }

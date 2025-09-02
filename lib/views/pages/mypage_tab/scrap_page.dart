@@ -19,7 +19,7 @@ class ScrapPage extends StatelessWidget {
       body: ValueListenableBuilder<List<Challenge>>(
         valueListenable: allChallengesNotifier, // <- reactive 전역 리스트
         builder: (context, allChallenges, _) {
-          final scrapped = allChallenges.where((c) => c.isFavorite).toList();
+          final scrapped = allChallenges.where((c) => c.liked).toList();
 
           if (scrapped.isEmpty) {
             return const Center(

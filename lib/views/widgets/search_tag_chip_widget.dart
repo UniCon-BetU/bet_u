@@ -3,7 +3,7 @@ import '../../theme/app_colors.dart';
 
 // 2) 칩만 그리는 위젯
 class CategoryChipsBar extends StatelessWidget implements PreferredSizeWidget {
-  final List<String> categories;
+  final List<Map<String, String>> categories;
   final String selected;
   final ValueChanged<String> onSelect;
 
@@ -26,22 +26,27 @@ class CategoryChipsBar extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: categories.map((cat) {
-            final isSelected = selected == cat;
+            final isSelected = selected == cat["tag"];
             return GestureDetector(
-              onTap: () => onSelect(cat),
+              onTap: () => onSelect(cat["tag"]!),
               child: Container(
                 margin: const EdgeInsets.only(right: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primaryGreen : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  cat,
+                  cat["name"]!,
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.black,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 16,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    fontSize: 16,
                   ),
                 ),
               ),

@@ -46,9 +46,6 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
       case ChallengeStatus.inProgress:
         statusColor = AppColors.primaryRed;
         break;
-      case ChallengeStatus.missed:
-        statusColor = Colors.grey; // 임시
-        break;
       default:
         statusColor = Colors.grey;
     }
@@ -185,7 +182,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    challenge.bannerDescription ?? "상세 설명이 제공되지 않았습니다.",
+                    challenge.description,
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 120), // 하단 버튼 여백 확보
@@ -226,7 +223,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      widget.challenge.isFavorite
+                      widget.challenge.liked
                           ? Icons.bookmark
                           : Icons.bookmark_border,
                       color: progressColor,
@@ -234,8 +231,8 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     ),
                     onPressed: () {
                       setState(() {
-                        widget.challenge.isFavorite =
-                            !widget.challenge.isFavorite;
+                        widget.challenge.liked =
+                            !widget.challenge.liked;
                       });
                     },
                   ),

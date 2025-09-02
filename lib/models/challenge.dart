@@ -1,169 +1,251 @@
-// models/challenge.dart
-enum ChallengeStatus { inProgress, done, missed, notStarted }
+// lib/models/challenge.dart
+import 'package:flutter/foundation.dart';
 
-enum TodayCheck {
-  waiting, // 인증 대기중
-  done, // 완료
-  notStarted, // 시작 전
+enum ChallengeStatus { notStarted, inProgress, completed }
+enum TodayCheck { notStarted, waiting, done }
+
+@immutable
+class Crew {
+  final int crewId;
+  final String crewName;
+  final String crewDescription;
+  final String crewCode;
+  final bool crewIsPublic;
+  final List<String> customTags;
+
+  const Crew({
+    required this.crewId,
+    required this.crewName,
+    required this.crewDescription,
+    required this.crewCode,
+    required this.crewIsPublic,
+    required this.customTags,
+  });
+
+  factory Crew.fromJson(Map<String, dynamic> j) {
+    return Crew(
+      crewId: _asInt(j['crewId']),
+      crewName: (j['crewName'] ?? '') as String,
+      crewDescription: (j['crewDescription'] ?? '') as String,
+      crewCode: (j['crewCode'] ?? '') as String,
+      crewIsPublic: (j['crewIsPublic'] ?? j['isPublic'] ?? false) as bool,
+      customTags: (j['customTags'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const <String>[],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'crewId': crewId,
+        'crewName': crewName,
+        'crewDescription': crewDescription,
+        'crewCode': crewCode,
+        'crewIsPublic': crewIsPublic,
+        'customTags': customTags,
+      };
 }
 
 class Challenge {
-  final int id;
-  final String title;
-  int participants;
-  final int day;
-  ChallengeStatus status;
-  final String category;
-  final DateTime createdAt;
-  final String? type;
-  final List<String> tags;
-  final String? imageUrl;
-  final String? bannerPeriod;
-  final String? bannerDescription;
-  final String? whoMadeIt;
-  TodayCheck todayCheck;
+  // ===== 불변 필드 =====
+  final int id;                // challengeId
+  final String scope;          // CREW / PUBLIC / BETU
+  final Crew? crew;
 
-  bool isFavorite;
-  bool participating;
-  int progressDays;
+  // 분류/태그
+  /// 서버: challengeType (DURATION / TARGET) → 'duration' / 'target'
+  final String type;
+  final List<String> tags;       // challengeTags
+  final List<String> customTags;
+
+  // 표시 텍스트
+  final String title;            // challengeName
+  final String description;      // challengeDescription
+
+  // 이미지
+  final List<String> imageUrls;  // 상세: imageUrls
+  final String? imageUrl;        // /me: imageUrl 또는 imageUrls.first
+
+  // 수치
+  final int day;                 // challengeDuration
+  final int participants;        // participantCount
+  final int favoriteCount;       // favoriteCount
+  final int progressDays;        // progress
+
+  // ===== 가변 필드 =====
+  bool participating;            // ✅ 서버 boolean 그대로 들고 있음
+  ChallengeStatus status;        // ✅ UI용 상태
+  TodayCheck todayCheck;         // ✅ todayVerified 매핑
+  bool liked;                    // ✅ 좋아요
 
   Challenge({
     required this.id,
+    required this.scope,
+    required this.crew,
+    required this.type,
+    required this.tags,
+    required this.customTags,
     required this.title,
-    required this.participants,
+    required this.description,
+    required this.imageUrls,
+    required this.imageUrl,
     required this.day,
+    required this.participants,
+    required this.favoriteCount,
+    required this.progressDays,
+    required this.participating, // ✅
     required this.status,
-    required this.category,
-    required this.createdAt,
-    this.type,
-    List<String>? tags,
-    this.imageUrl,
-    this.bannerPeriod,
-    this.bannerDescription,
-    this.isFavorite = false,
-    this.progressDays = 0,
-    this.whoMadeIt,
-    this.todayCheck = TodayCheck.notStarted,
-    this.participating = false,
-  }) : tags = tags ?? [];
+    required this.todayCheck,
+    required this.liked,
+  });
 
-  double get progressPercent => day > 0 ? progressDays / day : 0;
+  /// 서버 응답 흡수 (/me, 상세 공통)
+  factory Challenge.fromJson(Map<String, dynamic> j) {
+    final id = _asInt(j['id'] ?? j['challengeId']);
+    final scope = (j['challengeScope'] ?? j['scope'] ?? '') as String;
 
-  static const Map<String, String> tagKoMap = {
-    'EXAM': '수능',
-    'UNIVERSITY': '대학',
-    'TOEIC': '토익',
-    'CERTIFICATE': '자격증',
-    'CIVIL_SERVICE': '공무원/행시',
-    'LEET': 'LEET',
-    'CPA': '회계사',
-    'SELF_DEVELOPMENT': '생활/자기계발',
-  };
-  factory Challenge.fromJson(Map<String, dynamic> json) {
-    // 날짜 파싱은 로컬 타임존 보정(서버가 UTC일 수 있음)
-    DateTime? parse(String? s) {
-      if (s == null || s.isEmpty) return null;
-      try {
-        final dt = DateTime.parse(s);
-        return dt.isUtc ? dt.toLocal() : dt;
-      } catch (_) {
-        return null;
-      }
-    }
+    final rawType =
+        (j['challengeType'] ?? j['type'] ?? '').toString().trim().toUpperCase();
+    final type = switch (rawType) {
+      'DURATION' => 'duration',
+      'TARGET' => 'target',
+      _ => rawType.toLowerCase(),
+    };
 
-    final start = parse(json['challengeStartDate']);
-    final end = parse(json['challengeEndDate']);
+    final title =
+        (j['title'] ?? j['challengeName'] ?? '챌린지').toString().trim();
+    final description =
+        (j['description'] ?? j['challengeDescription'] ?? '').toString();
 
-    // 타입/기간
-    final isDuration =
-        (json['challengeType']?.toString().toUpperCase() ?? '') == 'DURATION';
-    final int durationDays = isDuration ? (json['challengeDuration'] ?? 0) : 0;
-
-    // 진행(서버가 0~100 정수라고 가정)
-    final int progressPct = (json['progress'] is num)
-        ? (json['progress'] as num).round()
-        : 0;
-    final int progressDays = (isDuration && durationDays > 0)
-        ? ((progressPct.clamp(0, 100) / 100.0) * durationDays).round()
-        : 0;
-
-    // 태그 매핑 (백엔드 태그 + 커스텀 태그)
-    final backendTags =
-        (json['challengeTags'] as List?)
+    final List<String> imageUrls = (j['imageUrls'] as List<dynamic>?)
             ?.map((e) => e.toString())
-            .map((e) => Challenge.tagKoMap[e.toUpperCase()] ?? e)
             .toList() ??
-        const [];
-    final customTags =
-        (json['customTags'] as List?)?.map((e) => e.toString()).toList() ??
-        const [];
-    final allTags = [...backendTags, ...customTags];
+        (j['imageUrl'] != null
+            ? <String>[j['imageUrl'].toString()]
+            : const <String>[]);
+    final String? imageUrl =
+        (j['imageUrl'] as String?) ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
 
-    // 이미지: 배열 우선 → 단일 폴백
-    final List<String> imageUrls =
-        (json['imageUrls'] as List?)?.map((e) => e.toString()).toList() ??
-        const [];
-    final String? imageUrl = imageUrls.isNotEmpty
-        ? imageUrls.first
-        : (json['imageUrl'] as String?);
+    final day = _asInt(j['day'] ?? j['challengeDuration']);
+    final participants = _asInt(j['participants'] ?? j['participantCount']);
+    final favoriteCount = _asInt(j['favoriteCount']);
+    final progressDays = _asInt(j['progress'] ?? j['progressDays']);
 
-    // 참여/좋아요/인증
-    final bool participating = json['participating'] == true;
-    final bool todayVerified = json['todayVerified'] == true;
-    final bool isFavorite = (json['liked'] ?? json['isFavorite']) == true;
+    final List<String> tags = (j['tags'] ?? j['challengeTags'] ?? const <String>[])
+            is List
+        ? ((j['tags'] ?? j['challengeTags']) as List)
+            .map((e) => e.toString())
+            .toList()
+        : const <String>[];
+    final List<String> customTags =
+        (j['customTags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            const <String>[];
 
-    // 상태 계산: 서버/날짜/진행률 종합
-    ChallengeStatus status;
-    final now = DateTime.now();
-    if (progressPct >= 100 || (end != null && now.isAfter(end))) {
-      status = ChallengeStatus.done;
-    } else if (start != null && now.isBefore(start)) {
-      status = ChallengeStatus.notStarted;
-    } else if (participating) {
-      status = ChallengeStatus.inProgress;
-    } else {
-      // 날짜가 없으면 보수적으로 notStarted
-      status = (start != null || end != null)
-          ? ChallengeStatus.inProgress
-          : ChallengeStatus.notStarted;
-    }
+    final participating =
+        (j['participating'] ?? j['isParticipating'] ?? false) as bool;
+    final todayVerified = (j['todayVerified'] ?? false) as bool;
+    final liked = (j['liked'] ?? false) as bool;
 
-    // 오늘 인증 상태 매핑
-    TodayCheck todayCheck;
-    final bool inPeriod = (start != null && end != null)
-        ? (now.isAfter(start) && now.isBefore(end)) ||
-              now.isAtSameMomentAs(start) ||
-              now.isAtSameMomentAs(end)
-        : true;
-    if (!participating || !inPeriod) {
-      todayCheck = TodayCheck.notStarted;
-    } else {
-      todayCheck = todayVerified ? TodayCheck.done : TodayCheck.waiting;
-    }
+    // status 계산: 완료 판정이 가능하면 우선 completed
+    final status = _deriveStatus(
+      participating: participating,
+      progressDays: progressDays,
+      totalDays: day,
+    );
+
+    final todayCheck =
+        todayVerified ? TodayCheck.done : TodayCheck.notStarted;
+
+    final crew = (j['crew'] is Map<String, dynamic>)
+        ? Crew.fromJson(j['crew'] as Map<String, dynamic>)
+        : null;
 
     return Challenge(
-      id: json['challengeId'] ?? 0,
-      title: json['challengeName'] ?? (json['title'] ?? ''),
-      participants: json['participantCount'] ?? 0,
-      day: durationDays,
-      status: status,
-      category: json['challengeScope']?.toString() ?? 'USER',
-      createdAt: start ?? DateTime.now(),
-      type: isDuration ? 'time' : 'goal',
-      tags: allTags,
+      id: id,
+      scope: scope,
+      crew: crew,
+      type: type,
+      tags: tags,
+      customTags: customTags,
+      title: title,
+      description: description,
+      imageUrls: imageUrls,
       imageUrl: imageUrl,
-      bannerPeriod: (start != null && end != null)
-          ? '${start.toIso8601String()}~${end.toIso8601String()}'
-          : null,
-      bannerDescription: (json['challengeDescription'] ?? json['description'])
-          ?.toString(),
-      isFavorite: isFavorite,
+      day: day,
+      participants: participants,
+      favoriteCount: favoriteCount,
       progressDays: progressDays,
-      participating: participating,
-      whoMadeIt: (json['challengeScope']?.toString().toUpperCase() == 'BETU')
-          ? 'BETU'
-          : (json['whomadeit'] ?? json['whoMadeIt'] ?? 'USER'),
+      participating: participating, // ✅
+      status: status,
       todayCheck: todayCheck,
+      liked: liked,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'challengeId': id,
+        'challengeScope': scope,
+        'crew': crew?.toJson(),
+        'challengeType': type.toUpperCase(),
+        'challengeTags': tags,
+        'customTags': customTags,
+        'challengeName': title,
+        'challengeDescription': description,
+        'imageUrls': imageUrls,
+        'imageUrl': imageUrl,
+        'challengeDuration': day,
+        'participantCount': participants,
+        'favoriteCount': favoriteCount,
+        'progress': progressDays,
+        'participating': participating,                 // ✅ 서버로 그대로
+        'todayVerified': todayCheck == TodayCheck.done,
+        'liked': liked,
+      };
+
+  // ===== 편의 메서드 =====
+  void toggleLiked() => liked = !liked;
+  void setLiked(bool v) => liked = v;
+
+  void setStatus(ChallengeStatus s) => status = s;
+  void setTodayCheck(TodayCheck t) => todayCheck = t;
+
+  /// participating과 status를 함께 다루기 쉽게 동기화 메서드
+  void setParticipating(bool v) {
+    participating = v;
+    // 완료가 아닌 경우에만 participating에 따라 status 정리
+    if (status != ChallengeStatus.completed) {
+      status = v ? ChallengeStatus.inProgress : ChallengeStatus.notStarted;
+    }
+  }
+
+  void markCompleted() {
+    status = ChallengeStatus.completed;
+    // 완료 시 participating은 그대로 두는 편이 자연스러움(참여해서 끝난 상태)
+    // 필요하다면 여기서 participating=false로 바꿔도 됨
+  }
+
+  bool get isDuration => type == 'duration';
+  bool get isTarget => type == 'target';
+}
+
+ChallengeStatus _deriveStatus({
+  required bool participating,
+  required int progressDays,
+  required int totalDays,
+}) {
+  if (totalDays > 0 && progressDays >= totalDays) {
+    return ChallengeStatus.completed;
+  }
+  return participating ? ChallengeStatus.inProgress : ChallengeStatus.notStarted;
+}
+
+int _asInt(dynamic v, [int fallback = 0]) {
+  if (v == null) return fallback;
+  if (v is int) return v;
+  if (v is double) return v.toInt();
+  if (v is String) {
+    final p = int.tryParse(v);
+    if (p != null) return p;
+  }
+  return fallback;
 }

@@ -75,21 +75,50 @@ class _MyChallengePageState extends State<MyChallengePage> {
               .map((x) => x.toString())
               .toList();
           final String? imageUrl = m['imageUrl'] as String?;
-          final String category = tags.isNotEmpty ? tags.first : '기타';
-
+        
           return Challenge(
+            // 기본 식별
             id: id,
-            title: title,
-            participants: participants,
-            day: duration == 0 ? 1 : duration,
-            status: ChallengeStatus.inProgress, // 내 참여 목록이니 진행중 가정
-            category: category,
-            createdAt: DateTime.now(),
-            type: type,
+
+            // 범위/크루
+            scope: 'PUBLIC', // 필요시 'CREW' 등 실제 값으로 교체
+            crew: null,
+
+            // 타입 표준화: DURATION/TARGET → duration/target
+            type: (() {
+              final t = type.toString().trim().toUpperCase();
+              if (t == 'DURATION') return 'duration';
+              if (t == 'TARGET') return 'target';
+              return t.toLowerCase();
+            })(),
+
+            // 태그
             tags: tags,
-            imageUrl: imageUrl,
-            participating: true,
+            customTags: const <String>[],
+
+            // 표시 텍스트
+            title: title,
+            description: '',
+
+            // 이미지
+            imageUrls: (imageUrl != null && imageUrl.isNotEmpty)
+                ? [imageUrl]
+                : const <String>[],
+            imageUrl: (imageUrl != null && imageUrl.isNotEmpty)
+                ? imageUrl
+                : null,
+
+            // 수치
+            day: duration == 0 ? 1 : duration,
+            participants: participants,
+            favoriteCount: 0,
             progressDays: 0,
+
+            // 상태
+            participating: true,
+            status: ChallengeStatus.inProgress, // 내 참여 목록이면 진행중 가정
+            todayCheck: TodayCheck.notStarted, // 오늘 인증 정보 없으니 기본값
+            liked: false,
           );
         }).toList();
 

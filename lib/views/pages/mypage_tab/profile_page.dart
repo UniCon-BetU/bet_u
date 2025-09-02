@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // 1) 내가 참여한 챌린지(진행중/시작전 모두 포함)
-    final List<Challenge> myChallenges = allChallenges
+    final List<Challenge> myChallenges = allChallengesNotifier.value
         .where((c) => c.participating)
         .toList();
 

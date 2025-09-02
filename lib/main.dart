@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
 import 'package:bet_u/data/global_challenges.dart';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/utils/point_store.dart';
@@ -18,6 +15,9 @@ import 'package:bet_u/views/pages/welcome_page.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/views/pages/community_tab/community_page.dart';
+import 'dart:io' show File; // 모바일용
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:typed_data';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

@@ -242,6 +242,12 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
     if (!_formKey.currentState!.validate()) return;
 
     final token = await TokenStorage.getToken();
+    if (token == null) {
+      debugPrint('토큰없음');
+
+      throw Exception('로그인 토큰이 없습니다.');
+    }
+
     if (token == null || token.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -315,6 +321,12 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
       debugPrint('요청 URI: $uri');
       debugPrint('Headers: ${req.headers}');
       debugPrint('Images: ${_images.map((e) => e.path).toList()}');
+      debugPrint('챌린지 제목: $challengeName');
+      debugPrint('챌린지 설명: $challengeDescription');
+      debugPrint('기간: $challengeDuration');
+      debugPrint('드롭다운 태그: $_selectedTags');
+      debugPrint('커스텀 태그: $_customTags');
+      debugPrint('선택 이미지 개수: ${_images.length}');
 
       final res = await client.send(req).then(http.Response.fromStream);
 

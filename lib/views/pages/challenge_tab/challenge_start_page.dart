@@ -31,11 +31,12 @@ class _ChallengeStartPageState extends State<ChallengeStartPage> {
     // 서버에서 이미 IN_PROGRESS로 전환됨
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      await Navigator.pushReplacement(
+      await Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (_) => ChallengeDetailPage(challenge: widget.challenge),
         ),
+        (route) => route.isFirst, // 모든 기존 라우트 제거
       );
     });
   }

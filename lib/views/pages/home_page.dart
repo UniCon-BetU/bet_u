@@ -163,7 +163,11 @@ class _HomePageState extends State<HomePage> {
                     valueListenable: allChallengesNotifier,
                     builder: (context, challenges, __) {
                       final betuOnly = challenges
-                          .where((c) => c.WhoMadeIt == 'BETU')
+                          .where(
+                            (c) =>
+                                (c.WhoMadeIt ?? '').trim().toUpperCase() ==
+                                'BETU',
+                          )
                           .toList();
 
                       return BetuChallengeSectionWidget(

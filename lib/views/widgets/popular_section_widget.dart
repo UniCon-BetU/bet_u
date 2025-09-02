@@ -22,7 +22,7 @@ class PopularSectionWidget extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.fromLTRB(18, 14, 18, 8),
           child: Text(
-            '오늘의 인기 CHALLENGE 🔥',
+            '오늘의 인기dddddd CHALLENGE 🔥',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
           ),
         ),

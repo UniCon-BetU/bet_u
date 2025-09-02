@@ -1,12 +1,14 @@
 // lib/views/pages/challenge_tab/challenge_participate_page.dart
+import 'dart:convert';
+
 import 'package:bet_u/utils/point_store.dart';
 import 'package:bet_u/utils/token_util.dart';
 import 'package:bet_u/views/widgets/long_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bet_u/views/pages/challenge_tab/challenge_start_page.dart';
+import 'package:http/http.dart' as http;
 import '../../../models/challenge.dart';
 import '../mypage_tab/point_page.dart';
-import 'package:bet_u/utils/challenge_api.dart';
 
 class ChallengeParticipatePage extends StatefulWidget {
   final Challenge challenge;
@@ -57,13 +59,34 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
   }
 
   // FIXME: 실제 참여 API로 교체
-  Future<bool> _postChallengeParticipation({
-    required int userId,
+  Future<bool> participateInChallenge({
     required int challengeId,
-    required int points,
+    required int betAmount,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    return true;
+    final token = await TokenStorage.getToken();
+    if (token == null) {
+      debugPrint('토큰 없음');
+      return false;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://54.180.150.39.nip.io/api/challenges/$challengeId/join',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({"betAmount": betAmount}),
+      );
+
+      debugPrint('참여 response: ${response.statusCode}, ${response.body}');
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('참여 실패: $e');
+      return false;
+    }
   }
 
   void _toggleDropdown() =>
@@ -153,6 +176,7 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
     if (currentPoints < selectedAmount) {
       final go = await showDialog<bool>(
         context: context,
+
         builder: (_) => AlertDialog(
           title: const Text('포인트 부족'),
           content: const Text('포인트가 부족합니다. 충전 페이지로 이동하시겠습니까?'),
@@ -168,6 +192,8 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
           ],
         ),
       );
+      debugPrint('currentPoints: $currentPoints');
+      debugPrint('selectedAmount: $selectedAmount');
 
       if (go == true) {
         final newPoints = await Navigator.push<int>(
@@ -195,26 +221,35 @@ class _ChallengeParticipatePageState extends State<ChallengeParticipatePage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
+
             child: const Text('확인'),
           ),
         ],
       ),
     );
+    print('currentPoints: $currentPoints');
+    print('selectedAmount: $selectedAmount');
 
     if (ok != true) return;
 
     // 3) 참여 API 호출
-    final success = await _postChallengeParticipation(
-      userId: _userId!,
+    final success = await participateInChallenge(
       challengeId: widget.challenge.id,
-      points: selectedAmount,
+      betAmount: selectedAmount,
     );
 
     if (!success) {
+      print('currentPoints: $currentPoints');
+      print('selectedAmount: $selectedAmount');
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('챌린지 참여에 실패했습니다. 다시 시도해주세요.')),
-      );
+      final token = await TokenStorage.getToken();
+
+      print('token: $token');
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('챌린지 참여에 실패했긔. 다시 시도해주세요.')));
       return;
     }
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:bet_u/utils/point_api.dart';
 import 'package:bet_u/utils/point_store.dart';
-import 'package:tosspayments_widget_sdk_flutter/model/tosspayments_result.dart';
 import 'package:tosspayments_widget_sdk_flutter/payment_widget.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';

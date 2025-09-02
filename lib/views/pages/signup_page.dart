@@ -50,10 +50,10 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   String get stepCaption => switch (step) {
-        SignupStep.account => '계정을 만들 이메일과\n비밀번호를 입력해주세요.',
-        SignupStep.code => '해당 이메일로 전송된\n인증번호를 입력해주세요.',
-        SignupStep.username => '사용하실 닉네임을 입력하면\n여정을 함께할 준비가 끝나요!'
-      };
+    SignupStep.account => '계정을 만들 이메일과\n비밀번호를 입력해주세요.',
+    SignupStep.code => '해당 이메일로 전송된\n인증번호를 입력해주세요.',
+    SignupStep.username => '사용하실 닉네임을 입력하면\n여정을 함께할 준비가 끝나요!',
+  };
 
   // ========= API 연동 =========
 
@@ -277,8 +277,10 @@ class _SignupPageState extends State<SignupPage> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -294,12 +296,15 @@ class _SignupPageState extends State<SignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const _Logo(),
-                  Text(stepCaption,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400)),
+                  Text(
+                    stepCaption,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                   const SizedBox(height: 40),
 
                   if (step == SignupStep.account) ...[
@@ -325,14 +330,15 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: !showPassword,
                       decoration: inputDeco("비밀번호").copyWith(
                         suffixIcon: IconButton(
-                          icon: Icon(showPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility),
+                          icon: Icon(
+                            showPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
                           onPressed: () =>
                               setState(() => showPassword = !showPassword),
                         ),
-                        fillColor:
-                            passwordLocked ? AppColors.lightBlue : null,
+                        fillColor: passwordLocked ? AppColors.lightBlue : null,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -342,14 +348,16 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: !showPasswordConfirm,
                       decoration: inputDeco("비밀번호 확인").copyWith(
                         suffixIcon: IconButton(
-                          icon: Icon(showPasswordConfirm
-                              ? Icons.visibility_off
-                              : Icons.visibility),
-                          onPressed: () => setState(() =>
-                              showPasswordConfirm = !showPasswordConfirm),
+                          icon: Icon(
+                            showPasswordConfirm
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () => setState(
+                            () => showPasswordConfirm = !showPasswordConfirm,
+                          ),
                         ),
-                        fillColor:
-                            passwordLocked ? AppColors.lightBlue : null,
+                        fillColor: passwordLocked ? AppColors.lightBlue : null,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -357,9 +365,9 @@ class _SignupPageState extends State<SignupPage> {
                       text: '인증하기',
                       onPressed: canRequestCode
                           ? () => sendEmailCode(
-                                emailController.text.trim(),
-                                passwordController.text,
-                              )
+                              emailController.text.trim(),
+                              passwordController.text,
+                            )
                           : null,
                       backgroundColor: AppColors.primaryBlue,
                       isEnabled: !isLoading,
@@ -377,12 +385,15 @@ class _SignupPageState extends State<SignupPage> {
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Center(
                                   widthFactor: 1.0,
-                                  child: Text(mmss,
-                                      style: TextStyle(
-                                          color: remained > 0
-                                              ? Colors.black
-                                              : Colors.red.shade700,
-                                          fontWeight: FontWeight.w700)),
+                                  child: Text(
+                                    mmss,
+                                    style: TextStyle(
+                                      color: remained > 0
+                                          ? Colors.black
+                                          : Colors.red.shade700,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -396,10 +407,13 @@ class _SignupPageState extends State<SignupPage> {
                             onPressed: canVerifyCode
                                 ? () async {
                                     final ok = await verifyEmailCode(
-                                        codeController.text.trim());
+                                      codeController.text.trim(),
+                                    );
                                     if (ok) {
                                       _timer?.cancel();
-                                      setState(() => step = SignupStep.username);
+                                      setState(
+                                        () => step = SignupStep.username,
+                                      );
                                       _snack('이메일 인증 완료');
                                     }
                                   }
@@ -407,21 +421,28 @@ class _SignupPageState extends State<SignupPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryBlue,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(11)),
+                                borderRadius: BorderRadius.circular(11),
+                              ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16),
+                                horizontal: 16,
+                              ),
                             ),
                             child: isLoading
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2))
-                                : const Text('인증',
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    '인증',
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18)),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -434,10 +455,11 @@ class _SignupPageState extends State<SignupPage> {
                           onPressed: remained == 0 && !isLoading
                               ? () => sendEmailCode(
                                   emailController.text.trim(),
-                                  passwordController.text)
+                                  passwordController.text,
+                                )
                               : null,
                           child: const Text('재전송'),
-                        )
+                        ),
                       ],
                     ),
                   ],
@@ -453,10 +475,10 @@ class _SignupPageState extends State<SignupPage> {
                       text: '회원가입 완료',
                       onPressed: canFinish
                           ? () => completeSignup(
-                                email: emailController.text.trim(),
-                                password: passwordController.text,
-                                username: usernameController.text.trim(),
-                              )
+                              email: emailController.text.trim(),
+                              password: passwordController.text,
+                              username: usernameController.text.trim(),
+                            )
                           : null,
                       backgroundColor: AppColors.primaryBlue,
                       isEnabled: !isLoading,
@@ -475,20 +497,21 @@ class _SignupPageState extends State<SignupPage> {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(
-          color: AppColors.Gray, fontSize: 17, fontWeight: FontWeight.w400),
+        color: AppColors.Gray,
+        fontSize: 17,
+        fontWeight: FontWeight.w400,
+      ),
       filled: true,
       fillColor: AppColors.lighterGreen,
       border: InputBorder.none,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(11),
-        borderSide:
-            const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
       ),
     );
   }
@@ -505,8 +528,10 @@ class _Logo extends StatelessWidget {
       width: 176,
       height: 176,
       child: FittedBox(
-        child: Image.asset('assets/images/BETU_mainlogo.png',
-            fit: BoxFit.contain),
+        child: Image.asset(
+          'assets/images/BETU_mainlogo.png',
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

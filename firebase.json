@@ -1,16 +1,1 @@
-{
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
+{"flutter":{"platforms":{"android":{"default":{"projectId":"betu-522bb","appId":"1:413017569235:android:9772ffb1c2e607aa4d2126","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"betu-522bb","configurations":{"android":"1:413017569235:android:9772ffb1c2e607aa4d2126","ios":"1:413017569235:ios:ee27881f474c972d4d2126","macos":"1:413017569235:ios:ee27881f474c972d4d2126","web":"1:413017569235:web:50d3888a1c4c0f484d2126","windows":"1:413017569235:web:1086c23b0cde9fbd4d2126"}}}}}}

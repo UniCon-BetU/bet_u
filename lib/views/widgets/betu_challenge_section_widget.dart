@@ -147,6 +147,7 @@ class BetuChallengeSectionWidget extends StatelessWidget {
       ],
     );
   }
+
   List<List<Challenge>> _chunk(List<Challenge> list, int size) {
     final chunks = <List<Challenge>>[];
     for (int i = 0; i < list.length; i += size) {

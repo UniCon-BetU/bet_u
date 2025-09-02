@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413017569235",
+    "project_id": "betu-522bb",
+    "storage_bucket": "betu-522bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413017569235:android:9772ffb1c2e607aa4d2126",
+        "android_client_info": {
+          "package_name": "com.example.bet_u"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqOmF-QOr1EXDvw1f4feTJyB883Emxj2E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

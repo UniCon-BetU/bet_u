@@ -1,6 +1,4 @@
-import 'dart:convert';
-
-import 'package:bet_u/utils/token_util.dart';
+import 'package:bet_u/utils/point_store.dart';
 import 'package:bet_u/views/pages/mypage_tab/challenge_history_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/point_page.dart';
 import 'package:bet_u/views/pages/mypage_tab/scrap_page.dart';
@@ -9,13 +7,11 @@ import 'package:bet_u/views/widgets/my_page_setting_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../models/challenge.dart';
 import '../../widgets/challenge_section_widget.dart';
-import '../../widgets/group_dashboard_widget.dart';
 
 import '../../../theme/app_colors.dart';
 import 'package:bet_u/views/pages/mypage_tab/my_challenge_page.dart';
 import 'package:bet_u/data/global_challenges.dart';
 import '../../widgets/profile_widget.dart';
-import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -28,9 +24,10 @@ class _ProfilePageState extends State<ProfilePage> {
   int userPoints = 0;
 
   @override
-  @override
   void initState() {
     super.initState();
+    // 앱 시작/마이페이지 진입 시 한 번 로드(캐시 있으면 바로, 없으면 서버에서)
+    PointStore.instance.ensureLoaded();
   }
 
   @override
@@ -173,14 +170,24 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                MyPageSettingWidget(
-                  title: '포인트 결제',
-                  image: const AssetImage('assets/images/point_icon.png'),
-                  point: '$userPoints P',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const PointPage()),
+                ValueListenableBuilder<int>(
+                  valueListenable: PointStore.instance.points,
+                  builder: (_, p, __) {
+                    return MyPageSettingWidget(
+                      title: '포인트 결제',
+                      image: const AssetImage('assets/images/point_icon.png'),
+                      point: '$p P',
+                      onTap: () async {
+                        // 포인트 페이지 다녀오면 서버 기준으로 재동기화
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const PointPage()),
+                        );
+                        // 결제/충전 후 값이 바뀌었을 수 있으니 서버에서 최신값
+                        try {
+                          await PointStore.instance.refreshFromServer();
+                        } catch (_) {}
+                      },
                     );
                   },
                 ),

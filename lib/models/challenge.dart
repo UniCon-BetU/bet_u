@@ -61,7 +61,7 @@ class Challenge {
   };
   factory Challenge.fromJson(Map<String, dynamic> json) {
     // 날짜 파싱은 로컬 타임존 보정(서버가 UTC일 수 있음)
-    DateTime? _parse(String? s) {
+    DateTime? parse(String? s) {
       if (s == null || s.isEmpty) return null;
       try {
         final dt = DateTime.parse(s);
@@ -71,8 +71,8 @@ class Challenge {
       }
     }
 
-    final start = _parse(json['challengeStartDate']);
-    final end = _parse(json['challengeEndDate']);
+    final start = parse(json['challengeStartDate']);
+    final end = parse(json['challengeEndDate']);
 
     // 타입/기간
     final isDuration =
@@ -162,7 +162,7 @@ class Challenge {
       participating: participating,
       WhoMadeIt: (json['challengeScope']?.toString().toUpperCase() == 'BETU')
           ? 'BETU'
-          : (json['whomadeit'] ?? json['whoMadeIt'] ?? 'USER'),
+          : (json['Whomadeit'] ?? json['WhoMadeIt'] ?? 'USER'),
       todayCheck: todayCheck,
     );
   }

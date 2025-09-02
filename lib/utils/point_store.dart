@@ -82,4 +82,8 @@ class PointStore {
 
   /// 🔧 기존 코드 호환용 얇은 래퍼 (set -> setFromServer)
   void set(int totalPoint) => setFromServer(totalPoint);
+  Future<bool> hasToken() async {
+    final token = await TokenStorage.getToken();
+    return token != null && token.isNotEmpty;
+  }
 }

@@ -1,5 +1,0 @@
-{
-    "dart.hotReloadOnSave": "all",
-    "dart.previewHotReloadOnSaveWatcher": true,
-    "cmake.ignoreCMakeListsMissing": true
-}

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:bet_u/models/challenge.dart';
 import 'package:bet_u/theme/app_colors.dart';
 import 'package:bet_u/services/betu_challenge_loader.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:bet_u/utils/token_util.dart';
 
 // ✅ 내 챌린지 전역 상태 & 로더
 import 'package:bet_u/data/my_challenges.dart';
@@ -15,16 +18,69 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+const String kBaseHost = '54.180.150.39';
+const bool kUseHttps = false; // HTTPS면 true로 바꾸세요
+
+enum FlowStep {
+  idle,
+  awaitingMotivationPrompt, // 동기부여: 사용자 상태 입력 대기
+  awaitingChallengeTag, // 챌린지: 태그 선택 대기
+  awaitingChallengePlan, // 챌린지: 학습 계획(prompt) 입력 대기
+}
+
 class ChatMessage {
   final String text;
-  final bool isUser; // 내가 보낸 건지, 배추(서버)에서 온 건지
+  final bool isUser;
+  final List<String>? items; // ADD: 추천 리스트용
 
-  ChatMessage({required this.text, required this.isUser});
+  ChatMessage({required this.text, required this.isUser, this.items});
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<String> _tags = const [
+    'EXAM',
+    'UNIVERSITY',
+    'TOEIC',
+    'CERTIFICATE',
+    'CIVIL_SERVICE',
+    'LEET',
+    'CPA',
+    'SELF_DEVELOPMENT',
+  ];
   final List<ChatMessage> _messages = [];
   final TextEditingController _textController = TextEditingController();
+
+  FlowStep _flow = FlowStep.idle;
+  String? _selectedTag;
+
+  // 네트워크 공통
+  Future<Map<String, String>> _authHeaders() async {
+    final token = await TokenStorage.getToken();
+    return {
+      'Accept': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Uri _buildUri(String path, Map<String, String> query) {
+    return kUseHttps
+        ? Uri.https(kBaseHost, path, query)
+        : Uri.http(kBaseHost, path, query);
+  }
+
+  // 채팅: '생각 중' 자리표시 추가 및 교체 유틸
+  int _pushThinking() {
+    setState(() {
+      _messages.add(ChatMessage(text: '배추가 생각 중...', isUser: false));
+    });
+    return _messages.length - 1;
+  }
+
+  void _replaceThinking(int index, String text, {List<String>? items}) {
+    setState(() {
+      _messages[index] = ChatMessage(text: text, isUser: false, items: items);
+    });
+  }
 
   @override
   void dispose() {
@@ -36,15 +92,65 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _messages.add(ChatMessage(text: text, isUser: true));
     });
+  }
 
-    // TODO: 여기서 백엔드 호출 → 응답 메시지를 추가
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _messages.add(
-          ChatMessage(text: "서버 응답 예시: '$text'에 대한 답변!", isUser: false),
-        );
+  Future<void> _sendMotivation(String prompt) async {
+    final thinkingIdx = _pushThinking();
+    try {
+      final uri = _buildUri('/api/motivation/quote', {'prompt': prompt});
+      final res = await http.get(uri, headers: await _authHeaders());
+
+      if (res.statusCode == 200) {
+        // 응답이 순수 텍스트라고 가정
+        final body = utf8.decode(res.bodyBytes);
+        _replaceThinking(thinkingIdx, body.isEmpty ? '빈 응답입니다.' : body);
+      } else {
+        _replaceThinking(thinkingIdx, '오류(${res.statusCode})가 발생했습니다.');
+      }
+    } catch (e) {
+      _replaceThinking(thinkingIdx, '네트워크 오류: $e');
+    } finally {
+      _flow = FlowStep.idle;
+    }
+  }
+
+  // ADD: 챌린지 추천 GET /api/challenges/recommend?tag=...&prompt=...
+  Future<void> _sendChallengeRecommend(String tag, String prompt) async {
+    final thinkingIdx = _pushThinking();
+    try {
+      final uri = _buildUri('/api/challenges/recommend', {
+        'tag': tag,
+        'prompt': prompt,
       });
-    });
+      final res = await http.get(uri, headers: await _authHeaders());
+
+      if (res.statusCode == 200) {
+        final body = utf8.decode(res.bodyBytes);
+        final data = jsonDecode(body);
+
+        final titles = <String>[];
+        if (data is List) {
+          for (final e in data) {
+            final t = e is Map<String, dynamic>
+                ? (e['title'] as String?)
+                : null;
+            if (t != null) titles.add(t);
+          }
+        }
+        if (titles.isEmpty) {
+          _replaceThinking(thinkingIdx, '추천 결과가 없어요.');
+        } else {
+          _replaceThinking(thinkingIdx, '추천 챌린지 목록', items: titles);
+        }
+      } else {
+        _replaceThinking(thinkingIdx, '오류(${res.statusCode})가 발생했습니다.');
+      }
+    } catch (e) {
+      _replaceThinking(thinkingIdx, '네트워크 오류: $e');
+    } finally {
+      _selectedTag = null;
+      _flow = FlowStep.idle;
+    }
   }
 
   @override
@@ -143,6 +249,16 @@ class _HomePageState extends State<HomePage> {
             child: ElevatedButton.icon(
               onPressed: () {
                 _addUserMessage("동기부여가 필요해요");
+                setState(() {
+                  _flow = FlowStep.awaitingMotivationPrompt;
+                  _messages.add(
+                    ChatMessage(
+                      text:
+                          '본인의 현재 상태를 알려주세요. \n예) 집중이 잘 안 돼요 / 오늘 해야 할 일이 너무 많아요',
+                      isUser: false,
+                    ),
+                  );
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
@@ -168,6 +284,16 @@ class _HomePageState extends State<HomePage> {
             child: ElevatedButton.icon(
               onPressed: () {
                 _addUserMessage("챌린지 추천이 필요해요");
+                setState(() {
+                  _selectedTag = null;
+                  _flow = FlowStep.awaitingChallengeTag;
+                  _messages.add(
+                    ChatMessage(
+                      text: '현재 사용자님의 목표는 무엇인가요? 아래에서 선택해 주세요.',
+                      isUser: false,
+                    ),
+                  );
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orangeAccent,
@@ -199,6 +325,48 @@ class _HomePageState extends State<HomePage> {
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final msg = _messages[index];
+
+              // 리스트(추천 결과) 메시지인 경우
+              if (msg.items != null && msg.items!.isNotEmpty) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          msg.text,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...List.generate(msg.items!.length, (i) {
+                          final title = msg.items![i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: CircleAvatar(
+                              radius: 12,
+                              child: Text('${i + 1}'),
+                            ),
+                            title: Text(title),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // 일반 텍스트 메시지
               return Align(
                 alignment: msg.isUser
                     ? Alignment.centerRight
@@ -224,6 +392,36 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         // 입력창
+        // ADD: 태그 선택 단계일 때만 노출
+        if (_flow == FlowStep.awaitingChallengeTag)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _tags.map((t) {
+                final selected = _selectedTag == t;
+                return ChoiceChip(
+                  label: Text(t),
+                  selected: selected,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedTag = t;
+                      _flow = FlowStep.awaitingChallengePlan;
+                      _messages.add(
+                        ChatMessage(
+                          text:
+                              '어떤 방식으로 공부할 계획인가요? (예: 매일 2시간 문제풀이, 주 3회 스터디 등)',
+                          isUser: false,
+                        ),
+                      );
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
@@ -245,9 +443,33 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.send, color: Colors.green),
                 onPressed: () {
-                  if (_textController.text.trim().isNotEmpty) {
-                    _addUserMessage(_textController.text.trim());
-                    _textController.clear();
+                  final text = _textController.text.trim();
+                  if (text.isEmpty) return;
+                  _textController.clear();
+
+                  // 사용자가 보낸 메시지로 먼저 출력
+                  setState(() {
+                    _messages.add(ChatMessage(text: text, isUser: true));
+                  });
+
+                  // 플로우에 따라 서버 호출
+                  if (_flow == FlowStep.awaitingMotivationPrompt) {
+                    _sendMotivation(text);
+                  } else if (_flow == FlowStep.awaitingChallengePlan) {
+                    if (_selectedTag == null) {
+                      setState(() {
+                        _messages.add(
+                          ChatMessage(
+                            text: '먼저 목표 태그를 선택해 주세요.',
+                            isUser: false,
+                          ),
+                        );
+                      });
+                    } else {
+                      _sendChallengeRecommend(_selectedTag!, text);
+                    }
+                  } else {
+                    // 일반 입력일 때는 아무 작업 안 함(원하시면 에코/가이드 추가 가능)
                   }
                 },
               ),

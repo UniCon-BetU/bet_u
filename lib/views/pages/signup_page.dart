@@ -9,11 +9,12 @@ import 'package:http/io_client.dart';
 
 import '../../theme/app_colors.dart';
 import '../../utils/signup_auth_store.dart';
+import 'package:bet_u/theme/app_colors.dart';
 
 const String baseUrl = 'https://54.180.150.39.nip.io';
 
-// 1+3단계 -> 2단계 -> 4단계
-enum SignupStep { account, code, username }
+// email -> password -> username -> code
+enum SignupStep { email, password, username, code }
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -28,8 +29,10 @@ class _SignupPageState extends State<SignupPage> {
   final passwordConfirmController = TextEditingController();
   final usernameController = TextEditingController();
 
-  SignupStep step = SignupStep.account;
+  SignupStep step = SignupStep.email;
   bool isLoading = false;
+
+  // 입력 잠금
   bool emailLocked = false;
   bool passwordLocked = false;
   bool showPassword = false;
@@ -50,36 +53,46 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   String get stepCaption => switch (step) {
-        SignupStep.account => '계정을 만들 이메일과\n비밀번호를 입력해주세요.',
-        SignupStep.code => '해당 이메일로 전송된\n인증번호를 입력해주세요.',
-        SignupStep.username => '사용하실 닉네임을 입력하면\n여정을 함께할 준비가 끝나요!'
+        SignupStep.email => '계정을 만들 이메일을 입력해주세요.',
+        SignupStep.password => '비밀번호를 입력해주세요.',
+        SignupStep.username => '마지막으로 닉네임을 입력해주세요.\n다음에 이메일을 인증할거에요.',
+        SignupStep.code => '이메일로 전송된 인증번호를 입력해주세요.'
       };
 
-  // ========= API 연동 =========
+  // ========= API 공통 =========
 
   String withBearer(String token) =>
       token.startsWith('Bearer ') ? token : 'Bearer $token';
 
-  Future<void> sendEmailCode(String email, String password) async {
+  HttpClient _nativeHttpClient() => HttpClient()
+    ..badCertificateCallback =
+        (X509Certificate cert, String host, int port) =>
+            host == '54.180.150.39.nip.io';
+
+  // 변경된 플로우: 이메일/비번/닉네임을 한 번에 보내 토큰을 받고, 그 토큰으로 코드 전송
+  Future<void> requestAuthAndSendCode({
+    required String email,
+    required String password,
+    required String username,
+  }) async {
     if (isLoading) return;
     setState(() => isLoading = true);
 
-    final HttpClient native = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              host == '54.180.150.39.nip.io';
-    final http.Client client = IOClient(native);
-
+    final http.Client client = IOClient(_nativeHttpClient());
     try {
-      // 1) step1
+      // 1) 서버에 이메일+비번+닉네임을 함께 전달해 Authorization 토큰 확보
       final res1 = await client.post(
-        Uri.parse('$baseUrl/api/user/signup/step1'),
+        Uri.parse('$baseUrl/api/user/signup'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userEmail': email, 'userPassword': password}),
+        body: jsonEncode({
+          'userEmail': email,
+          'userPassword': password,
+          'userName': username,
+        }),
       );
 
       if (res1.statusCode < 200 || res1.statusCode >= 300) {
-        _snack('전송 실패: ${res1.statusCode} ${res1.body}');
+        _snack('요청 실패: ${res1.statusCode} ${res1.body}');
         return;
       }
 
@@ -88,10 +101,11 @@ class _SignupPageState extends State<SignupPage> {
         _snack('Authorization 헤더가 없습니다');
         return;
       }
+
       final token = withBearer(auth);
       await SignupAuthStore.save(token);
 
-      // 2) send-code
+      // 2) 이메일 인증코드 전송
       final res2 = await client.post(
         Uri.parse('$baseUrl/api/email/signup/send-code'),
         headers: {'accept': '*/*', 'Authorization': token},
@@ -103,11 +117,9 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
-      // 성공
+      // 성공: 코드 입력 단계로 전환
       _startTimer();
       setState(() {
-        emailLocked = true;
-        passwordLocked = true;
         step = SignupStep.code;
       });
       _snack('인증번호를 전송했어요');
@@ -122,12 +134,7 @@ class _SignupPageState extends State<SignupPage> {
   Future<bool> verifyEmailCode(String code) async {
     setState(() => isLoading = true);
 
-    final HttpClient native = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              host == '54.180.150.39.nip.io';
-    final http.Client client = IOClient(native);
-
+    final http.Client client = IOClient(_nativeHttpClient());
     try {
       final saved = await SignupAuthStore.get();
       if (saved == null) {
@@ -144,6 +151,10 @@ class _SignupPageState extends State<SignupPage> {
       );
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
+        // 이 구조에선 코드 검증이 곧 가입 완료라고 가정
+        _snack('이메일 인증 완료! BET U와 함께하게 된 걸 환영해요!');
+        await SignupAuthStore.clear();
+        if (mounted) Navigator.pop(context);
         return true;
       } else {
         _snack('인증 실패: ${res.statusCode} ${res.body}');
@@ -152,51 +163,6 @@ class _SignupPageState extends State<SignupPage> {
     } catch (e) {
       _snack('에러: $e');
       return false;
-    } finally {
-      client.close();
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> completeSignup({
-    required String email,
-    required String password,
-    required String username,
-  }) async {
-    setState(() => isLoading = true);
-
-    final HttpClient native = HttpClient()
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              host == '54.180.150.39.nip.io';
-    final http.Client client = IOClient(native);
-
-    try {
-      final saved = await SignupAuthStore.get();
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        if (saved != null) 'Authorization': withBearer(saved),
-      };
-
-      final res = await client.post(
-        Uri.parse('$baseUrl/api/user/signup'),
-        headers: headers,
-        body: jsonEncode({
-          'userName': username,
-          'userEmail': email,
-          'userPassword': password,
-        }),
-      );
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        _snack('가입 성공!');
-        await SignupAuthStore.clear();
-        if (mounted) Navigator.pop(context);
-      } else {
-        _snack('가입 실패: ${res.statusCode} ${res.body}');
-      }
-    } catch (e) {
-      _snack('에러: $e');
     } finally {
       client.close();
       setState(() => isLoading = false);
@@ -233,23 +199,30 @@ class _SignupPageState extends State<SignupPage> {
       passwordController.text.isNotEmpty &&
       passwordController.text == passwordConfirmController.text;
 
-  bool get canRequestCode =>
-      step == SignupStep.account &&
+  // 버튼 활성화 조건
+  bool get canLockEmail =>
+      step == SignupStep.email &&
       !emailLocked &&
-      !passwordLocked &&
       emailController.text.trim().isNotEmpty &&
+      !isLoading;
+
+  bool get canLockPassword =>
+      step == SignupStep.password &&
+      !passwordLocked &&
       _passwordsMatch &&
+      !isLoading;
+
+  bool get canRequestCode =>
+      step == SignupStep.username &&
+      emailLocked &&
+      passwordLocked &&
+      usernameController.text.trim().isNotEmpty &&
       !isLoading;
 
   bool get canVerifyCode =>
       step == SignupStep.code &&
       codeController.text.trim().isNotEmpty &&
       remained > 0 &&
-      !isLoading;
-
-  bool get canFinish =>
-      step == SignupStep.username &&
-      usernameController.text.trim().isNotEmpty &&
       !isLoading;
 
   @override
@@ -294,15 +267,41 @@ class _SignupPageState extends State<SignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const _Logo(),
-                  Text(stepCaption,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400)),
+
+                  if (step == SignupStep.code) ...[
+                    Center(
+                      child: Text.rich(
+                        TextSpan(children: [
+                          TextSpan(
+                            text: (usernameController.text.trim().isEmpty
+                                ? '사용자'
+                                : usernameController.text.trim()),
+                            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+                          ),
+                          const TextSpan(
+                            text: ' 님',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                  ],
+
+                  Text(
+                    stepCaption,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                   const SizedBox(height: 40),
 
-                  if (step == SignupStep.account) ...[
+                  // ===== EMAIL STEP =====
+                  if (step == SignupStep.email) ...[
                     TextField(
                       controller: emailController,
                       readOnly: emailLocked,
@@ -313,12 +312,39 @@ class _SignupPageState extends State<SignupPage> {
                                 child: Icon(Icons.check, color: Colors.black),
                               )
                             : null,
-                        fillColor: emailLocked
-                            ? AppColors.lightBlue
-                            : AppColors.lighterGreen,
                       ),
                     ),
                     const SizedBox(height: 16),
+                    LongButtonWidget(
+                      text: '다음',
+                      onPressed: canLockEmail
+                          ? () {
+                              setState(() {
+                                emailLocked = true;
+                                step = SignupStep.password;
+                              });
+                            }
+                          : null,
+                      backgroundColor: AppColors.primaryBlue,
+                      isEnabled: !isLoading,
+                    ),
+                  ],
+
+                  // ===== PASSWORD STEP =====
+                  if (step == SignupStep.password) ...[
+                    // 잠긴 이메일 표시
+                    TextField(
+                      controller: emailController,
+                      readOnly: true,
+                      decoration: inputDeco("이메일").copyWith(
+                        fillColor: AppColors.lightBlue,
+                        suffixIcon: const Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Icon(Icons.lock, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     TextField(
                       controller: passwordController,
                       readOnly: passwordLocked,
@@ -328,11 +354,12 @@ class _SignupPageState extends State<SignupPage> {
                           icon: Icon(showPassword
                               ? Icons.visibility_off
                               : Icons.visibility),
-                          onPressed: () =>
-                              setState(() => showPassword = !showPassword),
+                          onPressed: passwordLocked
+                              ? null
+                              : () => setState(
+                                  () => showPassword = !showPassword),
                         ),
-                        fillColor:
-                            passwordLocked ? AppColors.lightBlue : null,
+                        fillColor: passwordLocked ? AppColors.lightBlue : null,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -345,20 +372,45 @@ class _SignupPageState extends State<SignupPage> {
                           icon: Icon(showPasswordConfirm
                               ? Icons.visibility_off
                               : Icons.visibility),
-                          onPressed: () => setState(() =>
-                              showPasswordConfirm = !showPasswordConfirm),
+                          onPressed: passwordLocked
+                              ? null
+                              : () => setState(() =>
+                                  showPasswordConfirm = !showPasswordConfirm),
                         ),
-                        fillColor:
-                            passwordLocked ? AppColors.lightBlue : null,
+                        fillColor: passwordLocked ? AppColors.lightBlue : null,
                       ),
+                    ),
+                    const SizedBox(height: 24),
+                    LongButtonWidget(
+                      text: '다음',
+                      onPressed: canLockPassword
+                          ? () {
+                              setState(() {
+                                passwordLocked = true;
+                                step = SignupStep.username;
+                              });
+                            }
+                          : null,
+                      backgroundColor: AppColors.primaryBlue,
+                      isEnabled: !isLoading,
+                    ),
+                  ],
+
+                  // ===== USERNAME STEP =====
+                  if (step == SignupStep.username) ...[
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: usernameController,
+                      decoration: inputDeco("닉네임"),
                     ),
                     const SizedBox(height: 20),
                     LongButtonWidget(
                       text: '인증하기',
                       onPressed: canRequestCode
-                          ? () => sendEmailCode(
-                                emailController.text.trim(),
-                                passwordController.text,
+                          ? () => requestAuthAndSendCode(
+                                email: emailController.text.trim(),
+                                password: passwordController.text,
+                                username: usernameController.text.trim(),
                               )
                           : null,
                       backgroundColor: AppColors.primaryBlue,
@@ -366,7 +418,21 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ],
 
+                  // ===== CODE STEP =====
                   if (step == SignupStep.code) ...[
+                    TextField(
+                      controller: emailController,
+                      readOnly: true,
+                      decoration: inputDeco("이메일").copyWith(
+                        fillColor: AppColors.lightBlue,
+                        suffixIcon: const Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Icon(Icons.lock, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
                     Row(
                       children: [
                         Expanded(
@@ -377,12 +443,15 @@ class _SignupPageState extends State<SignupPage> {
                                 padding: const EdgeInsets.only(right: 10),
                                 child: Center(
                                   widthFactor: 1.0,
-                                  child: Text(mmss,
-                                      style: TextStyle(
-                                          color: remained > 0
-                                              ? Colors.black
-                                              : Colors.red.shade700,
-                                          fontWeight: FontWeight.w700)),
+                                  child: Text(
+                                    mmss,
+                                    style: TextStyle(
+                                      color: remained > 0
+                                          ? Colors.black
+                                          : Colors.red.shade700,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -399,29 +468,33 @@ class _SignupPageState extends State<SignupPage> {
                                         codeController.text.trim());
                                     if (ok) {
                                       _timer?.cancel();
-                                      setState(() => step = SignupStep.username);
-                                      _snack('이메일 인증 완료');
                                     }
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryBlue,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(11)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16),
+                                borderRadius: BorderRadius.circular(11),
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                             ),
                             child: isLoading
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2))
-                                : const Text('인증',
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    '인증',
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18)),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -432,34 +505,39 @@ class _SignupPageState extends State<SignupPage> {
                       children: [
                         TextButton(
                           onPressed: remained == 0 && !isLoading
-                              ? () => sendEmailCode(
-                                  emailController.text.trim(),
-                                  passwordController.text)
+                              ? () async {
+                                  final saved = await SignupAuthStore.get();
+                                  if (saved == null) {
+                                    _snack('토큰 없음, 처음부터 다시 시도');
+                                    return;
+                                  }
+                                  final client =
+                                      IOClient(_nativeHttpClient());
+                                  try {
+                                    final res = await client.post(
+                                      Uri.parse(
+                                          '$baseUrl/api/email/signup/send-code'),
+                                      headers: {
+                                        'accept': '*/*',
+                                        'Authorization': withBearer(saved),
+                                      },
+                                      body: '',
+                                    );
+                                    if (res.statusCode >= 200 &&
+                                        res.statusCode < 300) {
+                                      _snack('인증번호 재전송 완료');
+                                      _startTimer();
+                                    } else {
+                                      _snack('재전송 실패: ${res.statusCode} ${res.body}');
+                                    }
+                                  } catch (e) {
+                                    _snack('에러: $e');
+                                  }
+                                }
                               : null,
                           child: const Text('재전송'),
-                        )
+                        ),
                       ],
-                    ),
-                  ],
-
-                  if (step == SignupStep.username) ...[
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: usernameController,
-                      decoration: inputDeco("닉네임"),
-                    ),
-                    const SizedBox(height: 20),
-                    LongButtonWidget(
-                      text: '회원가입 완료',
-                      onPressed: canFinish
-                          ? () => completeSignup(
-                                email: emailController.text.trim(),
-                                password: passwordController.text,
-                                username: usernameController.text.trim(),
-                              )
-                          : null,
-                      backgroundColor: AppColors.primaryBlue,
-                      isEnabled: !isLoading,
                     ),
                   ],
                 ],
@@ -472,25 +550,26 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   InputDecoration inputDeco(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(
-          color: AppColors.gray, fontSize: 17, fontWeight: FontWeight.w400),
-      filled: true,
-      fillColor: AppColors.lighterGreen,
-      border: InputBorder.none,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide:
-            const BorderSide(color: AppColors.primaryGreen, width: 1.5),
-      ),
-    );
+    return const InputDecoration()
+        .copyWith(
+          hintText: hint,
+          hintStyle: const TextStyle(
+              color: AppColors.gray, fontSize: 17, fontWeight: FontWeight.w400),
+          filled: true,
+          fillColor: AppColors.lighterGreen,
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide:
+                const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+          ),
+        );
   }
 }
 

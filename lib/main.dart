@@ -55,13 +55,6 @@ Future<void> fetchChallenges() async {
   }
 }
 
-Future<void> _bootstrap() async {
-  final token = await TokenStorage.getToken();
-  if (token != null && token.isNotEmpty) {
-    await Future.wait([fetchChallenges(), PointStore.instance.ensureLoaded()]);
-  }
-}
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -73,7 +66,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _bootstrap();
+    // _bootstrap();
   }
 
   @override
